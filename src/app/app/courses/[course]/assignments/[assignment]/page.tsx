@@ -53,7 +53,7 @@ export default async function AssignmentPage({
     const baseURL =
       process.env.NODE_ENV === "development"
         ? "http://localhost:3000/app/"
-        : `https://${process.env.VERCEL_URL}/app/`;
+        : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`;
     const pattern =
       /https:\/\/[a-zA-Z0-9.-]+\.instructure\.com\/(?:api\/v1\/)?/g;
     return str.split(pattern).join(baseURL);

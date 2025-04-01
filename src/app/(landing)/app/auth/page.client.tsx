@@ -11,7 +11,7 @@ export const GoogleAuth = () => {
       variant="outline"
       onClick={() =>
         signIn("google", {
-          callbackUrl: searchParams.get("redirectTo") ?? "/app",
+          redirectTo: searchParams.get("redirectTo") ?? "/app",
         })
       }
     >
