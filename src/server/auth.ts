@@ -39,5 +39,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   basePath: "/api/auth",
   secret: process.env.AUTH_SECRET,
-  redirectProxyUrl: process.env.AUTH_URL,
+  redirectProxyUrl: process.env.VERCEL_URL ?? process.env.AUTH_URL,
 });
