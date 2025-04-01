@@ -142,7 +142,7 @@ export default function ScheduleClientPage({
             body: JSON.stringify({
               periods: {
                 ...periods.reduce((acc, period) => {
-                  acc[period.id] = values[period.id];
+                  acc[period.id] = values[period.id] ?? "";
                   return acc;
                 }, {} as Record<string, string>),
               },
