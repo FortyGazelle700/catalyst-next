@@ -1,0 +1,30 @@
+import { api } from "@/server/api";
+import type { NextRequest } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const ctx = await (await api({})).canvas.getCtx();
+
+  const fileDetails = (await (
+    await fetch(
+      new URL(
+        new URL(req.url).pathname.replace("/app/", "/api/v1/"),
+        ctx.user.canvas.url
+      ),
+      {
+        headers: {
+          Authorization: `Bearer ${ctx.user.canvas.token ?? ""}`,
+        },
+      }
+    )
+  ).json()) as { url: string };
+
+  return new Response(
+    await (
+      await fetch(fileDetails.url, {
+        headers: {
+          Authorization: `Bearer ${ctx.user.canvas.token ?? ""}`,
+        },
+      })
+    ).blob()
+  );
+}

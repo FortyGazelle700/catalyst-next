@@ -1,0 +1,2 @@
+[install.scopes]
+tiptap-pro = "https://registry.tiptap.dev/:_authToken=$TIPTAP_AUTH"

@@ -1,0 +1,49 @@
+"use server";
+
+import type { CanvasApiCtx } from "..";
+import type { CanvasErrors, PlannerNote } from "../types";
+
+export type TodoListInput = {
+  id: number;
+};
+
+export default async function getNote(ctx: CanvasApiCtx) {
+  return async (input: TodoListInput) => {
+    const note = async () => {
+      if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
+        return {
+          success: false,
+          data: undefined as PlannerNote | undefined,
+          errors: [
+            {
+              message: "Canvas URL or token not found",
+            },
+          ],
+        };
+      }
+      const url = new URL(
+        `/api/v1/planner_notes/${input.id}`,
+        ctx.user.canvas.url
+      );
+      const query = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${ctx.user.canvas.token}`,
+        },
+      });
+      const data = (await query.json()) as PlannerNote | CanvasErrors;
+      if ("errors" in data) {
+        return {
+          success: false,
+          data: undefined,
+          errors: data.errors,
+        };
+      }
+      return {
+        success: true,
+        data,
+        errors: [],
+      };
+    };
+    return await note();
+  };
+}

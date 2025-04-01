@@ -1,0 +1,59 @@
+import { api } from "@/server/api";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params: paramList,
+}: {
+  params: Promise<{ course: string; page: string }>;
+}): Promise<Metadata> {
+  const params = await paramList;
+  const todoItem = await (
+    await api({})
+  ).canvas.courses.frontPage({
+    courseId: Number(params.course),
+  });
+
+  return {
+    title: todoItem.data?.title,
+  };
+}
+
+export default async function CourseHomePage({
+  params,
+}: {
+  params: Promise<{ course: string }>;
+}) {
+  const courseId = (await params).course;
+
+  const { data: page } = await (
+    await api({})
+  ).canvas.courses.frontPage({
+    courseId: Number(courseId),
+  });
+
+  function prettyBody(str?: string) {
+    if (!str) return "";
+    str = str.replace(/<script.*?<\/script>/g, "");
+    return replaceCanvasURL(str);
+  }
+
+  function replaceCanvasURL(str: string) {
+    const baseURL =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/app/"
+        : "https://catalyst.bluefla.me/app/";
+    const pattern =
+      /https:\/\/[a-zA-Z0-9.-]+\.instructure\.com\/(?:api\/v1\/)?/g;
+    return str.split(pattern).join(baseURL);
+  }
+
+  return (
+    <div>
+      <div
+        dangerouslySetInnerHTML={{ __html: prettyBody(page?.body) }}
+        // dangerouslySetInnerHTML={{ __html: page.body }}
+        className="render-fancy render-white-content mx-auto max-w-[min(100ch,100%)] overflow-auto p-4"
+      />
+    </div>
+  );
+}
