@@ -87,7 +87,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       process.env.NODE_ENV == "development"
                         ? "http://localhost:3000/app"
-                        : "https://catalyst.bluefla.me/app"
+                        : `https://${process.env.VERCEL_URL}/app/`
                     ),
                     content_details: {
                       ...item.content_details,
@@ -96,7 +96,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                         new URL(ctx.user.canvas.url).origin,
                         process.env.NODE_ENV == "development"
                           ? "http://localhost:3000/app"
-                          : "https://catalyst.bluefla.me/app"
+                          : `https://${process.env.VERCEL_URL}/app/`
                       ),
                     },
                   };
@@ -120,7 +120,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       process.env.NODE_ENV == "development"
                         ? "http://localhost:3000/app"
-                        : "https://catalyst.bluefla.me/app"
+                        : `https://${process.env.VERCEL_URL}/app/`
                     ),
                     content_details: {
                       ...item.content_details,
@@ -146,7 +146,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       process.env.NODE_ENV == "development"
                         ? "http://localhost:3000/app"
-                        : "https://catalyst.bluefla.me/app"
+                        : `https://${process.env.VERCEL_URL}/app/`
                     ),
                     content_details: {
                       ...item.content_details,
@@ -155,7 +155,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                         new URL(ctx.user.canvas.url).origin,
                         process.env.NODE_ENV == "development"
                           ? "http://localhost:3000/app"
-                          : "https://catalyst.bluefla.me/app"
+                          : `https://${process.env.VERCEL_URL}/app/`
                       ),
                     },
                   };
@@ -167,7 +167,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     new URL(ctx.user.canvas.url).origin,
                     process.env.NODE_ENV == "development"
                       ? "http://localhost:3000/app"
-                      : "https://catalyst.bluefla.me/app"
+                      : `https://${process.env.VERCEL_URL}/app/`
                   ),
                 };
               }) ?? []
@@ -253,7 +253,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
             new URL(ctx.user.canvas.url).origin,
             process.env.NODE_ENV == "development"
               ? "http://localhost:3000/app"
-              : "https://catalyst.bluefla.me/app"
+              : `https://${process.env.VERCEL_URL}/app/`
           ),
           url: assignment.html_url,
           page_url: assignment.html_url,
@@ -280,13 +280,13 @@ export default async function getModules(ctx: CanvasApiCtx) {
               new URL(ctx.user.canvas.url).origin,
               process.env.NODE_ENV == "development"
                 ? "http://localhost:3000/app"
-                : "https://catalyst.bluefla.me/app"
+                : `https://${process.env.VERCEL_URL}/app/`
             );
           item.html_url = item.html_url?.replace(
             new URL(ctx.user.canvas.url).origin,
             process.env.NODE_ENV == "development"
               ? "http://localhost:3000/app"
-              : "https://catalyst.bluefla.me/app"
+              : `https://${process.env.VERCEL_URL}/app/`
           );
         });
       });
