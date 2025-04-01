@@ -14,8 +14,8 @@ export default async function set(ctx: ApiCtx) {
     if (key == "canvas_token") {
       const cipher = createCipheriv(
         "aes-256-cbc",
-        process.env.NEXTAUTH_SECRET?.substring(0, 32) ?? "",
-        process.env.NEXTAUTH_SECRET?.substring(33, 33 + 16) ?? ""
+        process.env.AUTH_SECRET?.substring(0, 32) ?? "",
+        process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? ""
       );
       const encryptedToken =
         cipher.update(value, "utf8", "base64") + cipher.final("base64");

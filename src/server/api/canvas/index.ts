@@ -75,8 +75,8 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
 
   const encryptedToken = ctx.user.settings["canvas_token"] ?? "";
 
-  const key = process.env.NEXTAUTH_SECRET?.substring(0, 32) ?? "";
-  const iv = process.env.NEXTAUTH_SECRET?.substring(33, 33 + 16) ?? "";
+  const key = process.env.AUTH_SECRET?.substring(0, 32) ?? "";
+  const iv = process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? "";
 
   if (key?.length != 32)
     throw new Error(`Invalid key length. Expected 32, but got ${key?.length}`);
