@@ -50,10 +50,9 @@ export default async function AssignmentPage({
   }
 
   function replaceCanvasURL(str: string) {
-    const baseURL =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/app/"
-        : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`;
+    const baseURL = `/${
+      process.env.PUBLISH_URL ?? "http://localhost:3000"
+    }/app/`;
     const pattern =
       /https:\/\/[a-zA-Z0-9.-]+\.instructure\.com\/(?:api\/v1\/)?/g;
     return str.split(pattern).join(baseURL);
