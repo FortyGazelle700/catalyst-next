@@ -8,8 +8,7 @@ export const metadata: Metadata = {
     template: "%s - Catalyst",
     default: "Catalyst",
   },
-  description:
-    "Catalyst is a platform for students to expedite their learning process.",
+  description: "A platform for students to expedite their learning process",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

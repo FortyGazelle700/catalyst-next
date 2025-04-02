@@ -96,6 +96,7 @@ import { AppLayoutProviders } from "./layout.providers";
 import { Breadcrumbs } from "./breadcrumbs";
 import { LinkModal } from "@/components/catalyst/link-modal";
 import CreateTodoItemModalPage from "./todo/create/page.modal";
+import "./layout.css";
 
 export default async function AppRedirect({
   children,
@@ -144,28 +145,23 @@ async function AppLayout({ children }: { children: React.ReactNode }) {
   )();
 
   return (
-    <div className="bg-sidebar">
-      <AppLayoutProviders courses={courses}>
-        <SidebarProvider
-          defaultOpen={sidebarOpen == "true"}
-          className="bg-sidebar max-w-full max-h-screen overflow-hidden"
-        >
-          <AppSidebar />
-          <div className="flex-1 flex flex-col gap-2 p-2 max-w-full max-h-full overflow-hidden">
-            <div className="h-12 flex gap-4 items-center p-2">
-              <SidebarTrigger
-                variant="outline"
-                className="size-10 bg-sidebar"
-              />
-              <Breadcrumbs />
-            </div>
-            <SidebarInset className="flex-1 rounded-2xl overflow-auto max-w-full max-h-full">
-              {children}
-            </SidebarInset>
+    <AppLayoutProviders courses={courses}>
+      <SidebarProvider
+        defaultOpen={sidebarOpen == "true"}
+        className="bg-sidebar max-w-full max-h-svh overflow-hidden"
+      >
+        <AppSidebar />
+        <div className="flex-1 flex flex-col gap-2 p-2 max-w-full max-h-full overflow-hidden">
+          <div className="h-12 flex gap-4 items-center p-2">
+            <SidebarTrigger variant="outline" className="size-10 bg-sidebar" />
+            <Breadcrumbs />
           </div>
-        </SidebarProvider>
-      </AppLayoutProviders>
-    </div>
+          <SidebarInset className="flex-1 rounded-2xl overflow-auto max-w-full max-h-full">
+            {children}
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </AppLayoutProviders>
   );
 }
 
