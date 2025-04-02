@@ -296,7 +296,6 @@
 html,
 body {
   scroll-behavior: smooth;
-  background: var(--color-sidebar);
 }
 
 .scrollbar-both-edges {
