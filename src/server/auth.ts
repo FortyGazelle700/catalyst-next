@@ -40,5 +40,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
   redirectProxyUrl: !!process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : process.env.AUTH_URL,
+    : process.env.AUTH_URL ?? "http://localhost:3000",
 });
