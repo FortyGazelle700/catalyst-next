@@ -21,8 +21,6 @@ export const metadata: Metadata = {
     capable: true,
     startupImage: "/favicon.ico",
   },
-  themeColor: "#0f172b",
-  colorScheme: "dark",
   metadataBase: new URL("https://catalyst.vercel.app"),
   openGraph: {
     title: "Catalyst",

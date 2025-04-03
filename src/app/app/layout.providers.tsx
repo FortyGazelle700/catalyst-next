@@ -67,7 +67,7 @@ function CourseProvider({
     code().catch(console.error);
     setInterval(code, 60 * 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 60 * 1000) {
+      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 1000) {
         code().catch(console.error);
       }
     });
