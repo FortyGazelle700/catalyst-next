@@ -4,14 +4,14 @@ import { ApiCtx } from "../../..";
 
 export default async function provideFeedback(ctx: ApiCtx) {
   return async (input: {
-    category: string,
-    importance: string,
-    title: string,
-    description: string,
-    pathname: string,
-    date: Date,
+    category: string;
+    importance: string;
+    title: string;
+    description: string;
+    pathname: string;
+    date: Date;
   }) => {
-    const {feedback} = await import("@/server/db/schema");
+    const { feedback } = await import("@/server/db/schema");
 
     await ctx.db.insert(feedback).values({
       category: input.category,
@@ -19,8 +19,8 @@ export default async function provideFeedback(ctx: ApiCtx) {
       title: input.title,
       description: input.description,
       pathname: input.pathname,
-      userId: ctx.user.get?.id,
-      date: input.date,
+      userId: ctx.user.get?.id!,
+      date: input.date.toISOString(),
     });
     return {
       success: true,
