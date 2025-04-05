@@ -1,16 +1,9 @@
-import { RadialChart } from "@/components/catalyst/radial-chart";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -24,9 +17,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -97,6 +87,8 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { LinkModal } from "@/components/catalyst/link-modal";
 import CreateTodoItemModalPage from "./todo/create/page.modal";
 import "./layout.css";
+import SettingsModalPage from "./settings/page.modal";
+import FeedbackModalPage from "./feedback/page.modal";
 
 export default async function AppRedirect({
   children,
@@ -228,11 +220,11 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           values={["courses", "messages"]}
           defaultValue={[
             (await cookies()).get("accordion-state-sidebar-courses")?.value ==
-            "false"
+              "false"
               ? ""
               : "courses",
             (await cookies()).get("accordion-state-sidebar-messages")?.value ==
-            "false"
+              "false"
               ? ""
               : "messages",
           ]}
@@ -429,30 +421,60 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="flex-row group-data-[state=collapsed]:flex-col flex gap-2">
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Feedback & Support">
-              <Button href="/app/feedback" variant="ghost">
-                <DiamondPlus />
-              </Button>
+              <LinkModal
+                link="/app/feedback"
+                trigger={
+                  <Button variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
+                    <DiamondPlus />
+                  </Button>
+                }
+                title="Feedback"
+                description="Send Feedback"
+                breadcrumbs={
+                  <Breadcrumbs
+                    pathname="/app/feedback"
+                  />
+                }
+                content={
+                  <FeedbackModalPage />
+                }
+              />
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Announcements & Updates">
-              <Button href="/app/updates" variant="ghost">
+              <Button href="/app/updates" variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
                 <Megaphone />
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Notifications">
-              <Button href="/app/notifications" variant="ghost">
+              <Button href="/app/notifications" variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
                 <Bell />
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Settings">
-              <Button href="/app/settings" variant="ghost">
-                <Settings />
-              </Button>
+              <LinkModal
+                link="/app/settings"
+                trigger={
+                  <Button variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
+                    <Settings />
+                  </Button>
+                }
+                title="Settings"
+                description="Modify Settings"
+                breadcrumbs={
+                  <Breadcrumbs
+                    pathname="/app/settings"
+                  />
+                }
+                content={
+                  <SettingsModalPage />
+                }
+              />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

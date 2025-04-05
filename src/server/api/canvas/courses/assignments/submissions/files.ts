@@ -1,5 +1,6 @@
 "use server";
 
+import PostHogClient from "@/server/posthog";
 import type { CanvasApiCtx } from "../../..";
 import type { CanvasErrors, Submission } from "../../../types";
 
@@ -11,6 +12,16 @@ export type FrontPageInput = {
 
 export default async function createFileSubmission(ctx: CanvasApiCtx) {
   return async (input: FrontPageInput) => {
+    const posthog = PostHogClient();
+    posthog.capture({
+      distinctId: ctx.user.get?.id ?? "",
+      event: "canvas_submission",
+      properties: {
+        submission_type: "file",
+        course_id: input.courseId,
+        assignment_id: input.assignmentId,
+      },
+    });
     const submit = async () => {
       const { del, put } = await import("@vercel/blob");
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {

@@ -311,6 +311,32 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
+  Feedback: ({ asLink }: { asLink: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Feedback</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  Settings: ({ asLink }: { asLink: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Settings</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
   Error404: () => (
     <BreadcrumbItem>
       <BreadcrumbPage>Error: 404</BreadcrumbPage>
@@ -513,6 +539,26 @@ export function Breadcrumbs({
               courseId={Number(params.course)}
               asLink={false}
             />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/feedback":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Feedback asLink={false} />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/settings":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Settings asLink={false} />
           </BreadcrumbList>
         </Breadcrumb>
       );

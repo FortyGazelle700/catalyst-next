@@ -3,16 +3,20 @@
 import { useContext, useState } from "react";
 import { SetStateForOpenDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Loader } from "lucide-react";
 
 export function FeedbackRenderer() {
-  const [title, setTitle] = useState("false");
+  const [title, setTitle] = useState("");
+  const [saving, setSaving] = useState(false);
+  const setDialogOpen = useContext(SetStateForOpenDialog);
 
   return (
     <>
       <h1 className="h1">Feedback</h1>
       <div className="pt-4 pb-12 flex flex-col gap-6">
         <label className="flex gap-1 items-center md:flex-row flex-col">
-          <span className="w-full md:w-36">Name</span>
+          <span className="w-full md:w-36">Title</span>
           <Input
             className="flex-1"
             value={title}
@@ -28,28 +32,21 @@ export function FeedbackRenderer() {
             method: "POST",
             body: JSON.stringify({
               title,
-              description: markdown,
-              due_at: date?.toISOString(),
-              course_id: course,
             }),
           });
           setSaving(false);
           setDialogOpen?.(false);
           setTitle("");
-          setDescription("");
-          setMarkdown("");
-          setDate(undefined);
-          setCourse(undefined);
         }}
         disabled={saving || !title}
       >
         {saving ? (
           <>
-            <Loader className="animate-spin" /> Saving...
+            Sending... <Loader className="animate-spin" />
           </>
         ) : (
           <>
-            <Save /> Save
+            Send <ArrowRight />
           </>
         )}
       </Button>

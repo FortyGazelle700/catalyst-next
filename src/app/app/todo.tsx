@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Temporal } from "@js-temporal/polyfill";
 import { formatDuration } from "@/components/catalyst/format-duration";
 import { LinkModal } from "@/components/catalyst/link-modal";
-import { PrettyState } from "@/components/catalyst/pretty-state";
+import {
+  PrettyState,
+  SubmissionTypeWithIcon,
+} from "@/components/catalyst/pretty-state";
 import { SubjectIcon } from "@/components/catalyst/subjects";
 import {
   ArrowRight,
@@ -214,6 +217,16 @@ export function TodoItem({
                 todoItem.plannable?.content_details?.submission
                   ?.workflow_state ?? ""
               }
+            />
+          </div>
+          <Dot className="size-4 stroke-muted-foreground @3xl:block hidden" />
+          <div className="flex gap-2 items-center text-xs">
+            <SubmissionTypeWithIcon
+              submission={
+                todoItem.plannable?.content_details?.submission_types?.at(0) ??
+                "none"
+              }
+              className="size-4"
             />
           </div>
         </div>

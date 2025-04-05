@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "../components/util/providers";
 
 import "./globals.css";
+import { auth } from "@/server/auth";
 
 export const metadata: Metadata = {
   title: {
@@ -47,15 +48,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers user={session?.user}>{children}</Providers>
       </body>
     </html>
   );

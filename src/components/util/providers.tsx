@@ -7,6 +7,8 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { TooltipProvider } from "../ui/tooltip";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "./PostHogProvider";
+import { User } from "next-auth";
 
 export function ThemeProvider({
   children,
@@ -15,19 +17,26 @@ export function ThemeProvider({
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
-export const Providers = ({ children }: PropsWithChildren) => {
+export const Providers = ({
+  children,
+  user,
+}: PropsWithChildren & {
+  user?: User;
+}) => {
   return (
     <>
-      <Analytics />
-      <SpeedInsights />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <TooltipProvider>{children}</TooltipProvider>
-      </ThemeProvider>
+      <PostHogProvider user={user}>
+        <Analytics />
+        <SpeedInsights />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
+      </PostHogProvider>
     </>
   );
 };
