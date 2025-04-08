@@ -18,8 +18,13 @@ export async function catalyst(ctx: ApiCtx) {
     },
     support: {
       feedback: {
-        provide: await (await import("./support/feedback/provide")).default(ctx),
-      }
-    }
+        provide: await (
+          await import("./support/feedback/provide")
+        ).default(ctx),
+      },
+    },
+    getCtx: async () => {
+      return ctx;
+    },
   };
 }

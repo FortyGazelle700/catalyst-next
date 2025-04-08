@@ -89,6 +89,14 @@ import CreateTodoItemModalPage from "./todo/create/page.modal";
 import "./layout.css";
 import SettingsModalPage from "./settings/page.modal";
 import FeedbackModalPage from "./feedback/page.modal";
+import { OpenCommandMenu } from "./command-menu";
+import { ErrorBoundary } from "react-error-boundary";
+import Error from "@/app/error";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default async function AppRedirect({
   children,
@@ -149,7 +157,7 @@ async function AppLayout({ children }: { children: React.ReactNode }) {
             <Breadcrumbs />
           </div>
           <SidebarInset className="flex-1 rounded-2xl overflow-auto max-w-full max-h-full">
-            {children}
+            <ErrorBoundary FallbackComponent={Error}>{children}</ErrorBoundary>
           </SidebarInset>
         </div>
       </SidebarProvider>
@@ -159,6 +167,7 @@ async function AppLayout({ children }: { children: React.ReactNode }) {
 
 async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const session = await auth();
+  const { user } = await (await api({ session })).catalyst.getCtx();
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
@@ -189,12 +198,12 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="-mt-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Search">
-                <Link href="/app/search">
+              <OpenCommandMenu>
+                <SidebarMenuButton tooltip="Search" className="cursor-pointer">
                   <Search />
                   <span>Search</span>
-                </Link>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              </OpenCommandMenu>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Social">
@@ -220,11 +229,11 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           values={["courses", "messages"]}
           defaultValue={[
             (await cookies()).get("accordion-state-sidebar-courses")?.value ==
-              "false"
+            "false"
               ? ""
               : "courses",
             (await cookies()).get("accordion-state-sidebar-messages")?.value ==
-              "false"
+            "false"
               ? ""
               : "messages",
           ]}
@@ -421,61 +430,95 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="flex-row group-data-[state=collapsed]:flex-col flex gap-2">
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Feedback & Support">
-              <LinkModal
-                link="/app/feedback"
-                trigger={
-                  <Button variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
-                    <DiamondPlus />
-                  </Button>
-                }
-                title="Feedback"
-                description="Send Feedback"
-                breadcrumbs={
-                  <Breadcrumbs
-                    pathname="/app/feedback"
+              <Tooltip>
+                <TooltipTrigger>
+                  <LinkModal
+                    link="/app/feedback"
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8 bg-destructive/10 hover:bg-destructive/30 transition-all"
+                      >
+                        <DiamondPlus />
+                      </Button>
+                    }
+                    title="Feedback"
+                    description="Send Feedback"
+                    breadcrumbs={<Breadcrumbs pathname="/app/feedback" />}
+                    content={
+                      <FeedbackModalPage
+                        email={user.get?.email ?? "{provided email}"}
+                      />
+                    }
                   />
-                }
-                content={
-                  <FeedbackModalPage />
-                }
-              />
+                </TooltipTrigger>
+                <TooltipContent className="group-data-[state=collapsed]:hidden]">
+                  Feedback & Support
+                </TooltipContent>
+              </Tooltip>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Announcements & Updates">
-              <Button href="/app/updates" variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
-                <Megaphone />
-              </Button>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem className="flex-1">
-            <SidebarMenuButton asChild tooltip="Notifications">
-              <Button href="/app/notifications" variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
-                <Bell />
-              </Button>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem className="flex-1">
-            <SidebarMenuButton asChild tooltip="Settings">
-              <LinkModal
-                link="/app/settings"
-                trigger={
-                  <Button variant="ghost" className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8">
-                    <Settings />
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    href="/app/updates"
+                    variant="ghost"
+                    className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8"
+                  >
+                    <Megaphone />
                   </Button>
-                }
-                title="Settings"
-                description="Modify Settings"
-                breadcrumbs={
-                  <Breadcrumbs
-                    pathname="/app/settings"
-                  />
-                }
-                content={
-                  <SettingsModalPage />
-                }
-              />
+                </TooltipTrigger>
+                <TooltipContent className="group-data-[state=collapsed]:hidden]">
+                  Announcements & Updates
+                </TooltipContent>
+              </Tooltip>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="flex-1">
+            <SidebarMenuButton asChild>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    href="/app/notifications"
+                    variant="ghost"
+                    className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8"
+                  >
+                    <Bell />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="group-data-[state=collapsed]:hidden]">
+                  Notifications
+                </TooltipContent>
+              </Tooltip>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="flex-1">
+            <Tooltip>
+              <TooltipTrigger>
+                <SidebarMenuButton asChild tooltip="Settings">
+                  <LinkModal
+                    link="/app/settings"
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8"
+                      >
+                        <Settings />
+                      </Button>
+                    }
+                    title="Settings"
+                    description="Modify Settings"
+                    breadcrumbs={<Breadcrumbs pathname="/app/settings" />}
+                    content={<SettingsModalPage />}
+                  />
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              <TooltipContent className="group-data-[state=collapsed]:hidden]">
+                Settings
+              </TooltipContent>
+            </Tooltip>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
