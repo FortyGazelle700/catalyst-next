@@ -2,18 +2,19 @@
 
 import { CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { CommandMenuProvider } from "./command-menu";
 
 type CoursesContextValue =
   | (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
-    time: {
-      start?: Date;
-      end?: Date;
-      startTime: string;
-      endTime: string;
-      active: boolean;
-      activePinned: boolean;
-    };
-  })[];
+      time: {
+        start?: Date;
+        end?: Date;
+        startTime: string;
+        endTime: string;
+        active: boolean;
+        activePinned: boolean;
+      };
+    })[];
 
 export const TimeContext = createContext<Date>(new Date());
 export const CoursesContext = createContext<CoursesContextValue>([]);
@@ -67,7 +68,7 @@ function CourseProvider({
     code().catch(console.error);
     setInterval(code, 60 * 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 60 * 1000) {
+      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 1000) {
         code().catch(console.error);
       }
     });
@@ -133,13 +134,17 @@ function CourseProvider({
         nextCourse.time.activePinned = true;
       }
     }
-    if (courses.length == 0 || now.getSeconds() == 0 || unfocused.current == true) {
+    if (
+      courses.length == 0 ||
+      now.getSeconds() == 0 ||
+      unfocused.current == true
+    ) {
       unfocused.current = false;
       setCourses(newCourses);
     }
     window.addEventListener("blur", () => {
       unfocused.current = true;
-    })
+    });
   }, [now, originalCourses]);
 
   return (
@@ -157,8 +162,10 @@ export function AppLayoutProviders({
   courses: CourseListWithPeriodDataOutput;
 }) {
   return (
-    <TimeProvider>
-      <CourseProvider courses={courses}>{children}</CourseProvider>
-    </TimeProvider>
+    <CommandMenuProvider>
+      <TimeProvider>
+        <CourseProvider courses={courses}>{children}</CourseProvider>
+      </TimeProvider>
+    </CommandMenuProvider>
   );
 }

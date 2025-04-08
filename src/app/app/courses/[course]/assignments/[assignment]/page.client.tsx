@@ -89,6 +89,7 @@ import {
   Loader,
   FileText,
   ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import {
@@ -464,6 +465,10 @@ export function SubmissionArea({ assignment }: { assignment: Assignment }) {
     <>
       <div className="flex-1" />
       <SidebarGroup className="sticky bottom-0 flex flex-col gap-2 bg-sidebar">
+        <div className="text-destructive-foreground text-xs flex gap-1 items-center px-2">
+          <AlertCircle className="size-3 flex-shrink-0" /> Submissions may not
+          work as intended. Please verify that your submission submit correctly.
+        </div>
         <div className="rounded-full h-0.5 mx-4 bg-secondary" />
         <h2 className="font-bold px-2 flex items-center gap-1 text-xs mt-2">
           <History className="size-4" /> Previous Submission

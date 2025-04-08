@@ -247,6 +247,18 @@
     @apply grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1;
   }
 
+  .ol {
+    @apply list-decimal my-6 ml-6 [&>li]:mt-2;
+  }
+
+  .ul {
+    @apply list-disc my-6 ml-6 [&>li]:mt-2;
+  }
+
+  .li {
+    @apply mt-2;
+  }
+
   .render-fancy {
     /* @apply [&_h1]:h1 [&_h2]:h2 [&_h3]:h3 [&_h4]:h4 [&_blockquote]:quote focus:border-primary/50 [&_:is(ul,li)]:ml-8 [&_a]:underline [&_iframe]:max-w-full [&_mark]:rounded [&_mark]:box-decoration-clone [&_mark]:px-1 [&_mark]:py-0.5 [&_ol_li]:list-decimal [&_span[data-type="emoji"]]:inline-flex [&_span[data-type="emoji"]]:items-center dark:[&_span[data-type="emoji"]]:hue-rotate-180 dark:[&_span[data-type="emoji"]]:invert [&_span[data-type="emoji"]_img]:size-[1em] [&_ul_li]:list-disc; */
     @apply rounded bg-background text-foreground dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert focus:border-primary/50;
@@ -286,6 +298,15 @@
     & .stack {
       @apply grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1;
     }
+    & ol {
+      @apply list-decimal my-6 ml-6 [&>li]:mt-2;
+    }
+    & ul {
+      @apply list-disc my-6 ml-6 [&>li]:mt-2;
+    }
+    & li {
+      @apply mt-2;
+    }
   }
 
   .render-white-content {
@@ -296,7 +317,6 @@
 html,
 body {
   scroll-behavior: smooth;
-  background: var(--color-sidebar);
 }
 
 .scrollbar-both-edges {

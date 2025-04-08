@@ -85,18 +85,18 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     ...item,
                     html_url: item.html_url.replace(
                       new URL(ctx.user.canvas.url).origin,
-                      process.env.NODE_ENV == "development"
-                        ? "http://localhost:3000/app"
-                        : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                      `${
+                        process.env.PUBLISH_URL ?? "http://localhost:3000"
+                      }/app/`
                     ),
                     content_details: {
                       ...item.content_details,
                       ...assignmentData,
                       html_url: assignmentData.html_url.replace(
                         new URL(ctx.user.canvas.url).origin,
-                        process.env.NODE_ENV == "development"
-                          ? "http://localhost:3000/app"
-                          : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                        `${
+                          process.env.PUBLISH_URL ?? "http://localhost:3000"
+                        }/app/`
                       ),
                     },
                   };
@@ -118,9 +118,9 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     ...item,
                     html_url: item.url.replace(
                       new URL(ctx.user.canvas.url).origin,
-                      process.env.NODE_ENV == "development"
-                        ? "http://localhost:3000/app"
-                        : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                      `${
+                        process.env.PUBLISH_URL ?? "http://localhost:3000"
+                      }/app/`
                     ),
                     content_details: {
                       ...item.content_details,
@@ -144,18 +144,18 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     ...item,
                     html_url: discussionData.html_url.replace(
                       new URL(ctx.user.canvas.url).origin,
-                      process.env.NODE_ENV == "development"
-                        ? "http://localhost:3000/app"
-                        : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                      `${
+                        process.env.PUBLISH_URL ?? "http://localhost:3000"
+                      }/app/`
                     ),
                     content_details: {
                       ...item.content_details,
                       ...discussionData,
                       html_url: discussionData.html_url.replace(
                         new URL(ctx.user.canvas.url).origin,
-                        process.env.NODE_ENV == "development"
-                          ? "http://localhost:3000/app"
-                          : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                        `${
+                          process.env.PUBLISH_URL ?? "http://localhost:3000"
+                        }/app/`
                       ),
                     },
                   };
@@ -165,9 +165,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   content_details: item.content_details as ContentDetails,
                   html_url: item.html_url?.replace(
                     new URL(ctx.user.canvas.url).origin,
-                    process.env.NODE_ENV == "development"
-                      ? "http://localhost:3000/app"
-                      : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+                    `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
                   ),
                 };
               }) ?? []
@@ -251,9 +249,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
           content_id: assignment.course_id,
           html_url: assignment.html_url.replace(
             new URL(ctx.user.canvas.url).origin,
-            process.env.NODE_ENV == "development"
-              ? "http://localhost:3000/app"
-              : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
           ),
           url: assignment.html_url,
           page_url: assignment.html_url,
@@ -278,15 +274,11 @@ export default async function getModules(ctx: CanvasApiCtx) {
           item.content_details.html_url =
             item.content_details.html_url?.replace(
               new URL(ctx.user.canvas.url).origin,
-              process.env.NODE_ENV == "development"
-                ? "http://localhost:3000/app"
-                : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+              `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
             );
           item.html_url = item.html_url?.replace(
             new URL(ctx.user.canvas.url).origin,
-            process.env.NODE_ENV == "development"
-              ? "http://localhost:3000/app"
-              : `https://${process.env.VERCEL_URL ?? "catalyst.bluefla.me"}/app/`
+            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
           );
         });
       });

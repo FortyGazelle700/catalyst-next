@@ -16,5 +16,15 @@ export async function catalyst(ctx: ApiCtx) {
       list: await (await import("./settings/list")).default(ctx),
       setPeriods: await (await import("./settings/set-periods")).default(ctx),
     },
+    support: {
+      feedback: {
+        provide: await (
+          await import("./support/feedback/provide")
+        ).default(ctx),
+      },
+    },
+    getCtx: async () => {
+      return ctx;
+    },
   };
 }

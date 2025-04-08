@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { GradesResponse } from "@/server/api/canvas/courses/grades";
 import {
+  AlertCircle,
   CalendarIcon,
   CircleSlash,
   Dot,
@@ -395,6 +396,11 @@ function GradesSidebar({
             <SidebarGroupLabel>
               <Info /> Overview
             </SidebarGroupLabel>
+            <div className="text-destructive-foreground text-xs flex gap-1 items-center px-2">
+              <AlertCircle className="size-3 flex-shrink-0" /> Submissions may
+              not work as intended. Please verify that your submission submit
+              correctly.
+            </div>
             <h2 className="font-bold text-2xl flex items-center gap-2">
               <RadialChart percentage={calculatedWhatIfScore} />{" "}
               {calculatedWhatIfScore.toFixed(2)}%

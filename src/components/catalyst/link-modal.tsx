@@ -13,6 +13,8 @@ import {
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { ExternalLink, X } from "lucide-react";
 import Link from "next/link";
+import { ErrorBoundary } from "react-error-boundary";
+import Error from "@/app/error";
 
 export function LinkModal({
   link,
@@ -66,7 +68,7 @@ export function LinkModal({
           </Button>
           {breadcrumbs}
         </div>
-        {Content}
+        <ErrorBoundary FallbackComponent={Error}>{Content}</ErrorBoundary>
       </ResponsiveModalContent>
     </ResponsiveModal>
   );

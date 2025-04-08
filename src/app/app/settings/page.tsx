@@ -1,5 +1,5 @@
-import { Construction } from "lucide-react";
 import { Metadata } from "next";
+import SettingsClientRenderer from "./page.client";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default async function InboxPage() {
   return (
     <>
-      Settings
+      <SettingsClientRenderer />
     </>
   );
 }
