@@ -111,7 +111,9 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
           fileIds.push(response?.id ?? 0);
         }
         try {
-          await del(blob.url);
+          await del(blob.url, {
+            token: process.env.BLOB_TOKEN,
+          });
         } catch (err) {
           console.error(err);
         }
