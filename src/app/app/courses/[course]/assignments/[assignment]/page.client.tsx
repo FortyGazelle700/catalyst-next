@@ -627,6 +627,10 @@ function TextSubmitButton({
         }),
       }
     );
+    if (!request.ok) {
+      setSubmissionState("error");
+      return;
+    }
     const { success } = await request.json();
     if (success) {
       setSubmissionState("success");
@@ -965,6 +969,10 @@ function FileUploadSubmitButton({
         body: formData,
       }
     );
+    if (!request.ok) {
+      setSubmissionState("error");
+      return;
+    }
     const { success } = await request.json();
     if (success) {
       setSubmissionState("success");
