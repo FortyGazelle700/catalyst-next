@@ -10,6 +10,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
+      token: process.env.BLOB_TOKEN,
       onBeforeGenerateToken: async () => {
         if (!session?.user?.id) throw new Error("User not authenticated");
 
