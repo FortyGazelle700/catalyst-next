@@ -1,6 +1,7 @@
 import { auth } from "@/server/auth";
+import { del } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await auth();
@@ -30,6 +31,14 @@ export async function POST(request: Request): Promise<NextResponse> {
           throw new Error("Could not update user");
         }
       },
+    });
+
+    after(async () => {
+      setTimeout(async () => {
+        await del((jsonResponse as unknown as { url: string }).url, {
+          token: process.env.BLOB_TOKEN,
+        });
+      }, 1000 * 60 * 5 /* 5m */);
     });
 
     return NextResponse.json(jsonResponse);

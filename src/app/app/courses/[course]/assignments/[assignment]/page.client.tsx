@@ -962,7 +962,7 @@ function FileUploadSubmitButton({
     const fileURLS: String[] = await Promise.all(
       files.map(async (file) => {
         return (
-          await upload(file.name, file, {
+          await upload(`uploads/${file.name}`, file, {
             access: "public",
             handleUploadUrl: `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files/prepare`,
           })
