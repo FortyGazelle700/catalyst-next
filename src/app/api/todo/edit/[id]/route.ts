@@ -38,4 +38,4 @@ export const PUT = auth(async (req, ctx) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-});
+}) as any;

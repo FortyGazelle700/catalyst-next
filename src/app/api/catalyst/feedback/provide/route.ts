@@ -3,7 +3,7 @@ import { z } from "zod";
 import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const POST = auth(async (req) => {
+export const POST = auth(async (req, _) => {
   const body = await req.json();
 
   const schema = z.object({
@@ -43,4 +43,4 @@ export const POST = auth(async (req) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-});
+}) as any;

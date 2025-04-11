@@ -49,4 +49,4 @@ export const POST = auth(async (req) => {
       { status: 400 }
     );
   }
-});
+}) as any;
