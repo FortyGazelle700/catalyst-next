@@ -1,10 +1,8 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const PUT = async (
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) => {
-  const param = await params;
+export const PUT = auth(async (req, ctx) => {
+  const param = ctx.params;
   const body = await req.json();
 
   if (
@@ -31,7 +29,7 @@ export const PUT = async (
   const response = await (
     await api({})
   ).canvas.todo.edit({
-    id: Number(param.id),
+    id: Number(param?.id),
     title: body?.title,
     description: body?.description,
     due_at: body?.due_at,
@@ -40,4 +38,4 @@ export const PUT = async (
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+}) as any;

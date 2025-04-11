@@ -102,6 +102,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { upload } from "@vercel/blob/client";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
@@ -627,6 +628,10 @@ function TextSubmitButton({
         }),
       }
     );
+    if (!request.ok) {
+      setSubmissionState("error");
+      return;
+    }
     const { success } = await request.json();
     if (success) {
       setSubmissionState("success");
@@ -954,17 +959,30 @@ function FileUploadSubmitButton({
   const submit = async () => {
     setFinalOpen(false);
     setSubmissionState("pending");
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append(`files[]`, file);
-    });
+    const fileURLS: String[] = await Promise.all(
+      files.map(async (file) => {
+        return (
+          await upload(`uploads/${file.name}`, file, {
+            access: "public",
+            handleUploadUrl: `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files/prepare`,
+          })
+        ).url;
+      })
+    );
+
     const request = await fetch(
       `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files`,
       {
         method: "POST",
-        body: formData,
+        body: JSON.stringify({
+          fileURLS,
+        }),
       }
     );
+    if (!request.ok) {
+      setSubmissionState("error");
+      return;
+    }
     const { success } = await request.json();
     if (success) {
       setSubmissionState("success");

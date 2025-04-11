@@ -1,10 +1,13 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const POST = async (req: Request) => {
+export const POST = auth(async (req) => {
   const body = await req.json();
 
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).canvas.todo.list({
     search: {
       title: {
@@ -24,4 +27,4 @@ export const POST = async (req: Request) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+}) as any;

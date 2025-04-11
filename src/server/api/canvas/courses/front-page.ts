@@ -52,14 +52,23 @@ export default async function frontPage(ctx: CanvasApiCtx) {
       return await unstable_cache(
         frontPage,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:front_page`,
+          `user_${ctx.user.get?.id}:course:front_page@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:front_page`,
+            `user_${ctx.user.get?.id}:course:front_page@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }

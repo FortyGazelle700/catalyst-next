@@ -1,6 +1,7 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const PUT = async (req: Request) => {
+export const PUT = auth(async (req) => {
   const body = await req.json();
 
   if (typeof body?.id !== "number" || typeof body?.complete !== "boolean") {
@@ -20,7 +21,9 @@ export const PUT = async (req: Request) => {
     );
   }
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).canvas.todo.markComplete({
     id: body?.id,
     complete: body?.complete,
@@ -28,4 +31,4 @@ export const PUT = async (req: Request) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+}) as any;

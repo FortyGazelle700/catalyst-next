@@ -158,8 +158,12 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
             time: time
               ? {
                   ...time,
-                  startTime: `${Number(time?.start.split(":")[0])-1}:${time?.start.split(":")[1]}`,
-                  endTime: `${Number(time?.end.split(":")[0])-1}:${time?.end.split(":")[1]}`,
+                  startTime: `${Number(time?.start.split(":")[0]) - 1}:${
+                    time?.start.split(":")[1]
+                  }`,
+                  endTime: `${Number(time?.end.split(":")[0]) - 1}:${
+                    time?.end.split(":")[1]
+                  }`,
                 }
               : undefined,
           };
@@ -183,14 +187,23 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
       return await unstable_cache(
         courseListWithPeriodData,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:list_with_data`,
+          `user_${ctx.user.get?.id}:course:list_with_data@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:list_with_data`,
+            `user_${ctx.user.get?.id}:course:list_with_data@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }

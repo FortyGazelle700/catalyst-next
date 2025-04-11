@@ -65,13 +65,23 @@ export default async function courseList(ctx: CanvasApiCtx) {
       return await unstable_cache(
         courseList,
         [
-          `canvas_courses_${ctx.user.get?.id ?? ""}`,
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:list`,
+          `user_${ctx.user.get?.id}:course:list@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:list`,
+            `user_${ctx.user.get?.id}:course:list@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }

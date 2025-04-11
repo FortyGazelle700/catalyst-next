@@ -1,13 +1,13 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const GET = async (
-  req: Request,
-  { params }: { params: Promise<{ course: string; assignment: string }> }
-) => {
-  const course = (await params).course;
-  const assignment = (await params).assignment;
+export const GET = auth(async (req, ctx) => {
+  const course = ctx.params?.course;
+  const assignment = ctx.params?.assignment;
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).canvas.courses.assignments.get({
     courseId: Number(course),
     assignmentId: Number(assignment),
@@ -16,4 +16,4 @@ export const GET = async (
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+}) as any;
