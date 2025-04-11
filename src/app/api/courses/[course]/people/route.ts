@@ -1,12 +1,12 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const GET = async (
-  req: Request,
-  { params }: { params: Promise<{ course: string }> }
-) => {
-  const course = (await params).course;
+export const GET = auth(async (req, ctx) => {
+  const course = ctx.params?.course;
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).canvas.courses.people({
     courseId: Number(course),
     useCache: true,
@@ -14,4 +14,4 @@ export const GET = async (
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+});

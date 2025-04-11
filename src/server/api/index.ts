@@ -1,6 +1,6 @@
 "use server";
 
-import { after } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 
 import { canvas } from "./canvas";
 import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
@@ -10,6 +10,7 @@ import { Session } from "next-auth";
 import { proUsers, settings, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { catalyst } from "./catalyst";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export type ApiCtx = {
   db: PostgresJsDatabase<Record<string, never>> & {
@@ -32,8 +33,8 @@ export type ApiCtx = {
   };
 };
 
-export async function api({ session }: { session?: Session | null }) {
-  const ctx = await genCtx({ session });
+export async function api(props: { session?: Session | null }) {
+  const ctx = await genCtx(props);
 
   return {
     canvas: await canvas(ctx),

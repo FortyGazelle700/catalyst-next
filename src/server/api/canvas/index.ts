@@ -93,7 +93,6 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
       decipher.update(encryptedToken, "base64", "utf8") +
       decipher.final("utf8");
   } catch (err) {
-    console.error(err);
   }
 
   return {

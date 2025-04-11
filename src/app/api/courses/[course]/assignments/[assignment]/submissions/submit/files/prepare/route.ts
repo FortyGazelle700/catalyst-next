@@ -1,16 +1,17 @@
 import { auth } from "@/server/auth";
+
 import { del } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { after, NextResponse } from "next/server";
 
-export async function POST(request: Request): Promise<NextResponse> {
-  const session = await auth();
-  const body = (await request.json()) as HandleUploadBody;
+export const POST = auth(async (req) => {
+  const session = req.auth;
+  const body = (await req.json()) as HandleUploadBody;
 
   try {
     const jsonResponse = await handleUpload({
       body,
-      request,
+      request: req,
       token: process.env.BLOB_TOKEN,
       onBeforeGenerateToken: async () => {
         if (!session?.user?.id) throw new Error("User not authenticated");
@@ -48,4 +49,4 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: 400 }
     );
   }
-}
+});

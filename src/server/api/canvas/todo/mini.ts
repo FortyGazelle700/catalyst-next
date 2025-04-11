@@ -12,6 +12,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
     const { unstable_cache } = await import("next/cache");
 
     const todoList = async () => {
+      console.log("list", ctx?.user?.get?.name);
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
           success: false,
@@ -75,11 +76,31 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
         errors: [],
       };
     };
+
+    console.log("api", ctx?.user?.get?.name);
     if (true) {
-      return await unstable_cache(todoList, [String(input.days ?? "0")], {
-        revalidate: 1000 * 60 * 5,
-        tags: ["mini_todo"],
-      })();
+      return await unstable_cache(
+        todoList,
+        [
+          `user_${ctx.user.get?.id}:todo:mini`,
+          `user_${ctx.user.get?.id}:todo:mini@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
+        ],
+        {
+          revalidate: 1000 * 60 * 5,
+          tags: [
+            `user_${ctx.user.get?.id}:todo:mini`,
+            `user_${ctx.user.get?.id}:todo:mini@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
+        }
+      )();
     } else {
       return await todoList();
     }

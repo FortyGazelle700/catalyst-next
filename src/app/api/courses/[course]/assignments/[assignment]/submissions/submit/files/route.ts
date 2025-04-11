@@ -1,11 +1,9 @@
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const POST = async (
-  req: Request,
-  { params }: { params: Promise<{ course: string; assignment: string }> }
-) => {
-  const course = (await params).course;
-  const assignment = (await params).assignment;
+export const POST = auth(async (req, ctx) => {
+  const course = ctx.params?.course;
+  const assignment = ctx.params?.assignment;
   const json = await req.json();
   const filesURLS = json.fileURLS as string[];
 
@@ -21,7 +19,9 @@ export const POST = async (
   );
 
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).canvas.courses.assignments.submissions.submit.files({
     courseId: Number(course),
     assignmentId: Number(assignment),
@@ -30,4 +30,4 @@ export const POST = async (
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+});

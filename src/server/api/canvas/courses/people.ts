@@ -26,7 +26,7 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       }
       const url = new URL(
         `/api/v1/courses/${input.courseId}/users`,
-        ctx.user.canvas.url,
+        ctx.user.canvas.url
       );
       url.searchParams.append("include[]", "avatar_url");
       url.searchParams.append("include[]", "enrollments");
@@ -36,7 +36,7 @@ export default async function getPeople(ctx: CanvasApiCtx) {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
         },
       });
-      const data = await query.json() as User[] | CanvasErrors;
+      const data = (await query.json()) as User[] | CanvasErrors;
       if ("errors" in data) {
         return {
           success: false,
@@ -55,14 +55,23 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       return await unstable_cache(
         people,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:people`,
+          `user_${ctx.user.get?.id}:course:people@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:people`,
+            `user_${ctx.user.get?.id}:course:people@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }

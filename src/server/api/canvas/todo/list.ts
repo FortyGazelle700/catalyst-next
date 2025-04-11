@@ -184,18 +184,23 @@ export default async function todoList(ctx: CanvasApiCtx) {
       return await unstable_cache(
         todoList,
         [
-          input.search.title.includes,
-          input.search.description.includes,
-          input.search.start.toISOString(),
-          input.search.end.toISOString(),
-          input.search.completed,
-          input.search.courses.join(","),
-          input.search.status.join(","),
-          input.sort.join(","),
+          `user_${ctx.user.get?.id}:todo:list`,
+          `user_${ctx.user.get?.id}:todo:list@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 1000 * 60 * 5,
-          tags: ["todo"],
+          tags: [
+            `user_${ctx.user.get?.id}:todo:list`,
+            `user_${ctx.user.get?.id}:todo:list@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     } else {
