@@ -229,11 +229,11 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           values={["courses", "messages"]}
           defaultValue={[
             (await cookies()).get("accordion-state-sidebar-courses")?.value ==
-            "false"
+              "false"
               ? ""
               : "courses",
             (await cookies()).get("accordion-state-sidebar-messages")?.value ==
-            "false"
+              "false"
               ? ""
               : "messages",
           ]}
@@ -437,7 +437,7 @@ async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     trigger={
                       <Button
                         variant="ghost"
-                        className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8 bg-destructive/10 hover:bg-destructive/30 transition-all"
+                        className="w-16 h-10 group-data-[state=collapsed]:h-8 group-data-[state=collapsed]:w-8 bg-destructive/20 hover:bg-destructive/40 transition-all"
                       >
                         <DiamondPlus />
                       </Button>

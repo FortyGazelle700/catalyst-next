@@ -6,15 +6,15 @@ import { CommandMenuProvider } from "./command-menu";
 
 type CoursesContextValue =
   | (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
-      time: {
-        start?: Date;
-        end?: Date;
-        startTime: string;
-        endTime: string;
-        active: boolean;
-        activePinned: boolean;
-      };
-    })[];
+    time: {
+      start?: Date;
+      end?: Date;
+      startTime: string;
+      endTime: string;
+      active: boolean;
+      activePinned: boolean;
+    };
+  })[];
 
 export const TimeContext = createContext<Date>(new Date());
 export const CoursesContext = createContext<CoursesContextValue>([]);
@@ -66,9 +66,10 @@ function CourseProvider({
       lastFetch.current = new Date();
     };
     code().catch(console.error);
-    setInterval(code, 60 * 60 * 1000);
+    setTimeout(() => code().catch(console.error), 10 * 1000);
+    setInterval(() => code().catch(console.error), 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 1000) {
+      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
         code().catch(console.error);
       }
     });

@@ -137,6 +137,8 @@
 
   --animate-accordion-up: accordion-up var(--duration) ease-out forwards;
   --animate-accordion-down: accordion-down var(--duration) ease-out forwards;
+  --animate-swap: swap 20s ease-out forwards infinite;
+  --animate-swap-indicator: swap-indicator 20s ease-out forwards infinite;
 
   @keyframes accordion-up {
     from {
@@ -189,6 +191,42 @@
     }
     100% {
       transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes swap {
+    0% {
+      opacity: 0;
+      scale: 0.95;
+    }
+    0%, 1% {
+      opacity: 0;
+      transform: translateY(-1rem);
+    }
+    2%, 49% {
+      opacity: 1;
+      transform: translateY(0);
+      scale: 1;
+    }
+    50%, 51% {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    50%, 100% {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+
+  @keyframes swap-indicator {
+    0% {
+      top: 1rem;
+    }
+    1%, 49.5% {
+      top: 0;
+    }
+    50.5%, 100% {
+      top: 1rem;
     }
   }
 }

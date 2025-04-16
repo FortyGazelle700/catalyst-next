@@ -27,13 +27,20 @@ import { subjectColors, SubjectIcon } from "@/components/catalyst/subjects";
 import { PlannerItem } from "@/server/api/canvas/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TodoItem } from "./todo";
+import { Temporal } from "@js-temporal/polyfill";
+import { formatDuration } from "@/components/catalyst/format-duration";
 
 export function TimeCard() {
-  const time = useContext(TimeContext);
+  const now = useContext(TimeContext);
   const [greeting, setGreeting] = useState("Hi there, it is");
 
+  const courses = useContext(CoursesContext);
+  const currentCourse = useMemo(() => {
+    return courses?.find((course) => course.time?.activePinned);
+  }, [courses]);
+
   useEffect(() => {
-    const hours = time.getHours();
+    const hours = now.getHours();
     if (hours < 12) {
       setGreeting("Good Morning");
     } else if (hours < 18) {
@@ -41,46 +48,123 @@ export function TimeCard() {
     } else {
       setGreeting("Good Evening");
     }
-  }, [time]);
+  }, [now]);
+
+  const timeToStart = useMemo(
+    () =>
+      Temporal.Instant.from(now.toISOString()).until(
+        Temporal.Instant.from(
+          currentCourse?.time.start?.toISOString() ?? now.toISOString()
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" }
+      ),
+    [now, currentCourse]
+  );
+
+  const timeLeft = useMemo(
+    () =>
+      Temporal.Instant.from(now.toISOString()).until(
+        Temporal.Instant.from(
+          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" }
+      ),
+    [now, currentCourse]
+  );
+
+  const totalDuration = useMemo(
+    () =>
+      Temporal.Instant.from(
+        currentCourse?.time.start?.toISOString() ?? now.toISOString()
+      ).until(
+        Temporal.Instant.from(
+          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" }
+      ),
+    [currentCourse]
+  );
+
+  const hasStarted = useMemo(
+    () => timeToStart.total("milliseconds") <= 0,
+    [currentCourse, now]
+  );
 
   return (
     <div className="relative flex-1 border stack h-52 rounded-t-md rounded-b-xs @3xl:rounded-l-md @3xl:rounded-r-xs group overflow-hidden">
-      <div className="flex flex-col p-4 justify-end group-hover:scale-90 group-hover:opacity-0 transition-all">
-        <h3 className="text-lg text-muted-foreground">{greeting},</h3>
-        <h4 className="text-4xl font-bold flex items-center select-none">
-          {time
-            .toLocaleTimeString(undefined, {
-              timeStyle: "short",
+      <div className="stack group-hover:scale-90 group-hover:opacity-0 transition-all">
+        <div className="flex flex-col p-4 justify-end animate-swap">
+          <h3 className="text-lg text-muted-foreground">{greeting},</h3>
+          <h4 className="text-4xl font-bold flex items-center select-none">
+            {now
+              .toLocaleTimeString(undefined, {
+                timeStyle: "short",
+              })
+              .split("")
+              .map((char, idx) =>
+                !new RegExp("\\d").test(char) ? (
+                  <span
+                    className="min-w-[0.5ch] text-center"
+                    key={`time-char-${char}-${idx}`}
+                  >
+                    {char}
+                  </span>
+                ) : (
+                  <NumberCounter
+                    key={`time-idx-${idx}`}
+                    value={Number(char)}
+                    height={32}
+                  />
+                )
+              )}
+          </h4>
+        </div>
+        <div className="flex flex-col p-4 justify-end group-hover:scale-90 group-hover:opacity-0 transition-all animate-swap delay-[10s] opacity-0">
+          <h3 className="text-lg text-muted-foreground">Course {hasStarted ? "ends in" : "starts in"}</h3>
+          <h4 className="text-4xl font-bold flex items-center select-none">
+            {formatDuration(hasStarted ? timeLeft : timeToStart, {
+              style: "long",
+              maxUnit: "hour",
+              minUnit: "second",
+              maxUnits: 1,
             })
-            .split("")
-            .map((char, idx) =>
-              !new RegExp("\\d").test(char) ? (
-                <span
-                  className="min-w-[0.5ch] text-center"
-                  key={`time-char-${char}-${idx}`}
-                >
-                  {char}
-                </span>
-              ) : (
-                <NumberCounter
-                  key={`time-idx-${idx}`}
-                  value={Number(char)}
-                  height={32}
-                />
-              )
-            )}
-        </h4>
+              .split("")
+              .map((char, idx) =>
+                !new RegExp("\\d").test(char) ? (
+                  <span
+                    className="min-w-[0.5ch] text-center"
+                    key={`time-char-${char}-${idx}`}
+                  >
+                    {char}
+                  </span>
+                ) : (
+                  <NumberCounter
+                    key={`time-idx-${idx}`}
+                    value={Number(char)}
+                    height={32}
+                  />
+                )
+              )}
+          </h4>
+        </div>
         <Button
           variant="outline"
-          href="/app/schedule/clock"
+          href="/app/schedule/now"
           size="icon"
           className="grid absolute right-4 top-4"
         >
           <Maximize />
         </Button>
+        <div className="absolute bottom-7 right-7">
+          <div className="flex flex-col relative gap-2">
+            <div className="w-2 h-2 rounded-full bg-muted" />
+            <div className="w-2 h-2 rounded-full bg-muted" />
+            <div className="absolute w-2 h-2 rounded-full bg-foreground animate-swap-indicator" />
+          </div>
+        </div>
       </div>
       <Link
-        href="/app/schedule/clock"
+        href="/app/schedule/now"
         className="grid place-items-center bg-secondary opacity-0 group-hover:opacity-100 absolute scale-150 inset-0 transition-all group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto"
       >
         <Maximize className="group-hover:-rotate-90 transition-all" />

@@ -298,7 +298,7 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Edit: ({ asLink, href }: { asLink?: boolean; href?: string }) => {
+  Edit: ({ asLink = true, href }: { asLink?: boolean; href?: string }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href={href ?? ""}>{children}</BreadcrumbLink>
@@ -311,7 +311,7 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Feedback: ({ asLink }: { asLink: boolean }) => {
+  Feedback: ({ asLink = true }: { asLink?: boolean }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
@@ -324,7 +324,33 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Settings: ({ asLink }: { asLink: boolean }) => {
+  Schedule: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/schedule">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Schedule</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  ScheduleNow: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/schedule/now">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Now</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  Settings: ({ asLink = true }: { asLink?: boolean }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
@@ -549,6 +575,28 @@ export function Breadcrumbs({
             <BreadcrumbBits.Catalyst />
             <BreadcrumbSeparator />
             <BreadcrumbBits.Feedback asLink={false} />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/schedule":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Schedule />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/schedule/now":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Schedule />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.ScheduleNow asLink={false} />
           </BreadcrumbList>
         </Breadcrumb>
       );
