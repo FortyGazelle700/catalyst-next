@@ -26,6 +26,9 @@ const nextConfig = {
     ];
   },
   skipTrailingSlashRedirect: true,
+  turbopack: {
+    resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".mjs", ".json"],
+  },
 };
 
 const withBundleAnalyzer = (await import("@next/bundle-analyzer")).default({
