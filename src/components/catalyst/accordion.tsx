@@ -5,6 +5,7 @@ import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import Cookies from "universal-cookie";
 
 export function Accordion({
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   onValueChange,
   saveId = "accordion",
   values = [],
@@ -25,7 +26,7 @@ export function Accordion({
             values.forEach((segment) => {
               new Cookies(null, { path: "/" }).set(
                 `accordion-state-${saveId}-${segment}`,
-                open === segment
+                open === segment,
               );
             });
             onValueChange?.(open);
@@ -42,7 +43,7 @@ export function Accordion({
             values.forEach((segment) => {
               new Cookies(null, { path: "/" }).set(
                 `accordion-state-${saveId}-${segment}`,
-                open.includes(segment)
+                open.includes(segment),
               );
             });
             onValueChange?.(open);

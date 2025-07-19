@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 export function register() {
   // No-op for initialization
 }
@@ -10,7 +12,7 @@ export const onRequestError = async (err, request, context) => {
     if (request.headers.cookie) {
       const cookieString = request.headers.cookie;
       const postHogCookieMatch = cookieString.match(
-        /ph_phc_.*?_posthog=([^;]+)/
+        /ph_phc_.*?_posthog=([^;]+)/,
       );
 
       if (postHogCookieMatch && postHogCookieMatch[1]) {

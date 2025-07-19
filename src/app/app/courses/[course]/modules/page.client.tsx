@@ -1,6 +1,5 @@
 "use client";
 
-import { TimeContext } from "@/app/app/layout.providers";
 import {
   Accordion,
   AccordionContent,
@@ -13,32 +12,22 @@ import {
   SidebarGroup,
   Sidebar,
 } from "@/components/ui/sidebar";
-import { Assignment, Module, ModuleItem } from "@/server/api/canvas/types";
 import {
-  Notebook,
-  Info,
-  Calendar,
-  Timer,
-  Minus,
-  CheckCircle,
-  Percent,
-  Tally5,
+  type Assignment,
+  type Module,
+  type ModuleItem,
+} from "@/server/api/canvas/types";
+import {
   Upload,
-  ArrowUp,
-  ArrowUpLeft,
   CircleSlash2,
-  ArrowLeft,
-  ArrowDownLeft,
-  ArrowDown,
   LayoutDashboard,
   BookOpen,
-  Heading1,
   Heading2,
   Link2,
   ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 export default function ModuleClientPage({
   modules: initialModules,
@@ -48,9 +37,9 @@ export default function ModuleClientPage({
   const [modules, setModules] = useState(initialModules);
 
   return (
-    <div className="flex w-full h-full @container">
-      <div className="flex w-full h-full items-stretch @4xl:flex-row flex-col-reverse overflow-auto @4xl:overflow-hidden">
-        <div className="flex-1 @4xl:overflow-auto p-4 overflow-x-auto min-h-full @4xl:h-[calc(100%-var(--spacing)*4)]">
+    <div className="@container flex h-full w-full">
+      <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
+        <div className="min-h-full flex-1 overflow-x-auto p-4 @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:overflow-auto">
           <h1 className="h1 mb-2">Modules</h1>
           <ModuleList modules={modules} />
         </div>
@@ -91,7 +80,7 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
   switch (item.type) {
     case "SubHeader":
       return (
-        <div className="flex gap-2 items-center rounded-2xl p-4 border">
+        <div className="flex items-center gap-2 rounded-2xl border p-4">
           <Heading2 className="size-4" />
           <span>{item.title}</span>
         </div>
@@ -99,11 +88,11 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
     case "Page":
       return (
         <Link href={item.html_url}>
-          <div className="flex items-center rounded-2xl p-4 border gap-2 hover:bg-secondary transition-all">
+          <div className="hover:bg-secondary flex items-center gap-2 rounded-2xl border p-4 transition-all">
             <BookOpen className="size-4" />
-            <div className="flex flex-col items-tart">
+            <div className="items-tart flex flex-col">
               <span>{item.title}</span>
-              <span className="text-xs text-muted-foreground">Page</span>
+              <span className="text-muted-foreground text-xs">Page</span>
             </div>
           </div>
         </Link>
@@ -113,11 +102,11 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
         <Link
           href={(item.content_details as Assignment)?.html_url ?? item.html_url}
         >
-          <div className="flex items-center rounded-2xl p-4 border gap-2 hover:bg-secondary transition-all">
+          <div className="hover:bg-secondary flex items-center gap-2 rounded-2xl border p-4 transition-all">
             <Link2 className="size-4" />
-            <div className="flex flex-col items-tart">
+            <div className="items-tart flex flex-col">
               <span>{item.title}</span>
-              <span className="text-xs text-muted-foreground">Attachment</span>
+              <span className="text-muted-foreground text-xs">Attachment</span>
             </div>
           </div>
         </Link>
@@ -125,11 +114,11 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
     case "ExternalUrl":
       return (
         <Link href={item.html_url}>
-          <div className="flex items-center rounded-2xl p-4 border gap-2 hover:bg-secondary transition-all">
+          <div className="hover:bg-secondary flex items-center gap-2 rounded-2xl border p-4 transition-all">
             <ExternalLink className="size-4" />
-            <div className="flex flex-col items-tart">
+            <div className="items-tart flex flex-col">
               <span>{item.title}</span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 External Link
               </span>
             </div>
@@ -144,18 +133,18 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
             (item.content_details as Assignment)?.html_url ?? item?.html_url
           }
         >
-          <div className="flex items-center rounded-2xl p-4 border gap-2 hover:bg-secondary transition-all">
+          <div className="hover:bg-secondary flex items-center gap-2 rounded-2xl border p-4 transition-all">
             <Upload className="size-4" />
             <div className="flex flex-col items-start">
               <span>{item.title}</span>
-              <span className="text-xs text-muted-foreground">Assignment</span>
+              <span className="text-muted-foreground text-xs">Assignment</span>
             </div>
           </div>
         </Link>
       );
     default:
       return (
-        <div className="flex gap-2 items-center rounded-2xl p-4 border">
+        <div className="flex items-center gap-2 rounded-2xl border p-4">
           <CircleSlash2 className="size-4" />
           <span>Cannot render {item.type}</span>
         </div>
@@ -164,24 +153,24 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
 }
 
 function ModuleSidebar({
-  modules,
-  setModules,
-  initialModules,
+  modules: _m,
+  setModules: _sM,
+  initialModules: _iM,
 }: {
   modules: Module[];
   setModules: (modules: Module[]) => void;
   initialModules: Module[];
 }) {
-  const now = useContext(TimeContext);
+  // const now = useContext(TimeContext);
 
   return (
     <>
       <Sidebar
         collapsible="none"
-        className="rounded-xs m-2 min-h-max @4xl:h-[calc(100%-var(--spacing)*4)] overflow-auto scrollbar-auto w-[calc(100%-1rem)] @4xl:w-[20rem]"
+        className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:w-[20rem]"
       >
         <SidebarHeader>
-          <h1 className="font-bold text-2xl flex items-center gap-1">
+          <h1 className="flex items-center gap-1 text-2xl font-bold">
             <LayoutDashboard /> Modules
           </h1>
         </SidebarHeader>

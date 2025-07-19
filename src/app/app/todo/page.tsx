@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { TodoClientPage } from "./client.page";
 
 export const metadata: Metadata = {

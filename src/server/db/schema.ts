@@ -154,14 +154,13 @@ export const settings = createTable(
     userId: varchar("user_id", { length: 255 }).notNull(),
     key: varchar("key", { length: 255 }).notNull(),
     value: text("value"),
-    draftState: settingState("setting_state"),
   },
   (setting) => ({
     userIdIdx: index("setting_user_id_idx").on(setting.userId),
     keyIdx: index("setting_key_idx").on(setting.key),
-    compoundKey: primaryKey({
-      columns: [setting.userId, setting.key],
-    }),
+    // compoundKey: primaryKey({
+    //   columns: [setting.userId, setting.key],
+    // }),
   })
 );
 
@@ -185,7 +184,7 @@ export const schools = createTable(
     address: text("address"),
     city: varchar("city", { length: 32 }),
     state: varchar("state", { length: 2 }),
-    draftState: settingState("setting_state"),
+    zip: varchar("zip", { length: 10 }),
     canvasURL: varchar("canvas_url", { length: 255 }),
     isPublic: boolean("is_public"),
   },
@@ -238,7 +237,6 @@ export const periods = createTable(
     type: periodType("period_type"),
     periodOrder: integer("period_order"),
     optionOrder: integer("option_order"),
-    draftState: settingState("setting_state"),
   },
   (period) => ({
     periodIdIdx: index("period_period_id_idx").on(period.periodId),
@@ -254,7 +252,6 @@ export const schedules = createTable("schedule", {
     .$defaultFn(() => crypto.randomUUID()),
   schoolId: varchar("school_id", { length: 255 }),
   name: varchar("name", { length: 32 }).notNull(),
-  draftState: settingState("setting_state"),
 });
 
 export const periodTimes = createTable(
@@ -327,7 +324,6 @@ export const scheduleDates = createTable(
     date: timestamp("date", {
       mode: "date",
     }).notNull(),
-    draftState: settingState("setting_state"),
   },
   (scheduleDate) => ({
     schoolIdIdx: index("schedule_date_school_id_idx").on(scheduleDate.schoolId),

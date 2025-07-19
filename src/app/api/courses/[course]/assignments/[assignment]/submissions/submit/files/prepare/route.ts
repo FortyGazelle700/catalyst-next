@@ -24,29 +24,27 @@ export const POST = auth(async (req) => {
           validUntil: Date.now() + 5 * 60 * 1000,
         };
       },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("blob upload completed", blob, tokenPayload);
-
-        try {
-        } catch (error) {
-          throw new Error("Could not update user");
-        }
+      onUploadCompleted: async () => {
+        /**/
       },
     });
 
     after(async () => {
-      setTimeout(async () => {
-        await del((jsonResponse as unknown as { url: string }).url, {
-          token: process.env.BLOB_TOKEN,
-        });
-      }, 1000 * 60 * 5 /* 5m */);
+      setTimeout(
+        () => {
+          del((jsonResponse as unknown as { url: string }).url, {
+            token: process.env.BLOB_TOKEN,
+          }).catch(console.error);
+        },
+        1000 * 60 * 5 /* 5m */,
+      );
     });
 
     return NextResponse.json(jsonResponse);
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
-      { status: 400 }
+      { status: 400 },
     );
   }
-}) as any;
+});

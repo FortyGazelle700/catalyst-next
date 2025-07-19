@@ -3,12 +3,12 @@ import { z } from "zod";
 import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const POST = auth(async (req) => {
-  const body = await req.json();
+const schema = z.object({
+  settings: z.record(z.string()),
+});
 
-  const schema = z.object({
-    settings: z.record(z.string()),
-  });
+export const POST = auth(async (req) => {
+  const body = (await req.json()) as z.infer<typeof schema>;
 
   const result = schema.safeParse(body);
   if (!result.success) {
@@ -22,7 +22,7 @@ export const POST = auth(async (req) => {
       },
       {
         status: 400,
-      }
+      },
     );
   }
 
@@ -35,4 +35,4 @@ export const POST = auth(async (req) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-}) as any;
+});

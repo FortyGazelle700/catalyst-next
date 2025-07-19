@@ -1,7 +1,9 @@
 "use client";
 
-import SettingsClientRenderer from "./page.client";
+import dynamic from "next/dynamic";
 
-export default function SettingsModalPage() {
-  return (<SettingsClientRenderer />);
-}
+const SettingsClientRenderer = dynamic(() => import("./page.client"), {
+  ssr: false,
+});
+
+export default SettingsClientRenderer;

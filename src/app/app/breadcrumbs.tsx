@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Assignment, PlannerNote } from "@/server/api/canvas/types";
+import { type Assignment, type PlannerNote } from "@/server/api/canvas/types";
 import { useParams, usePathname } from "next/navigation";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CoursesContext } from "./layout.providers";
@@ -39,11 +39,15 @@ export const BreadcrumbBits = {
     useEffect(() => {
       (async () => {
         const req = await fetch(`/api/todo/get-note/${id}`);
-        const res = await req.json();
-        const data = res?.data as PlannerNote | null;
+        const res = (await req.json()) as {
+          success: boolean;
+          data: PlannerNote | undefined;
+          errors: { message: string }[];
+        };
+        const data = res?.data;
         setName(data?.title ?? "Item Not Found");
-      })();
-    }, []);
+      })().catch(console.error);
+    }, [id]);
 
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
@@ -55,7 +59,7 @@ export const BreadcrumbBits = {
     return (
       <BreadcrumbItem>
         <BreadcrumbRender>
-          {name ? name : <Skeleton className="h-4 rounded-full w-[20ch]" />}
+          {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
@@ -83,7 +87,7 @@ export const BreadcrumbBits = {
     const courses = useContext(CoursesContext);
     const currentCourse = useMemo(
       () => courses.find((c) => c.id === courseId),
-      [courses, courseId]
+      [courses, courseId],
     );
 
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
@@ -138,11 +142,15 @@ export const BreadcrumbBits = {
     useEffect(() => {
       (async () => {
         const req = await fetch(`/api/courses/${courseId}/page/${pageId}`);
-        const res = await req.json();
-        const data = res?.data as PlannerNote | null;
+        const res = (await req.json()) as {
+          success: boolean;
+          data: PlannerNote | null;
+          errors: { message: string }[];
+        };
+        const data = res?.data;
         setName(data?.title ?? "Item Not Found");
-      })();
-    }, []);
+      })().catch(console.error);
+    }, [courseId, pageId]);
 
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
@@ -156,7 +164,7 @@ export const BreadcrumbBits = {
     return (
       <BreadcrumbItem>
         <BreadcrumbRender>
-          {name ? name : <Skeleton className="h-4 rounded-full w-[20ch]" />}
+          {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
@@ -238,13 +246,17 @@ export const BreadcrumbBits = {
     useEffect(() => {
       (async () => {
         const req = await fetch(
-          `/api/courses/${courseId}/assignments/${assignmentId}`
+          `/api/courses/${courseId}/assignments/${assignmentId}`,
         );
-        const res = await req.json();
-        const data = res?.data as Assignment | null;
+        const res = (await req.json()) as {
+          success: boolean;
+          data: Assignment | null;
+          errors: { message: string }[];
+        };
+        const data = res?.data;
         setName(data?.name ?? "Item Not Found");
-      })();
-    }, []);
+      })().catch(console.error);
+    }, [assignmentId, courseId]);
 
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
@@ -260,7 +272,7 @@ export const BreadcrumbBits = {
     return (
       <BreadcrumbItem>
         <BreadcrumbRender>
-          {name ? name : <Skeleton className="h-4 rounded-full w-[20ch]" />}
+          {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
@@ -272,17 +284,6 @@ export const BreadcrumbBits = {
     courseId: number;
     asLink?: boolean;
   }) => {
-    const [name, setName] = useState<string | null>(null);
-
-    useEffect(() => {
-      (async () => {
-        const req = await fetch(`/api/courses/${courseId}/grades`);
-        const res = await req.json();
-        const data = res?.data as Assignment | null;
-        setName(data?.name ?? "Item Not Found");
-      })();
-    }, []);
-
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href={`/app/courses/${courseId}/grades`}>
@@ -298,7 +299,7 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Edit: ({ asLink, href }: { asLink?: boolean; href?: string }) => {
+  Edit: ({ asLink = true, href }: { asLink?: boolean; href?: string }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href={href ?? ""}>{children}</BreadcrumbLink>
@@ -311,7 +312,7 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Feedback: ({ asLink }: { asLink: boolean }) => {
+  Feedback: ({ asLink = true }: { asLink?: boolean }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
@@ -324,7 +325,33 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
-  Settings: ({ asLink }: { asLink: boolean }) => {
+  Schedule: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/schedule">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Schedule</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  ScheduleNow: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/schedule/now">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Now</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  Settings: ({ asLink = true }: { asLink?: boolean }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
         <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
@@ -351,17 +378,15 @@ export function Breadcrumbs({
   pathname?: string;
   params?: Record<string, string>;
 }) {
-  const params = givenParams
-    ? givenParams
-    : useParams<Record<string, string>>();
-  const pathname = givenPathname ? givenPathname : usePathname();
+  const genParams = useParams<Record<string, string>>();
+  const genPathname = usePathname();
+  const params = givenParams ?? genParams;
+  const pathname = givenPathname ?? genPathname;
   let pathId = pathname;
 
   Object.entries(params).forEach(
-    ([k, v]) => (pathId = pathId.replace(String(v), `[${k}]`))
+    ([k, v]) => (pathId = pathId.replace(String(v), `[${k}]`)),
   );
-
-  console.log(pathname, params, pathId);
 
   switch (pathId) {
     case "/app":
@@ -549,6 +574,28 @@ export function Breadcrumbs({
             <BreadcrumbBits.Catalyst />
             <BreadcrumbSeparator />
             <BreadcrumbBits.Feedback asLink={false} />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/schedule":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Schedule />
+          </BreadcrumbList>
+        </Breadcrumb>
+      );
+    case "/app/schedule/now":
+      return (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbBits.Catalyst />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.Schedule />
+            <BreadcrumbSeparator />
+            <BreadcrumbBits.ScheduleNow asLink={false} />
           </BreadcrumbList>
         </Breadcrumb>
       );

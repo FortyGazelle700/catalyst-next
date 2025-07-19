@@ -1,4 +1,4 @@
-import { ApiCtx } from "../../..";
+import { type ApiCtx } from "../../..";
 
 export default async function list(ctx: ApiCtx) {
   return async ({ id }: { id?: string }) => {
@@ -7,7 +7,7 @@ export default async function list(ctx: ApiCtx) {
     const schoolPeriods = await ctx.db
       .select()
       .from(periods)
-      .where(eq(periods.schoolId, id ?? ctx.user.settings["school_id"] ?? ""));
+      .where(eq(periods.schoolId, id ?? ctx.user.settings.school_id ?? ""));
 
     const usedPeriods = new Set<string>();
 

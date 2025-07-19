@@ -2,7 +2,7 @@ import { api } from "@/server/api";
 import { notFound } from "next/navigation";
 import { TodoEditItemRenderer } from "./client.page";
 
-import { Metadata } from "next";
+import { type Metadata } from "next";
 
 export async function generateMetadata({
   params: paramList,

@@ -35,11 +35,11 @@ export function LinkModal({
 
   const Content = useMemo(() => {
     return content;
-  }, []);
+  }, [content]);
 
   return (
     <ResponsiveModal open={open} onOpenChange={(open) => setOpen(open)}>
-      <ResponsiveModalTrigger>
+      <ResponsiveModalTrigger asChild>
         <Link
           href={link}
           onClick={(evt) => {
@@ -59,7 +59,7 @@ export function LinkModal({
             </ResponsiveModalDescription>
           </ResponsiveModalHeader>
         </VisuallyHidden>
-        <div className="flex justify-start gap-2 sticky -top-6 border-b -mx-6 -mt-6 mb-6 p-6 bg-background/50 backdrop-blur z-10 items-center">
+        <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex flex-col items-center justify-start gap-2 border-b p-6 backdrop-blur md:flex-row">
           <Button variant="outline" onClick={() => setOpen(false)}>
             <X /> Close
           </Button>

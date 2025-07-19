@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiCtx } from "../..";
+import { type ApiCtx } from "../..";
 
 export default async function list(ctx: ApiCtx) {
   return async () => {

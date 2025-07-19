@@ -1,20 +1,17 @@
 "use server";
 
-import { after, NextRequest, NextResponse } from "next/server";
-
 import { canvas } from "./canvas";
-import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { auth } from "../auth";
-import { Session } from "next-auth";
+import { type Session } from "next-auth";
 import { proUsers, settings, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { catalyst } from "./catalyst";
-import { NextApiRequest, NextApiResponse } from "next";
 
 export type ApiCtx = {
   db: PostgresJsDatabase<Record<string, never>> & {
-    $client: postgres.Sql<{}>;
+    $client: postgres.Sql<Record<string, unknown>>;
   };
   session: Session | null;
   user: {
@@ -48,17 +45,19 @@ async function genCtx({
   session?: Session | null;
 }): Promise<ApiCtx> {
   const sql =
-    global.db ??
+    (global.db as postgres.Sql<Record<string, unknown>>) ??
     postgres(process.env.DATABASE_URL!, {
       max: 1,
       ssl: "require",
     });
 
-  if (!global.db) global.db = drizzle(sql as unknown as postgres.Sql<{}>);
+  global.db ??= drizzle(
+    sql as unknown as postgres.Sql<Record<string, unknown>>,
+  );
   const db = global.db as PostgresJsDatabase<Record<string, never>> & {
-    $client: postgres.Sql<{}>;
+    $client: postgres.Sql<Record<string, unknown>>;
   };
-  session = (session != undefined ? session : await auth()) ?? null;
+  session = session ?? (await auth()) ?? null;
 
   if (!session?.user?.id) {
     return {
@@ -106,10 +105,13 @@ async function genCtx({
     session,
     user: {
       get: user,
-      settings: userSettings.reduce((acc, setting) => {
-        acc[setting.key] = setting.value ?? "";
-        return acc;
-      }, {} as Record<string, string>),
+      settings: userSettings.reduce(
+        (acc, setting) => {
+          acc[setting.key] = setting.value ?? "";
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
       isPro,
     },
   };

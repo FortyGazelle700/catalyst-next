@@ -1,8 +1,22 @@
 "use client";
 
-import { api } from "@/server/api";
-import { FeedbackRenderer } from "./client.page";
+import { Skeleton } from "@/components/ui/skeleton";
+import dynamic from "next/dynamic";
 
-export default function FeedbackModalPage({ email }: { email: string }) {
-  return <FeedbackRenderer email={email} />;
-}
+const FeedbackModalPage = dynamic(
+  async () => (await import("./client.page")).FeedbackRenderer,
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex flex-col gap-8">
+        <Skeleton className="h-16 w-[24ch]" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-64" />
+        <Skeleton className="h-24" />
+        <Skeleton className="h-10 ml-auto w-[10ch]" />
+      </div>
+    ),
+  }
+);
+
+export default FeedbackModalPage;

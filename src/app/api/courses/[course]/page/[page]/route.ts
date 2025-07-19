@@ -2,8 +2,11 @@ import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
 export const GET = auth(async (req, ctx) => {
-  const course = ctx.params?.course;
-  const page = String(ctx.params?.page);
+  const params = (await ctx.params) as
+    | { course?: string; page?: string }
+    | undefined;
+  const course = params?.course;
+  const page = String(params?.page);
   const response = await (
     await api({
       session: req.auth,
@@ -16,4 +19,4 @@ export const GET = auth(async (req, ctx) => {
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-}) as any;
+});

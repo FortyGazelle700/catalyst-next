@@ -12,7 +12,6 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
     const { unstable_cache } = await import("next/cache");
 
     const todoList = async () => {
-      console.log("list", ctx?.user?.get?.name);
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
           success: false,
@@ -43,33 +42,41 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
           errors: data.errors,
         };
       }
-      for (const item of data) {
-        const courseURL = new URL(
-          `/api/v1/courses/${item.course_id ?? item.plannable.course_id}`,
-          ctx.user.canvas.url
-        );
-        const courseQuery = await fetch(courseURL, {
-          headers: {
-            Authorization: `Bearer ${ctx.user.canvas.token}`,
-          },
-        });
-        item.course = (await courseQuery.json()) as Course;
-
-        if (item.plannable_type == "assignment") {
-          const assignmentURL = new URL(
-            `/api/v1/courses/${item.course_id}/assignments/${item.plannable.id}`,
-            ctx.user.canvas.url
+      // Parallelize course and assignment fetches
+      await Promise.all(
+        data.map(async (item) => {
+          const courseURL = new URL(
+            `/api/v1/courses/${item.course_id ?? item.plannable.course_id}`,
+            ctx.user.canvas.url,
           );
-          assignmentURL.searchParams.append("include[]", "submission");
-          const assignmentQuery = await fetch(assignmentURL, {
+          const courseQuery = fetch(courseURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
             },
           });
-          item.plannable.content_details =
-            (await assignmentQuery.json()) as Assignment;
-        }
-      }
+
+          let assignmentQuery: Promise<Response> | undefined;
+          if (item.plannable_type == "assignment") {
+            const assignmentURL = new URL(
+              `/api/v1/courses/${item.course_id}/assignments/${item.plannable.id}`,
+              ctx.user.canvas.url,
+            );
+            assignmentURL.searchParams.append("include[]", "submission");
+            assignmentQuery = fetch(assignmentURL, {
+              headers: {
+                Authorization: `Bearer ${ctx.user.canvas.token}`,
+              },
+            });
+          }
+
+          item.course = (await (await courseQuery).json()) as Course;
+          if (assignmentQuery) {
+            item.plannable.content_details = (await (
+              await assignmentQuery
+            ).json()) as Assignment;
+          }
+        }),
+      );
       return {
         success: true,
         data,
@@ -77,11 +84,19 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
       };
     };
 
-    console.log("api", ctx?.user?.get?.name);
-    if (true) {
-      return await unstable_cache(
-        todoList,
-        [
+    return await unstable_cache(
+      todoList,
+      [
+        `user_${ctx.user.get?.id}:todo:mini`,
+        `user_${ctx.user.get?.id}:todo:mini@${[
+          ...Object.entries(input)
+            .map(([k, v]) => `${k}=${v}`)
+            .sort((a, b) => a.localeCompare(b)),
+        ].join(",")}`,
+      ],
+      {
+        revalidate: 1000 * 60 * 5,
+        tags: [
           `user_${ctx.user.get?.id}:todo:mini`,
           `user_${ctx.user.get?.id}:todo:mini@${[
             ...Object.entries(input)
@@ -89,20 +104,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
               .sort((a, b) => a.localeCompare(b)),
           ].join(",")}`,
         ],
-        {
-          revalidate: 1000 * 60 * 5,
-          tags: [
-            `user_${ctx.user.get?.id}:todo:mini`,
-            `user_${ctx.user.get?.id}:todo:mini@${[
-              ...Object.entries(input)
-                .map(([k, v]) => `${k}=${v}`)
-                .sort((a, b) => a.localeCompare(b)),
-            ].join(",")}`,
-          ],
-        }
-      )();
-    } else {
-      return await todoList();
-    }
+      },
+    )();
   };
 }

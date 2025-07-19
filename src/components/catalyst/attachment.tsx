@@ -2,7 +2,7 @@
 
 import { Document, Page, pdfjs } from "react-pdf";
 import Image from "next/image";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -44,6 +44,7 @@ import {
 import prettyBytes from "pretty-bytes";
 import { Temporal } from "@js-temporal/polyfill";
 import { formatDuration } from "./format-duration";
+import { type ILottie } from "@lottielab/lottie-player/react";
 
 export function AttachmentPreview({
   attachment,
@@ -57,7 +58,7 @@ export function AttachmentPreview({
   onRemove?: () => void;
 }) {
   return (
-    <div className="flex h-16 min-w-96 max-w-96 items-center gap-4 overflow-hidden rounded-xl border px-3">
+    <div className="flex h-16 max-w-96 min-w-96 items-center gap-4 overflow-hidden rounded-xl border px-3">
       {(() => {
         if (attachment.type.startsWith("image/")) {
           return (
@@ -66,18 +67,18 @@ export function AttachmentPreview({
               width={32}
               height={32}
               alt={""}
-              className="grid size-8 flex-shrink-0 place-items-center rounded-sm outline-1 outline-offset-2 outline-border"
+              className="outline-border grid size-8 flex-shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"
             />
           );
         } else if (attachment.type.startsWith("audio/")) {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2 outline-border">
+            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <Music className="size-8" />
             </div>
           );
         } else if (attachment.type.startsWith("video/")) {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2 outline-border">
+            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <Video className="size-8" />
             </div>
           );
@@ -90,13 +91,13 @@ export function AttachmentPreview({
           attachment.type == "text/plain"
         ) {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2 outline-border">
+            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <FileText className="size-8" />
             </div>
           );
         } else if (attachment.type == "application/zip") {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2 outline-border">
+            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <FolderArchive className="size-8" />
             </div>
           );
@@ -105,19 +106,19 @@ export function AttachmentPreview({
           attachment.name.endsWith(".dmg")
         ) {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2 outline-border">
+            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <AppWindowMac className="size-8" />
             </div>
           );
         } else {
           return (
-            <div className="grid size-8 flex-shrink-0 place-items-center rounded-sm bg-secondary outline-1 outline-offset-2 outline-border"></div>
+            <div className="bg-secondary outline-border grid size-8 flex-shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"></div>
           );
         }
       })()}
       <div className="w-[calc(100%-2rem)] overflow-hidden">
         <div className="truncate">{attachment.name}</div>
-        <div className="flex gap-2 overflow-hidden text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex gap-2 overflow-hidden text-xs">
           <div className="w-max text-nowrap">
             {prettyBytes(attachment.size)}
           </div>
@@ -186,7 +187,7 @@ export function FilePreview({ file }: { file: File }) {
         alt={"Preview Image"}
         width={10000}
         height={10000}
-        className="h-auto w-full rounded p-"
+        className="p- h-auto w-full rounded"
       />
     );
   } else if (file.type.startsWith("audio/")) {
@@ -202,7 +203,7 @@ export function FilePreview({ file }: { file: File }) {
       "application/vnd.openxmlformats-officedocument.presentationml.presentation"
   ) {
     return (
-      <div className="flex items-center justify-start gap-2 rounded bg-destructive p-4 text-destructive-foreground">
+      <div className="bg-destructive text-destructive-foreground flex items-center justify-start gap-2 rounded p-4">
         <FileWarning />
         <p>
           Word and Powerpoint Documents are unable to be viewed in the browser.
@@ -213,7 +214,7 @@ export function FilePreview({ file }: { file: File }) {
     );
   } else {
     return (
-      <div className="flex items-center justify-start gap-2 rounded bg-destructive p-4 text-destructive-foreground">
+      <div className="bg-destructive text-destructive-foreground flex items-center justify-start gap-2 rounded p-4">
         <FileWarning />
         <p>
           Unsupported file type. Please download the file to view it in your
@@ -228,21 +229,84 @@ function AudioPreview({ src, className }: { src: string; className?: string }) {
   const audio = useRef<HTMLAudioElement>(new Audio(src));
 
   return (
-    <AudioVideoControls audio={audio} className={cn("w-full p-4", className)} />
+    <AudioVideoControls
+      src={audio}
+      hasAudio={true}
+      type="audio"
+      className={cn("w-full p-4", className)}
+      hasDownload={true}
+    />
   );
 }
 
-function AudioVideoControls({
-  audio,
-  isVideo,
-  videoParent,
+export function VideoPreview({
+  src,
   className,
+  hasAudio = true,
 }: {
-  audio: RefObject<HTMLAudioElement | HTMLVideoElement | null>;
+  src: string;
   className?: string;
-  isVideo?: boolean;
-  videoParent?: RefObject<HTMLDivElement | null>;
+  hasAudio?: boolean;
 }) {
+  const videoParent = useRef<HTMLDivElement | null>(null);
+  const video = useRef<HTMLVideoElement | null>(null);
+
+  return (
+    <div
+      className={cn("bg-background flex flex-col gap-2 p-4", className)}
+      ref={videoParent}
+    >
+      <video
+        src={src}
+        className="w-full overflow-hidden rounded-md"
+        ref={video}
+        onClick={() =>
+          video.current?.paused ? video.current?.play() : video.current?.pause()
+        }
+      />
+      <AudioVideoControls
+        src={video}
+        hasAudio={hasAudio}
+        type="video"
+        srcParent={videoParent}
+        hasDownload={true}
+      />
+    </div>
+  );
+}
+
+export function AudioVideoControls({
+  src,
+  type,
+  srcParent,
+  className,
+  hasAudio = true,
+  hasDownload = true,
+}:
+  | {
+      src: RefObject<HTMLAudioElement | null>;
+      className?: string;
+      type: "audio";
+      srcParent?: RefObject<null>;
+      hasAudio: true;
+      hasDownload: boolean;
+    }
+  | {
+      src: RefObject<HTMLVideoElement | null>;
+      className?: string;
+      type: "video";
+      srcParent?: RefObject<HTMLDivElement | null>;
+      hasAudio: boolean;
+      hasDownload: boolean;
+    }
+  | {
+      src: RefObject<ILottie | null>;
+      className?: string;
+      type: "animation";
+      srcParent?: RefObject<HTMLDivElement | null>;
+      hasAudio: false;
+      hasDownload: false;
+    }) {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -250,28 +314,37 @@ function AudioVideoControls({
   const [volume, setVolume] = useState<number>(0.8);
   const [speed, setSpeed] = useState<number>(1);
 
-  useEffect(() => {
-    isPlaying ? (audio.current?.play() as void) : audio.current?.pause();
-  }, [audio, isPlaying]);
+  const hasLoaded = useRef(false);
 
   useEffect(() => {
-    if (audio.current) audio.current.muted = isMuted;
-  }, [audio, isMuted]);
+    (async () => {
+      await (isPlaying ? src.current?.play() : src.current?.pause());
+    })().catch(console.error);
+  }, [src, isPlaying]);
 
   useEffect(() => {
-    if (audio.current) audio.current.volume = volume;
-  }, [audio, volume]);
+    if (src.current && "muted" in src.current) src.current.muted = isMuted;
+  }, [src, isMuted]);
 
   useEffect(() => {
-    if (audio.current?.paused) audio.current.currentTime = currentTime;
-  }, [audio, currentTime]);
+    if (src.current && "volume" in src.current) src.current.volume = volume;
+  }, [src, volume]);
 
   useEffect(() => {
-    if (audio.current) audio.current.playbackRate = speed;
-  }, [audio, speed]);
+    if (src.current && "paused" in src.current && src.current.paused)
+      src.current.currentTime = currentTime;
+    if (src.current && "playing" in src.current && !src.current.playing)
+      src.current.currentTime = currentTime;
+  }, [src, currentTime]);
 
   useEffect(() => {
-    const currAudio = audio.current;
+    if (src.current && "playbackRate" in src.current)
+      src.current.playbackRate = speed;
+    if (src.current && "speed" in src.current) src.current.speed = speed;
+  }, [src, speed]);
+
+  useEffect(() => {
+    const currSrc = src.current;
     const onKeyPress = (evt: KeyboardEvent) => {
       (async () => {
         if (evt.code == "Space") {
@@ -281,7 +354,8 @@ function AudioVideoControls({
         if (evt.code == "KeyF") {
           evt.preventDefault();
           if (document.fullscreenElement) await document.exitFullscreen();
-          else if (isVideo) await videoParent?.current?.requestFullscreen();
+          else if (type === "video")
+            await srcParent?.current?.requestFullscreen();
         }
         if (evt.code == "KeyM") {
           evt.preventDefault();
@@ -297,40 +371,70 @@ function AudioVideoControls({
         }
         if (evt.code == "ArrowLeft") {
           evt.preventDefault();
-          setCurrentTime(Math.max((currAudio?.currentTime ?? 5) - 5, 0));
+          setCurrentTime(Math.max((currSrc?.currentTime ?? 5) - 5, 0));
         }
         if (evt.code == "ArrowRight") {
           evt.preventDefault();
-          setCurrentTime(Math.min((currAudio?.currentTime ?? 0) + 5, duration));
+          setCurrentTime(Math.min((currSrc?.currentTime ?? 0) + 5, duration));
         }
       })().catch(console.error);
     };
 
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
-    const onTimeUpdate = () => setCurrentTime(currAudio?.currentTime ?? 0);
-    const onDurationChange = () => setDuration(currAudio?.duration ?? 0);
+    const onTimeUpdate = () => setCurrentTime(src.current?.currentTime ?? 0);
+    const onDurationChange = () => setDuration(src.current?.duration ?? 0);
     const onEnded = () => setIsPlaying(false);
 
     document.body.addEventListener("keydown", onKeyPress);
-    currAudio?.addEventListener("play", onPlay);
-    currAudio?.addEventListener("pause", onPause);
-    currAudio?.addEventListener("timeupdate", onTimeUpdate);
-    currAudio?.addEventListener("durationchange", onDurationChange);
-    currAudio?.addEventListener("ended", onEnded);
+    if (type != "animation") {
+      if (!currSrc || !("addEventListener" in currSrc)) return;
+      currSrc?.addEventListener("play", onPlay);
+      currSrc?.addEventListener("pause", onPause);
+      currSrc?.addEventListener("timeupdate", onTimeUpdate);
+      currSrc?.addEventListener("durationchange", onDurationChange);
+      currSrc?.addEventListener("ended", onEnded);
+    } else {
+      let loadIter = 0;
+      const check = setInterval(() => {
+        if (!src.current) {
+          return;
+        }
+        loadIter++;
+        if (loadIter < 10) return;
+        hasLoaded.current = true;
+        clearInterval(check);
+        onPlay();
+        onDurationChange();
+        if (!src.current || !("on" in src.current)) return;
+        src.current.on("time", onTimeUpdate);
+      }, 100);
+    }
     return () => {
       document.body.removeEventListener("keydown", onKeyPress);
-      currAudio?.removeEventListener("play", onPlay);
-      currAudio?.removeEventListener("pause", onPause);
-      currAudio?.removeEventListener("timeupdate", onTimeUpdate);
-      currAudio?.removeEventListener("durationchange", onDurationChange);
-      currAudio?.removeEventListener("ended", onEnded);
+      if (!currSrc || !("removeEventListener" in currSrc)) return;
+      currSrc?.removeEventListener("play", onPlay);
+      currSrc?.removeEventListener("pause", onPause);
+      currSrc?.removeEventListener("timeupdate", onTimeUpdate);
+      currSrc?.removeEventListener("durationchange", onDurationChange);
+      currSrc?.removeEventListener("ended", onEnded);
     };
-  }, [duration, audio, isVideo, videoParent]);
+  }, [duration, src, type, srcParent]);
+
+  const isFinished = useMemo(() => {
+    if (src.current && "ended" in src.current) {
+      return src.current.ended;
+    } else {
+      return src.current?.currentTime == duration;
+    }
+  }, [duration, src]);
 
   return (
     <div
-      className={cn("flex items-center gap-4 rounded-xl border p-2", className)}
+      className={cn(
+        "@container flex items-center gap-4 rounded-xl border p-2",
+        className,
+      )}
     >
       <div className="flex flex-1 items-center gap-2">
         <div className="w-10">
@@ -339,16 +443,10 @@ function AudioVideoControls({
             className="py-4"
             onClick={() => setIsPlaying(!isPlaying)}
           >
-            {isPlaying ? (
-              <Pause />
-            ) : audio.current?.ended ? (
-              <RotateCcw />
-            ) : (
-              <Play />
-            )}
+            {isPlaying ? <Pause /> : isFinished ? <RotateCcw /> : <Play />}
           </Button>
         </div>
-        <div className="flex w-full flex-1 flex-col gap-1">
+        <div className="hidden w-full flex-1 flex-col gap-1 @sm:flex">
           <Slider
             defaultValue={[0]}
             value={[currentTime ?? 0]}
@@ -359,7 +457,7 @@ function AudioVideoControls({
             }}
           />
           <div className="flex items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 font-mono">
               <span>
                 {formatDuration(
                   Temporal.Duration.from({
@@ -368,7 +466,7 @@ function AudioVideoControls({
                   {
                     style: "digital",
                     minUnit: "second",
-                  }
+                  },
                 )}
               </span>
               <span>
@@ -379,7 +477,7 @@ function AudioVideoControls({
                   {
                     style: "digital",
                     minUnit: "second",
-                  }
+                  },
                 )}
               </span>
             </div>
@@ -392,7 +490,7 @@ function AudioVideoControls({
                   {
                     style: "digital",
                     minUnit: "second",
-                  }
+                  },
                 )}
               </span>
               <span>
@@ -403,45 +501,47 @@ function AudioVideoControls({
                   {
                     style: "digital",
                     minUnit: "second",
-                  }
+                  },
                 )}
               </span>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex w-[15ch] items-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsMuted(!isMuted)}
-        >
-          {isMuted ? <VolumeX /> : <Volume2 />}
-        </Button>
-        <div
-          className={cn(
-            "flex w-[calc(100%-3rem)] flex-col gap-1",
-            isMuted ? "opacity-50" : null
-          )}
-        >
-          <Slider
-            defaultValue={[0.8]}
-            value={[volume]}
-            step={0.05}
-            max={1}
-            onValueChange={(value) => {
-              setIsMuted(false);
-              setVolume(value[0]!);
-            }}
-          />
-          <div className="flex justify-between gap-2 text-xs">
-            <span className="w-[4ch]">0%</span>
-            <span className="w-[4ch]">{Math.floor(volume * 100)}%</span>
-            <span className="w-[4ch]">100%</span>
+      {hasAudio && (
+        <div className="hidden w-[15ch] items-center gap-2 @md:flex">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsMuted(!isMuted)}
+          >
+            {isMuted ? <VolumeX /> : <Volume2 />}
+          </Button>
+          <div
+            className={cn(
+              "flex w-[calc(100%-3rem)] flex-col gap-1",
+              isMuted ? "opacity-50" : null,
+            )}
+          >
+            <Slider
+              defaultValue={[0.8]}
+              value={[volume]}
+              step={0.05}
+              max={1}
+              onValueChange={(value) => {
+                setIsMuted(false);
+                setVolume(value[0]!);
+              }}
+            />
+            <div className="flex justify-between gap-2 text-xs">
+              <span className="w-[4ch]">0%</span>
+              <span className="w-[4ch]">{Math.floor(volume * 100)}%</span>
+              <span className="w-[4ch]">100%</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex w-[15ch] items-center gap-2">
+      )}
+      <div className="hidden w-[15ch] items-center gap-2 @md:flex">
         <Button variant="outline" size="icon" onClick={() => setSpeed(1)}>
           <Gauge />
         </Button>
@@ -462,22 +562,25 @@ function AudioVideoControls({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          href={audio.current?.src ?? ""}
-          download
-        >
-          <Download />
-        </Button>
-        {isVideo && (
+        {hasDownload && (
+          <Button
+            variant="outline"
+            size="icon"
+            href={src.current && "src" in src.current ? src.current.src : ""}
+            download
+            className="hidden @md:flex"
+          >
+            <Download />
+          </Button>
+        )}
+        {type != "audio" && (
           <Button
             variant="outline"
             size="icon"
             onClick={() =>
               document.fullscreenElement
                 ? document.exitFullscreen()
-                : videoParent?.current?.requestFullscreen()
+                : srcParent?.current?.requestFullscreen()
             }
           >
             {(() =>
@@ -485,34 +588,6 @@ function AudioVideoControls({
           </Button>
         )}
       </div>
-    </div>
-  );
-}
-
-export function VideoPreview({
-  src,
-  className,
-}: {
-  src: string;
-  className?: string;
-}) {
-  const videoParent = useRef<HTMLDivElement | null>(null);
-  const video = useRef<HTMLVideoElement | null>(null);
-
-  return (
-    <div
-      className={cn("flex flex-col gap-2 bg-background p-4", className)}
-      ref={videoParent}
-    >
-      <video
-        src={src}
-        className="w-full overflow-hidden rounded-md"
-        ref={video}
-        onClick={() =>
-          video.current?.paused ? video.current?.play() : video.current?.pause()
-        }
-      />
-      <AudioVideoControls audio={video} isVideo videoParent={videoParent} />
     </div>
   );
 }
@@ -536,8 +611,8 @@ export function TextPreview({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 overflow-auto rounded-md bg-background p-4",
-        className
+        "bg-background flex flex-col gap-2 overflow-auto rounded-md p-4",
+        className,
       )}
     >
       <pre>{text}</pre>
@@ -556,11 +631,11 @@ export function PDF({ src }: { src: File }) {
       els.forEach((el) => {
         if (el.isIntersecting) {
           setCurrentPage(
-            Number(el.target.getAttribute("data-page-number") ?? 0) - 1
+            Number(el.target.getAttribute("data-page-number") ?? 0) - 1,
           );
         }
       });
-    })
+    }),
   );
   const [pages, setPages] = useState<HTMLDivElement[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -601,7 +676,7 @@ export function PDF({ src }: { src: File }) {
         evt.preventDefault();
         const newPage = Math.min(
           Math.max(Number(evt.key) - 1, 0),
-          numPages - 1
+          numPages - 1,
         );
         setCurrentPage(newPage);
         pageInput.current?.focus();
@@ -638,7 +713,7 @@ export function PDF({ src }: { src: File }) {
 
   return (
     <div
-      className="block h-full w-full overflow-auto bg-background p-2"
+      className="bg-background block h-full w-full overflow-auto p-2"
       ref={pdfContainer}
     >
       <Document
@@ -646,8 +721,8 @@ export function PDF({ src }: { src: File }) {
         onLoadSuccess={onLoad}
         onLoadError={onError}
         className={cn(
-          "mx-auto flex w-[clamp(50ch,100%,100ch)] flex-col !items-stretch !gap-4 text-black [&>div>*]:!h-auto [&>div>*]:!w-full [&>div]:!min-w-0 [&>div]:flex-shrink-0 [&>div]:overflow-hidden [&>div]:rounded-xl [&>div]:border",
-          (isLoading || isError) && "hidden"
+          "mx-auto flex w-[clamp(50ch,100%,100ch)] flex-col !items-stretch !gap-4 text-black [&>div]:!min-w-0 [&>div]:flex-shrink-0 [&>div]:overflow-hidden [&>div]:rounded-xl [&>div]:border [&>div>*]:!h-auto [&>div>*]:!w-full",
+          (isLoading || isError) && "hidden",
         )}
       >
         {Array.from({ length: numPages }, (_, i) => i + 1).map((page) => (
@@ -655,7 +730,7 @@ export function PDF({ src }: { src: File }) {
         ))}
       </Document>
       {!isLoading && !isError && (
-        <div className="fixed bottom-4 right-8 z-10 flex items-center gap-2 rounded-xl border bg-background p-2">
+        <div className="bg-background fixed right-8 bottom-4 z-10 flex items-center gap-2 rounded-xl border p-2">
           <Button
             variant="outline"
             size="icon"
@@ -690,7 +765,7 @@ export function PDF({ src }: { src: File }) {
               onChange={() => {
                 const newPage = Math.min(
                   Math.max(Number(pageInput.current?.value ?? 0) - 1, 0),
-                  numPages - 1
+                  numPages - 1,
                 );
                 setCurrentPage(newPage);
                 pages[newPage]?.scrollIntoView({ behavior: "smooth" });
@@ -729,7 +804,7 @@ export function PDF({ src }: { src: File }) {
         </div>
       )}
       {isError && (
-        <div className="flex items-center justify-center gap-2 rounded bg-destructive p-4 text-destructive-foreground">
+        <div className="bg-destructive text-destructive-foreground flex items-center justify-center gap-2 rounded p-4">
           <FileWarning />
           <p>Unable to load PDF. Please try again later.</p>
         </div>

@@ -119,8 +119,8 @@ export default async function todoList(ctx: CanvasApiCtx) {
             const dateB = new Date(b.plannable_date ?? "").getTime();
             if (dateA !== dateB) return dateA - dateB;
           } else if (sortKey === "course") {
-            const courseA = a.course?.name?.toLowerCase() || "";
-            const courseB = b.course?.name?.toLowerCase() || "";
+            const courseA = a.course?.name?.toLowerCase() ?? "";
+            const courseB = b.course?.name?.toLowerCase() ?? "";
             if (courseA !== courseB) return courseA.localeCompare(courseB);
           } else if (sortKey === "completed") {
             const completedA = a.planner_override?.marked_complete ? 1 : 0;
@@ -128,9 +128,9 @@ export default async function todoList(ctx: CanvasApiCtx) {
             if (completedA !== completedB) return completedA - completedB;
           } else if (sortKey === "status") {
             const statusA =
-              a.plannable.content_details?.submission?.workflow_state || "";
+              a.plannable.content_details?.submission?.workflow_state ?? "";
             const statusB =
-              b.plannable.content_details?.submission?.workflow_state || "";
+              b.plannable.content_details?.submission?.workflow_state ?? "";
             if (statusA !== statusB) return statusA.localeCompare(statusB);
           } else if (sortKey === "title") {
             const titleA = a.plannable.title?.toLowerCase() || "";
@@ -150,7 +150,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
       for (const item of data) {
         const courseURL = new URL(
           `/api/v1/courses/${item.course_id ?? item.plannable.course_id}`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
         const courseQuery = await fetch(courseURL, {
           headers: {
@@ -162,7 +162,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
         if (item.plannable_type == "assignment") {
           const assignmentURL = new URL(
             `/api/v1/courses/${item.course_id}/assignments/${item.plannable.id}`,
-            ctx.user.canvas.url
+            ctx.user.canvas.url,
           );
           assignmentURL.searchParams.append("include[]", "submission");
           const assignmentQuery = await fetch(assignmentURL, {
@@ -180,31 +180,28 @@ export default async function todoList(ctx: CanvasApiCtx) {
         errors: [],
       };
     };
-    if (true) {
-      return await unstable_cache(
-        todoList,
-        [
+
+    return await unstable_cache(
+      todoList,
+      [
+        `user_${ctx.user.get?.id}:todo:list`,
+        `user_${ctx.user.get?.id}:todo:list@${[
+          ...Object.entries(input)
+            .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+            .sort((a, b) => a.localeCompare(b)),
+        ].join(",")}`,
+      ],
+      {
+        revalidate: 1000 * 60 * 5,
+        tags: [
           `user_${ctx.user.get?.id}:todo:list`,
           `user_${ctx.user.get?.id}:todo:list@${[
             ...Object.entries(input)
-              .map(([k, v]) => `${k}=${v}`)
+              .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
               .sort((a, b) => a.localeCompare(b)),
           ].join(",")}`,
         ],
-        {
-          revalidate: 1000 * 60 * 5,
-          tags: [
-            `user_${ctx.user.get?.id}:todo:list`,
-            `user_${ctx.user.get?.id}:todo:list@${[
-              ...Object.entries(input)
-                .map(([k, v]) => `${k}=${v}`)
-                .sort((a, b) => a.localeCompare(b)),
-            ].join(",")}`,
-          ],
-        }
-      )();
-    } else {
-      return await todoList();
-    }
+      },
+    )();
   };
 }

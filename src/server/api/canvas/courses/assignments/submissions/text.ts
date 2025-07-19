@@ -2,7 +2,7 @@
 
 import PostHogClient from "@/server/posthog";
 import type { CanvasApiCtx } from "../../..";
-import type { CanvasErrors, Submission } from "../../../types";
+import type { Submission } from "../../../types";
 
 export type FrontPageInput = {
   courseId: number;
@@ -25,7 +25,7 @@ export default async function createTextSubmission(ctx: CanvasApiCtx) {
     const submit = async () => {
       const url = new URL(
         `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions`,
-        ctx.user.canvas.url
+        ctx.user.canvas.url,
       );
       const data = new FormData();
       data.append("submission[submission_type]", "online_text_entry");

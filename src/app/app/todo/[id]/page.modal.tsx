@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { CanvasErrors, PlannerNote } from "@/server/api/canvas/types";
+import { type CanvasErrors, type PlannerNote } from "@/server/api/canvas/types";
 import { useEffect, useState } from "react";
 import { TodoItemRenderer } from "./client.page";
 
@@ -20,20 +20,23 @@ export default function TodoItemModalPage({ id }: { id: number }) {
   useEffect(() => {
     const fetchData = async () => {
       const req = await fetch(`/api/todo/get-note/${id}`);
-      const res = await req.json();
+      const res = (await req.json()) as {
+        success: boolean;
+        data: PlannerNote | undefined;
+      } & CanvasErrors;
       setResponse(res);
     };
 
-    fetchData();
+    fetchData().catch(console.error);
   }, [id]);
 
   if (!response?.success) {
     return (
-      <div className="px-8 pt-8 pb-16 flex flex-col gap-2">
+      <div className="flex flex-col gap-2 px-8 pt-8 pb-16">
         <h1 className="h1">Todo Item Not Found</h1>
         <p>
-          You either don't have access to view this resource, or it doesn't
-          exist
+          You either don{"'"}t have access to view this resource, or it doesn
+          {"'"}t exist
         </p>
       </div>
     );
@@ -41,7 +44,7 @@ export default function TodoItemModalPage({ id }: { id: number }) {
 
   if (!response?.data) {
     return (
-      <div className="px-8 pt-8 pb-16 flex flex-col gap-2">
+      <div className="flex flex-col gap-2 px-8 pt-8 pb-16">
         <h1 className="h1">
           <Skeleton className="h-[1em] w-[20ch] rounded-full" />
         </h1>
@@ -51,14 +54,14 @@ export default function TodoItemModalPage({ id }: { id: number }) {
           <Skeleton className="h-[1rem] w-[80ch] rounded-full" />
           <Skeleton className="h-[1rem] w-[30ch] rounded-full" />
         </div>
-        <Skeleton className="h-10 w-18 rounded-full fixed bottom-0 right-0 m-4" />
+        <Skeleton className="fixed right-0 bottom-0 m-4 h-10 w-18 rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="px-8 pt-8 pb-16 flex flex-col gap-2">
-      <TodoItemRenderer todoItem={response.data!} />
+    <div className="flex flex-col gap-2 px-8 pt-8 pb-16">
+      <TodoItemRenderer todoItem={response.data} />
     </div>
   );
 }

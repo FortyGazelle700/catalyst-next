@@ -1,20 +1,19 @@
 "use client";
 
-import { CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
+import { type CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { CommandMenuProvider } from "./command-menu";
 
-type CoursesContextValue =
-  | (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
-      time: {
-        start?: Date;
-        end?: Date;
-        startTime: string;
-        endTime: string;
-        active: boolean;
-        activePinned: boolean;
-      };
-    })[];
+type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
+  time: {
+    start?: Date;
+    end?: Date;
+    startTime: string;
+    endTime: string;
+    active: boolean;
+    activePinned: boolean;
+  };
+})[];
 
 export const TimeContext = createContext<Date>(new Date());
 export const CoursesContext = createContext<CoursesContextValue>([]);
@@ -24,13 +23,13 @@ function TimeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    const msToNextSecond = 1000 - now.getMilliseconds();
+    const msToNextSecond = 60 * 1000 - now.getMilliseconds();
     setTimeout(() => {
       interval = setInterval(() => setNow(new Date()), 1000);
       setNow(new Date());
     }, msToNextSecond);
     return () => clearInterval(interval);
-  }, []);
+  }, [now]);
 
   return <TimeContext.Provider value={now}>{children}</TimeContext.Provider>;
 }
@@ -53,11 +52,15 @@ function CourseProvider({
   useEffect(() => {
     const code = async () => {
       const req = await fetch("/api/courses/list-with-period-data");
-      let { data: courses } = await req.json();
+      let { data: courses } = (await req.json()) as {
+        success: boolean;
+        data: CourseListWithPeriodDataOutput;
+        errors?: { message: string }[];
+      };
       courses = courses.map((course: CourseListWithPeriodDataOutput[0]) => {
         if (course.classification == "Not Available") {
           course.classification = ssrCourses.find(
-            (c) => c.id == course.id
+            (c) => c.id == course.id,
           )?.classification;
         }
         return course;
@@ -66,17 +69,22 @@ function CourseProvider({
       lastFetch.current = new Date();
     };
     code().catch(console.error);
-    setInterval(code, 60 * 60 * 1000);
+    setTimeout(() => {
+      code().catch(console.error);
+    }, 10 * 1000);
+    setInterval(() => {
+      code().catch(console.error);
+    }, 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 60 * 1000) {
+      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
         code().catch(console.error);
       }
     });
-  }, []);
+  }, [ssrCourses]);
 
   useEffect(() => {
     const newCourses = originalCourses.map((originalCourse) => {
-      let course = originalCourse as unknown as CoursesContextValue[0];
+      const course = originalCourse as unknown as CoursesContextValue[0];
       if (!course.time) {
         course.time = {
           start: undefined,
@@ -89,10 +97,10 @@ function CourseProvider({
         return course;
       }
       const start = new Date(
-        `${now.toISOString().split("T")[0]}T${course.time?.startTime}Z`
+        `${now.toISOString().split("T")[0]}T${course.time?.startTime}Z`,
       );
       const end = new Date(
-        `${now.toISOString().split("T")[0]}T${course.time?.endTime}Z`
+        `${now.toISOString().split("T")[0]}T${course.time?.endTime}Z`,
       );
 
       if (start.getDate() != now.getDate()) start.setDate(now.getDate());
@@ -126,7 +134,7 @@ function CourseProvider({
         .filter(
           (course) =>
             (course.time?.start?.getTime() ?? 0) > now.getTime() &&
-            now.getTime() < (course.time?.end?.getTime() ?? 0)
+            now.getTime() < (course.time?.end?.getTime() ?? 0),
         )
         .sort((a, b) => +a.time.start! - +b.time.start!)[0];
 
@@ -145,7 +153,7 @@ function CourseProvider({
     window.addEventListener("blur", () => {
       unfocused.current = true;
     });
-  }, [now, originalCourses]);
+  }, [courses.length, now, originalCourses]);
 
   return (
     <CoursesContext.Provider value={courses}>

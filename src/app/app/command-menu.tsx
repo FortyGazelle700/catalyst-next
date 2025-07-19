@@ -3,9 +3,6 @@
 import {
   CommandInput,
   CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
   CommandDialog,
 } from "@/components/ui/command";
 import { Slot } from "@radix-ui/react-slot";
@@ -36,7 +33,7 @@ export function CommandMenuProvider({
 
 export function OpenCommandMenu({ children }: { children: React.ReactNode }) {
   const { setOpen } = useContext(CommandMenuContext);
-  return <Slot onClick={() => setOpen(true)} children={children} />;
+  return <Slot onClick={() => setOpen(true)}>{children}</Slot>;
 }
 
 export function CommandMenu({
@@ -50,10 +47,10 @@ export function CommandMenu({
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder="Type a command..." />
       <CommandList>
-        <div className="px-8 pt-16 pb-4 flex flex-col">
+        <div className="flex flex-col px-8 pt-16 pb-4">
           <Construction className="-mb-2 size-12" />
           <h1 className="h3 font-bold">Currently Under Construction</h1>
-          <p className="p text-muted-foreground text-xs -mt-2">
+          <p className="p text-muted-foreground -mt-2 text-xs">
             This command menu is currently under construction. Please check back
             later.
           </p>
