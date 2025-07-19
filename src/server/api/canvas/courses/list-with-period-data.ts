@@ -69,8 +69,8 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
         .where(
           eq(
             periods.schoolId,
-            userSettings.find((val) => val.key == "school_id")?.value ?? ""
-          )
+            userSettings.find((val) => val.key == "school_id")?.value ?? "",
+          ),
         );
 
       const currentSchedule = await ctx.db
@@ -80,13 +80,13 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
           and(
             eq(
               scheduleDates.schoolId,
-              userSettings.find((val) => val.key == "school_id")?.value ?? ""
+              userSettings.find((val) => val.key == "school_id")?.value ?? "",
             ),
             eq(
               scheduleDates.date,
-              new Date(new Date().toDateString() + " 00:00:00 UTC")
-            )
-          )
+              new Date(new Date().toDateString() + " 00:00:00 UTC"),
+            ),
+          ),
         );
 
       const schedule = await ctx.db
@@ -96,8 +96,8 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
           eq(
             periodTimes.scheduleId,
             currentSchedule.find((val) => val.id == currentSchedule[0]?.id)
-              ?.scheduleId ?? ""
-          )
+              ?.scheduleId ?? "",
+          ),
         );
 
       const updatedCourses = await Promise.all(
@@ -107,7 +107,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
           try {
             const assignmentURL = new URL(
               `/api/v1/courses/${course.id}/students/submissions`,
-              ctx.user.canvas.url
+              ctx.user.canvas.url,
             );
 
             assignmentURL.searchParams.set("per_page", "100");
@@ -129,19 +129,24 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
                   (assignment.assignment?.points_possible ?? 0) != 0) ||
                 (!assignment.excused &&
                   assignment.score == 0 &&
-                  (assignment.assignment?.points_possible ?? 0) != 0)
+                  (assignment.assignment?.points_possible ?? 0) != 0),
             );
 
             missingAssignments = missing.length;
           } catch (err) {
-            // something doesn't work
+            console.error(
+              "Failed to fetch assignments for course:",
+              course.id,
+              err,
+            );
+            missingAssignments = 0;
           }
 
           const time = schedule.find(
             (time) =>
               time.optionId ==
               periodValues.find((val) => Number(val.value) == course.id)
-                ?.periodId
+                ?.periodId,
           );
 
           return {
@@ -153,7 +158,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
               (period) =>
                 period.periodId ==
                 periodValues.find((val) => Number(val.value) == course.id)
-                  ?.periodId
+                  ?.periodId,
             ),
             time: time
               ? {
@@ -167,12 +172,12 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
                 }
               : undefined,
           };
-        })
+        }),
       );
       const updatedCoursesSorted = updatedCourses.sort((a, b) =>
         (a.period?.periodOrder ?? 100000) > (b.period?.periodOrder ?? 100000)
           ? 1
-          : -1
+          : -1,
       );
 
       return {
@@ -204,7 +209,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await courseListWithPeriodData();

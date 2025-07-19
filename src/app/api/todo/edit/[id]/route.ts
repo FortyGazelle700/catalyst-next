@@ -1,41 +1,44 @@
 import { auth } from "@/server/auth";
 import { api } from "@/server/api";
+import { z } from "zod";
+
+const TodoSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  due_at: z.string(),
+  course_id: z.number(),
+});
 
 export const PUT = auth(async (req, ctx) => {
-  const param = ctx.params;
-  const body = await req.json();
+  const param = (await ctx.params) as { id: string } | undefined;
+  const body = (await req.json()) as z.infer<typeof TodoSchema>;
 
-  if (
-    typeof body?.title !== "string" ||
-    typeof body?.description !== "string" ||
-    typeof body?.due_at !== "string" ||
-    typeof body?.course_id !== "number"
-  ) {
+  const parsedBody = TodoSchema.safeParse(body);
+
+  if (!parsedBody.success) {
     return Response.json(
       {
         success: false,
         data: [],
-        errors: [
-          {
-            message: "Mismatched Schema",
-          },
-        ],
+        errors: parsedBody.error.errors.map((err) => ({
+          message: err.message,
+          path: err.path,
+        })),
       },
       {
         status: 400,
-      }
+      },
     );
   }
+
   const response = await (
     await api({})
   ).canvas.todo.edit({
     id: Number(param?.id),
-    title: body?.title,
-    description: body?.description,
-    due_at: body?.due_at,
-    course_id: body?.course_id,
+    ...parsedBody.data,
   });
+
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-}) as any;
+});

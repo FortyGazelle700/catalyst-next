@@ -4,9 +4,11 @@ import { auth } from "@/server/auth";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CourseList, MiniTodoList, MissingCard, TimeCard } from "./page.client";
+import { MissingCard } from "./page.client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Metadata } from "next";
+import { type Metadata } from "next";
+
+import { TimeCard, MiniTodoList, CourseList } from "./page.dynamic";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -25,13 +27,7 @@ export default async function DashboardPage() {
       <ElementAnimate delay={400} className="w-full @container">
         <h2 className="h3 text-muted-foreground">Overview</h2>
         <div className="py-4 flex gap-2 @3xl:flex-row flex-col h-auto">
-          <Suspense
-            fallback={
-              <Skeleton className="w-96 h-52 rounded-t-md rounded-b-xs @3xl:rounded-l-md @3xl:rounded-r-xs" />
-            }
-          >
-            <TimeCard />
-          </Suspense>
+          <TimeCard />
           <Suspense fallback={<Skeleton className="w-96 h-52 rounded-xs" />}>
             <MissingCard />
           </Suspense>
@@ -40,7 +36,7 @@ export default async function DashboardPage() {
               <Skeleton className="w-96 h-52 rounded-t-xs rounded-b-md @3xl:rounded-l-xs @3xl:rounded-r-md" />
             }
           >
-            <div className="relative flex-1 border stack h-52 rounded-t-xs rounded-b-md @3xl:rounded-l-xs @3xl:rounded-r-md group overflow-hidden">
+            <div className="relative @3xl:flex-1 border stack h-36 @3xl:h-52 rounded-t-xs rounded-b-md @3xl:rounded-l-xs @3xl:rounded-r-md group overflow-hidden">
               <div className="flex flex-col p-4 justify-end group-hover:scale-90 group-hover:opacity-0 transition-all">
                 <h3 className="text-lg text-muted-foreground">Messages</h3>
                 <h4 className="text-4xl font-bold">0</h4>
@@ -66,16 +62,7 @@ export default async function DashboardPage() {
       <ElementAnimate delay={500} className="w-full">
         <h2 className="h3 text-muted-foreground">Courses</h2>
         <div className="-mx-8 px-8 flex gap-4 overflow-auto py-4">
-          <Suspense
-            fallback={Array.from({ length: 10 }).map((_, idx) => (
-              <Skeleton
-                key={idx}
-                className="w-96 h-40 rounded-xs flex-shrink-0"
-              />
-            ))}
-          >
-            <CourseList />
-          </Suspense>
+          <CourseList />
           <Button
             variant="outline"
             href="/app/courses"

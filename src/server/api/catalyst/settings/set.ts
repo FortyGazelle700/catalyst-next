@@ -1,7 +1,7 @@
 "use server";
 
 import { createCipheriv } from "crypto";
-import { ApiCtx } from "../..";
+import { type ApiCtx } from "../..";
 
 export default async function set(ctx: ApiCtx) {
   return async ({ key, value }: { key: string; value: string }) => {
@@ -15,7 +15,7 @@ export default async function set(ctx: ApiCtx) {
       const cipher = createCipheriv(
         "aes-256-cbc",
         process.env.AUTH_SECRET?.substring(0, 32) ?? "",
-        process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? ""
+        process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? "",
       );
       const encryptedToken =
         cipher.update(value, "utf8", "base64") + cipher.final("base64");
@@ -27,7 +27,6 @@ export default async function set(ctx: ApiCtx) {
         .update(settings)
         .set({
           value: value,
-          draftState: "saved",
         })
         .where(and(eq(settings.userId, id), eq(settings.key, key)));
       newSettings[key] = value;
@@ -39,7 +38,6 @@ export default async function set(ctx: ApiCtx) {
           userId: id,
           key: key,
           value: value,
-          draftState: "saved",
         })
         .onConflictDoNothing();
     }

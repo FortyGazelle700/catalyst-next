@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiCtx } from "..";
+import { type ApiCtx } from "..";
 
 export type CanvasApiCtx = ApiCtx & {
   user: {
@@ -60,7 +60,7 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
 
   const db = ctx.db;
 
-  const schoolId = ctx.user.settings["school_id"] ?? "";
+  const schoolId = ctx.user.settings.school_id ?? "";
 
   const school = schoolId
     ? (
@@ -73,7 +73,7 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
 
   let token;
 
-  const encryptedToken = ctx.user.settings["canvas_token"] ?? "";
+  const encryptedToken = ctx.user.settings.canvas_token ?? "";
 
   const key = process.env.AUTH_SECRET?.substring(0, 32) ?? "";
   const iv = process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? "";
@@ -87,12 +87,14 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
     const decipher = createDecipheriv(
       "aes-256-cbc",
       Buffer.from(key, "utf8"),
-      Buffer.from(iv, "utf8")
+      Buffer.from(iv, "utf8"),
     );
     token =
       decipher.update(encryptedToken, "base64", "utf8") +
       decipher.final("utf8");
   } catch (err) {
+    console.error("Failed to decrypt Canvas token:", err);
+    token = "";
   }
 
   return {

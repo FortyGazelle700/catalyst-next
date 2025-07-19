@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiCtx } from "../../..";
+import { type ApiCtx } from "../../..";
 
 export default async function provideFeedback(ctx: ApiCtx) {
   return async (input: {
@@ -19,7 +19,7 @@ export default async function provideFeedback(ctx: ApiCtx) {
       title: input.title,
       description: input.description,
       pathname: input.pathname,
-      userId: ctx.user.get?.id!,
+      userId: ctx.user.get?.id ?? "<unknown>",
       date: input.date.toISOString(),
     });
     return {

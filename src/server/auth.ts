@@ -6,13 +6,13 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 
 const sql =
-  global.db ??
+  (global.db as postgres.Sql<Record<string, unknown>>) ??
   postgres(process.env.DATABASE_URL!, {
     max: 1,
     ssl: "require",
   });
 
-if (!global.db) global.db = drizzle(sql as unknown as postgres.Sql<{}>);
+global.db ??= drizzle(sql as unknown as postgres.Sql<Record<string, unknown>>);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {

@@ -30,9 +30,9 @@ export default async function courseList(ctx: CanvasApiCtx) {
         };
       }
       const url = new URL("/api/v1/courses", ctx.user.canvas.url);
-      input?.enrollmentState
-        ? url.searchParams.set("enrollment_state", input.enrollmentState)
-        : null;
+      if (input?.enrollmentState) {
+        url.searchParams.set("enrollment_state", input.enrollmentState);
+      }
       url.searchParams.set("page", String(input?.offset ?? 1));
       url.searchParams.set("include[]", "total_scores");
       url.searchParams.set("per_page", String(input?.limit ?? 100));
@@ -46,12 +46,12 @@ export default async function courseList(ctx: CanvasApiCtx) {
         ...course,
         original_name: course.original_name ?? course.name,
       }));
-      // generate classification data
+
       data = await Promise.all(
         data?.map(async (course) => ({
           ...course,
           classification: await getClassification(course.original_name),
-        })) ?? []
+        })) ?? [],
       );
       return {
         success: true,
@@ -82,7 +82,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await courseList();

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  PolarRadiusAxis,
-  RadialBar,
-  RadialBarChart,
-  Label,
-  PolarGrid,
-} from "recharts";
+import { PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
@@ -33,7 +27,7 @@ export function RadialCountdown({
   return (
     <ChartContainer
       config={chartConfig}
-      className={cn("h-8 w-8 pointer-events-none", className)}
+      className={cn("pointer-events-none h-8 w-8", className)}
     >
       <RadialBarChart
         data={chartData}

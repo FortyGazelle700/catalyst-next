@@ -1,5 +1,5 @@
 import { readdir } from "fs/promises";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { join } from "path";
 import matter from "gray-matter";
 import Link from "next/link";

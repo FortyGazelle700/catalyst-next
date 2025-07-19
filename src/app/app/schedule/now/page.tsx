@@ -1,9 +1,15 @@
 "use client";
 
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { CoursesContext, TimeContext } from "../../layout.providers";
 import { Temporal } from "@js-temporal/polyfill";
-import { House, LayoutDashboard, Percent, TimerOff, UsersRound } from "lucide-react";
+import {
+  House,
+  LayoutDashboard,
+  Percent,
+  TimerOff,
+  UsersRound,
+} from "lucide-react";
 import { NumberCounter } from "@/components/catalyst/number-counter";
 import { formatDuration } from "@/components/catalyst/format-duration";
 import Link from "next/link";
@@ -21,66 +27,62 @@ export default function ScheduleCountdownPage() {
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
-          currentCourse?.time.start?.toISOString() ?? now.toISOString()
+          currentCourse?.time.start?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [now, currentCourse]
+    [now, currentCourse],
   );
 
   const timeLeft = useMemo(
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
-          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+          currentCourse?.time.end?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [now, currentCourse]
+    [now, currentCourse],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const totalDuration = useMemo(
     () =>
       Temporal.Instant.from(
-        currentCourse?.time.start?.toISOString() ?? now.toISOString()
+        currentCourse?.time.start?.toISOString() ?? now.toISOString(),
       ).until(
         Temporal.Instant.from(
-          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+          currentCourse?.time.end?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [currentCourse]
+    [now, currentCourse],
   );
 
   const hasStarted = useMemo(
     () => timeToStart.total("milliseconds") <= 0,
-    [currentCourse, now]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [timeToStart, currentCourse, now],
   );
-
-  useEffect(() => {
-    console.log("propagate", courses, currentCourse);
-  }, [currentCourse]);
 
   if (!currentCourse) {
     return (
-      <div className="px-6 pt-10 pb-2 flex flex-col gap-2 items-start">
+      <div className="flex flex-col items-start gap-2 px-6 pt-10 pb-2">
         <TimerOff className="text-muted-foreground size-8" />
-        <div className="font-bold text-lg">No schedule is present</div>
-        <p className="text-xs text-muted-foreground">
-          You do not have any active schedules at the moment. Please check
-          back later.
+        <div className="text-lg font-bold">No schedule is present</div>
+        <p className="text-muted-foreground text-xs">
+          You do not have any active schedules at the moment. Please check back
+          later.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-2 items-center justify-stretch rounded-lg border w-[50rem] mx-auto my-12">
-      <div className="p-2 gap-1 flex flex-col flex-1 items-center">
-        <div>
-          {!hasStarted && "Starts in"}
-        </div>
-        <div className="overflow-hidden flex justify-center text-7xl font-bold items-stretch">
+    <div className="mx-auto my-12 flex w-[50rem] items-center justify-stretch gap-2 rounded-lg border">
+      <div className="flex flex-1 flex-col items-center gap-1 p-2">
+        <div>{!hasStarted && "Starts in"}</div>
+        <div className="flex items-stretch justify-center overflow-hidden text-7xl font-bold">
           {formatDuration(hasStarted ? timeLeft : timeToStart, {
             style: "digital",
             maxUnit: "hour",
@@ -101,13 +103,13 @@ export default function ScheduleCountdownPage() {
                   value={Number(char)}
                   height={72}
                 />
-              )
+              ),
             )}
         </div>
         <div className="text-muted-foreground text-lg">
           {hasStarted && "remaining"}
         </div>
-        <div className="flex items-center justify-between text-lg w-full px-6 pt-6">
+        <div className="flex w-full items-center justify-between px-6 pt-6 text-lg">
           <span>
             {currentCourse?.time?.start?.toLocaleTimeString(undefined, {
               hour: "numeric",
@@ -122,60 +124,70 @@ export default function ScheduleCountdownPage() {
           </span>
         </div>
       </div>
-      <div className="h-18 bg-secondary rounded-full w-1" />
-      <div className="p-2 gap-1 flex flex-col flex-1 items-center">
-        <div
-          className="p-0 !bg-transparent cursor-pointer group mb-2 w-full"
-        >
+      <div className="bg-secondary h-18 w-1 rounded-full" />
+      <div className="flex flex-1 flex-col items-center gap-1 p-2">
+        <div className="group mb-2 w-full cursor-pointer !bg-transparent p-0">
           <Link href={`/app/courses/${currentCourse?.id}`} className="w-full">
             <div
-              className="rounded rounded-tr-sm p-2 flex flex-col items-start max-w-full overflow-hidden gap-1 group-hover:!bg-[var(--bg)] transition-all w-full"
+              className="flex w-full max-w-full flex-col items-start gap-1 overflow-hidden rounded rounded-tr-sm p-2 transition-all group-hover:!bg-[var(--bg)]"
               style={
                 {
                   backgroundColor: `color-mix(in oklab, ${subjectColors(
-                    currentCourse?.classification ?? ""
+                    currentCourse?.classification ?? "",
                   )}, var(--ui-background))`,
                   "--bg": `color-mix(in oklab, ${subjectColors(
-                    currentCourse?.classification ?? ""
+                    currentCourse?.classification ?? "",
                   )}, var(--ui-background) 60%)`,
                 } as React.CSSProperties
               }
             >
-              <div className="flex gap-1 items-center">
+              <div className="flex items-center gap-1">
                 <div
                   className="rounded-full p-1"
                   style={{
                     backgroundColor: `color-mix(in oklab, ${subjectColors(
-                      currentCourse?.classification ?? ""
+                      currentCourse?.classification ?? "",
                     )}, var(--ui-background) 30%)`,
                   }}
                 >
                   <SubjectIcon
                     subject={currentCourse?.classification ?? ""}
-                    className="size-4 text-primary"
+                    className="text-primary size-4"
                   />
                 </div>
                 <h3 className="h4">{currentCourse?.classification}</h3>
               </div>
-              <p className="text-xs truncate max-w-full">
+              <p className="max-w-full truncate text-xs">
                 {currentCourse?.original_name}
               </p>
             </div>
           </Link>
         </div>
-        <Link href={`/app/courses/${currentCourse?.id}`} className="flex items-center gap-2 hover:bg-secondary w-full p-4 rounded">
+        <Link
+          href={`/app/courses/${currentCourse?.id}`}
+          className="hover:bg-secondary flex w-full items-center gap-2 rounded p-4"
+        >
           <House />
           <span>Homepage</span>
         </Link>
-        <Link href={`/app/courses/${currentCourse?.id}/modules`} className="flex items-center gap-2 hover:bg-secondary w-full p-4 rounded">
+        <Link
+          href={`/app/courses/${currentCourse?.id}/modules`}
+          className="hover:bg-secondary flex w-full items-center gap-2 rounded p-4"
+        >
           <LayoutDashboard />
           <span>Modules</span>
         </Link>
-        <Link href={`/app/courses/${currentCourse?.id}/people`} className="flex items-center gap-2 hover:bg-secondary w-full p-4 rounded">
+        <Link
+          href={`/app/courses/${currentCourse?.id}/people`}
+          className="hover:bg-secondary flex w-full items-center gap-2 rounded p-4"
+        >
           <UsersRound />
           <span>People</span>
         </Link>
-        <Link href={`/app/courses/${currentCourse?.id}/grades`} className="flex items-center gap-2 hover:bg-secondary w-full p-4 rounded rounded-br-md">
+        <Link
+          href={`/app/courses/${currentCourse?.id}/grades`}
+          className="hover:bg-secondary flex w-full items-center gap-2 rounded rounded-br-md p-4"
+        >
           <Percent />
           <span>Grades</span>
         </Link>

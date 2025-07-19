@@ -1,5 +1,5 @@
 import { api } from "@/server/api";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 
 export async function generateMetadata({
   params: paramList,

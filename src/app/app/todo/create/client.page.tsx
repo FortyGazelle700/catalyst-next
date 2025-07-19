@@ -1,10 +1,9 @@
 "use client";
 
-import { PlannerNote } from "@/server/api/canvas/types";
 import { Loader, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TextEditor } from "@/components/editor/editor";
+import { TextEditor } from "@/components/editor/editor.dynamic";
 import { useContext, useState } from "react";
 import { DateTimePicker } from "@/components/catalyst/date-time-picker";
 import { CoursePicker } from "@/components/catalyst/course-picker";
@@ -16,7 +15,7 @@ export function CreateTodoItemRenderer() {
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState(
-    marked.parse(DOMPurify.sanitize("")) as string
+    marked.parse(DOMPurify.sanitize("")) as string,
   );
   const [markdown, setMarkdown] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -27,8 +26,8 @@ export function CreateTodoItemRenderer() {
   return (
     <>
       <h1 className="h1">Create Todo Item</h1>
-      <div className="pt-4 pb-12 flex flex-col gap-6">
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+      <div className="flex flex-col gap-6 pt-4 pb-12">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Name</span>
           <Input
             className="flex-1"
@@ -36,7 +35,7 @@ export function CreateTodoItemRenderer() {
             onChange={(evt) => setTitle(evt.target.value)}
           />
         </label>
-        <div className="flex gap-1 items-start md:flex-row flex-col">
+        <div className="flex flex-col items-start gap-1 md:flex-row">
           <span className="w-full md:w-36">Description</span>
           <div className="flex-1">
             <TextEditor
@@ -47,11 +46,11 @@ export function CreateTodoItemRenderer() {
             />
           </div>
         </div>
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Due Date</span>
           <DateTimePicker setDate={setDate} defaultDate={date?.toISOString()} />
         </label>
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Course</span>
           <CoursePicker
             course={course}
@@ -61,7 +60,7 @@ export function CreateTodoItemRenderer() {
         </label>
       </div>
       <Button
-        className="fixed bottom-0 right-0 m-4"
+        className="fixed right-0 bottom-0 m-4"
         onClick={async () => {
           setSaving(true);
           await fetch("/api/todo/create", {

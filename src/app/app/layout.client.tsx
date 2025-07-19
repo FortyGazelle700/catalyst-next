@@ -6,14 +6,11 @@ import { SubjectIcon, subjectColors } from "@/components/catalyst/subjects";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
 import {
   House,
   LayoutDashboard,
@@ -23,13 +20,12 @@ import {
   Clock,
   Timer,
   ChevronRight,
-  NotepadTextDashed,
   Bomb,
   TimerOff,
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useMemo } from "react";
 import { CoursesContext, TimeContext } from "./layout.providers";
 import { Temporal } from "@js-temporal/polyfill";
 import { NumberCounter } from "@/components/catalyst/number-counter";
@@ -50,53 +46,54 @@ export function CoursesGroupClient() {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     asChild
-                    tooltip={`${course.classification} - ${course.original_name
-                      } (${course?.period?.periodName ?? "Unassigned"})`}
+                    tooltip={`${course.classification} - ${
+                      course.original_name
+                    } (${course?.period?.periodName ?? "Unassigned"})`}
                     className={cn(
                       "h-12 cursor-pointer rounded-full pr-2",
                       course.time?.active &&
-                      "bg-secondary/50 border border-primary/20"
+                        "bg-secondary/50 border-primary/20 border",
                     )}
                   >
                     <a>
                       <SubjectIcon subject={course.classification ?? ""} />
-                      <div className="flex flex-col max-w-full overflow-hidden flex-1">
+                      <div className="flex max-w-full flex-1 flex-col overflow-hidden">
                         <b className="inline-flex items-center gap-2 truncate">
                           <span>{course.classification}</span>
                           <div
                             className={cn(
-                              "text-[0.5rem] pl-1 pr-2 py-0.5 border border-amber-500/50 bg-[color-mix(in_oklab,var(--color-amber-500),var(--ui-background)_70%)] rounded-full flex items-center justify-center gap-1 opacity-0 transition-all w-0 -ml-5",
+                              "-ml-5 flex w-0 items-center justify-center gap-1 rounded-full border border-amber-500/50 bg-[color-mix(in_oklab,var(--color-amber-500),var(--ui-background)_70%)] py-0.5 pr-2 pl-1 text-[0.5rem] opacity-0 transition-all",
                               course.time?.activePinned &&
-                              !course.time?.active &&
-                              "opacity-100  w-[calc-size(auto,size)] ml-0"
+                                !course.time?.active &&
+                                "ml-0 w-[calc-size(auto,size)] opacity-100",
                             )}
                           >
-                            <div className="size-2 bg-amber-500 rounded-full" />
+                            <div className="size-2 rounded-full bg-amber-500" />
                             <span>Upcoming</span>
                           </div>
                           <div
                             className={cn(
-                              "text-[0.5rem] pl-1 pr-2 py-0.5 border border-green-500/50 bg-[color-mix(in_oklab,var(--color-green-500),var(--ui-background)_70%)] rounded-full flex items-center justify-center gap-1 opacity-0 transition-all w-0 -ml-5",
+                              "-ml-5 flex w-0 items-center justify-center gap-1 rounded-full border border-green-500/50 bg-[color-mix(in_oklab,var(--color-green-500),var(--ui-background)_70%)] py-0.5 pr-2 pl-1 text-[0.5rem] opacity-0 transition-all",
                               course.time?.active &&
-                              "opacity-100  w-[calc-size(auto,size)] ml-0"
+                                "ml-0 w-[calc-size(auto,size)] opacity-100",
                             )}
                           >
-                            <div className="size-2 bg-green-500 rounded-full" />
+                            <div className="size-2 rounded-full bg-green-500" />
                             <span>Active</span>
                           </div>
                           <div
                             className={cn(
-                              "text-[0.5rem] pl-1 pr-2 py-0.5 border border-red-500/50 bg-[color-mix(in_oklab,var(--color-red-500),var(--ui-background)_70%)] rounded-full flex items-center justify-center gap-1 opacity-0 transition-all w-0",
+                              "flex w-0 items-center justify-center gap-1 rounded-full border border-red-500/50 bg-[color-mix(in_oklab,var(--color-red-500),var(--ui-background)_70%)] py-0.5 pr-2 pl-1 text-[0.5rem] opacity-0 transition-all",
                               course.data.missingAssignments > 0 &&
-                              "opacity-100 w-[calc-size(auto,size)]"
+                                "w-[calc-size(auto,size)] opacity-100",
                             )}
                           >
                             {/* <div className="size-2 bg-red-500 rounded-full" /> */}
-                            <Bomb className="size-2 stroke-red-500 fill-red-500" />
+                            <Bomb className="size-2 fill-red-500 stroke-red-500" />
                             <span>{course.data.missingAssignments}</span>
                           </div>
                         </b>
-                        <span className="text-xs text-muted-foreground truncate">
+                        <span className="text-muted-foreground truncate text-xs">
                           {course?.period?.periodName ?? "Unassigned"} -{" "}
                           {course.original_name}
                         </span>
@@ -106,9 +103,9 @@ export function CoursesGroupClient() {
                           percentage={
                             course.enrollments?.at(0)?.computed_current_score
                               ? Number(
-                                course.enrollments?.at(0)
-                                  ?.computed_current_score
-                              )
+                                  course.enrollments?.at(0)
+                                    ?.computed_current_score,
+                                )
                               : -1
                           }
                         />
@@ -123,39 +120,39 @@ export function CoursesGroupClient() {
                 >
                   <DropdownMenuItem
                     asChild
-                    className="p-0 !bg-transparent cursor-pointer group mb-2 w-full"
+                    className="group mb-2 w-full cursor-pointer !bg-transparent p-0"
                   >
                     <Link href={`/app/courses/${course.id}`} className="w-full">
                       <div
-                        className="rounded-t-sm rounded-b p-2 flex flex-col items-start max-w-full overflow-hidden gap-1 group-hover:!bg-[var(--bg)] transition-all w-full"
+                        className="flex w-full max-w-full flex-col items-start gap-1 overflow-hidden rounded-t-sm rounded-b p-2 transition-all group-hover:!bg-[var(--bg)]"
                         style={
                           {
                             backgroundColor: `color-mix(in oklab, ${subjectColors(
-                              course.classification ?? ""
+                              course.classification ?? "",
                             )}, var(--ui-background))`,
                             "--bg": `color-mix(in oklab, ${subjectColors(
-                              course.classification ?? ""
+                              course.classification ?? "",
                             )}, var(--ui-background) 60%)`,
                           } as React.CSSProperties
                         }
                       >
-                        <div className="flex gap-1 items-center">
+                        <div className="flex items-center gap-1">
                           <div
                             className="rounded-full p-1"
                             style={{
                               backgroundColor: `color-mix(in oklab, ${subjectColors(
-                                course.classification ?? ""
+                                course.classification ?? "",
                               )}, var(--ui-background) 30%)`,
                             }}
                           >
                             <SubjectIcon
                               subject={course.classification ?? ""}
-                              className="size-4 text-primary"
+                              className="text-primary size-4"
                             />
                           </div>
                           <h3 className="h4">{course.classification}</h3>
                         </div>
-                        <p className="text-xs truncate max-w-full">
+                        <p className="max-w-full truncate text-xs">
                           {course.original_name}
                         </p>
                       </div>
@@ -185,7 +182,7 @@ export function CoursesGroupClient() {
                       <span>Grades</span>
                     </Link>
                   </DropdownMenuItem>
-                  <div className="h-0.5 rounded-full bg-secondary my-1 mx-4" />
+                  <div className="bg-secondary mx-4 my-1 h-0.5 rounded-full" />
                   <DropdownMenuItem asChild>
                     <a>
                       <X />
@@ -213,52 +210,49 @@ export function ScheduleWidget() {
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
-          currentCourse?.time.start?.toISOString() ?? now.toISOString()
+          currentCourse?.time.start?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [now, currentCourse]
+    [now, currentCourse],
   );
 
   const timeLeft = useMemo(
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
-          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+          currentCourse?.time.end?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [now, currentCourse]
+    [now, currentCourse],
   );
 
   const totalDuration = useMemo(
     () =>
       Temporal.Instant.from(
-        currentCourse?.time.start?.toISOString() ?? now.toISOString()
+        currentCourse?.time.start?.toISOString() ?? now.toISOString(),
       ).until(
         Temporal.Instant.from(
-          currentCourse?.time.end?.toISOString() ?? now.toISOString()
+          currentCourse?.time.end?.toISOString() ?? now.toISOString(),
         ),
-        { largestUnit: "hour", smallestUnit: "seconds" }
+        { largestUnit: "hour", smallestUnit: "seconds" },
       ),
-    [currentCourse]
+    [now, currentCourse],
   );
 
   const hasStarted = useMemo(
     () => timeToStart.total("milliseconds") <= 0,
-    [currentCourse, now]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentCourse, now, timeToStart],
   );
-
-  useEffect(() => {
-    console.log("propagate", courses, currentCourse);
-  }, [currentCourse]);
 
   if (!currentCourse) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton
-            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground pl-1 pr-3 cursor-pointer"
+            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer pr-3 pl-1"
             tooltip={`${formatDuration(hasStarted ? timeLeft : timeToStart, {
               style: "digital",
               maxUnit: "hour",
@@ -267,13 +261,13 @@ export function ScheduleWidget() {
           >
             <RadialCountdown
               percentage={100}
-              className="group-data-[collapsible=icon]:-ml-2 bg-background rounded-full opacity-20 fill-foreground transition-all"
+              className="bg-background fill-foreground rounded-full opacity-20 transition-all group-data-[collapsible=icon]:-ml-2"
             />
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold inline-flex items-center">
+              <span className="inline-flex items-center truncate font-semibold">
                 Schedule
               </span>
-              <span className="truncate text-xs text-muted-foreground">
+              <span className="text-muted-foreground truncate text-xs">
                 No schedule is active
               </span>
             </div>
@@ -286,15 +280,15 @@ export function ScheduleWidget() {
           align="start"
           sideOffset={4}
         >
-          <div className="px-6 pt-10 pb-2 flex flex-col gap-2 items-start">
+          <div className="flex flex-col items-start gap-2 px-6 pt-10 pb-2">
             <TimerOff className="text-muted-foreground size-8" />
-            <div className="font-bold text-lg">No schedule is present</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-lg font-bold">No schedule is present</div>
+            <p className="text-muted-foreground text-xs">
               You do not have any active schedules at the moment. Please check
               back later.
             </p>
           </div>
-          <div className="h-0.5 rounded-full bg-secondary my-1 mx-4" />
+          <div className="bg-secondary mx-4 my-1 h-0.5 rounded-full" />
           <DropdownMenuItem asChild>
             <a>
               <X />
@@ -310,7 +304,7 @@ export function ScheduleWidget() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground pl-1 pr-3 cursor-pointer"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer pr-3 pl-1"
           tooltip={`${formatDuration(hasStarted ? timeLeft : timeToStart, {
             style: "digital",
             maxUnit: "hour",
@@ -324,16 +318,16 @@ export function ScheduleWidget() {
               100
             }
             className={cn(
-              "group-data-[collapsible=icon]:-ml-2 bg-background rounded-full fill-foreground transition-all",
-              !hasStarted ? "opacity-20" : "opacity-100"
+              "bg-background fill-foreground rounded-full transition-all group-data-[collapsible=icon]:-ml-2",
+              !hasStarted ? "opacity-20" : "opacity-100",
             )}
           />
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold inline-flex items-center">
+            <span className="inline-flex items-center truncate font-semibold">
               <span
                 className={cn(
                   "mr-0 overflow-hidden transition-all",
-                  hasStarted ? "w-0" : "w-[6ch] mr-[0.3ch]"
+                  hasStarted ? "w-0" : "mr-[0.3ch] w-[6ch]",
                 )}
               >
                 Starts in{" "}
@@ -359,19 +353,19 @@ export function ScheduleWidget() {
                       value={Number(char)}
                       height={12}
                     />
-                  )
+                  ),
                 )}
               <span
                 className={cn(
                   "ml-[0.3ch] overflow-hidden transition-all",
-                  !hasStarted ? "w-0" : "w-[10ch]"
+                  !hasStarted ? "w-0" : "w-[10ch]",
                 )}
               >
                 {" "}
                 left
               </span>
             </span>
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="text-muted-foreground truncate text-xs">
               in {currentCourse?.classification ?? "No Class"} (
               {currentCourse?.original_name ?? "No Class"})
             </span>
@@ -387,39 +381,39 @@ export function ScheduleWidget() {
       >
         <DropdownMenuItem
           asChild
-          className="p-0 !bg-transparent cursor-pointer group mb-2 w-full"
+          className="group mb-2 w-full cursor-pointer !bg-transparent p-0"
         >
           <Link href={`/app/courses/${currentCourse?.id}`} className="w-full">
             <div
-              className="rounded-t-sm rounded-b p-2 flex flex-col items-start max-w-full overflow-hidden gap-1 group-hover:!bg-[var(--bg)] transition-all w-full"
+              className="flex w-full max-w-full flex-col items-start gap-1 overflow-hidden rounded-t-sm rounded-b p-2 transition-all group-hover:!bg-[var(--bg)]"
               style={
                 {
                   backgroundColor: `color-mix(in oklab, ${subjectColors(
-                    currentCourse?.classification ?? ""
+                    currentCourse?.classification ?? "",
                   )}, var(--ui-background))`,
                   "--bg": `color-mix(in oklab, ${subjectColors(
-                    currentCourse?.classification ?? ""
+                    currentCourse?.classification ?? "",
                   )}, var(--ui-background) 60%)`,
                 } as React.CSSProperties
               }
             >
-              <div className="flex gap-1 items-center">
+              <div className="flex items-center gap-1">
                 <div
                   className="rounded-full p-1"
                   style={{
                     backgroundColor: `color-mix(in oklab, ${subjectColors(
-                      currentCourse?.classification ?? ""
+                      currentCourse?.classification ?? "",
                     )}, var(--ui-background) 30%)`,
                   }}
                 >
                   <SubjectIcon
                     subject={currentCourse?.classification ?? ""}
-                    className="size-4 text-primary"
+                    className="text-primary size-4"
                   />
                 </div>
                 <h3 className="h4">{currentCourse?.classification}</h3>
               </div>
-              <p className="text-xs truncate max-w-full">
+              <p className="max-w-full truncate text-xs">
                 {currentCourse?.original_name}
               </p>
             </div>
@@ -449,8 +443,8 @@ export function ScheduleWidget() {
             <span>Grades</span>
           </Link>
         </DropdownMenuItem>
-        <div className="pl-8 text-xs text-muted-foreground bg-secondary p-2 rounded my-1 gap-1 flex flex-col">
-          <div className="overflow-hidden flex items-center">
+        <div className="text-muted-foreground bg-secondary my-1 flex flex-col gap-1 rounded p-2 pl-8 text-xs">
+          <div className="flex items-center overflow-hidden">
             {formatDuration(hasStarted ? timeLeft : timeToStart, {
               style: "digital",
               maxUnit: "hour",
@@ -471,7 +465,7 @@ export function ScheduleWidget() {
                     value={Number(char)}
                     height={14}
                   />
-                )
+                ),
               )}
             <span className="ml-[0.3ch]"> remaining</span>
           </div>
@@ -502,7 +496,7 @@ export function ScheduleWidget() {
             <span>Open Full Schedule</span>
           </Link>
         </DropdownMenuItem>
-        <div className="h-0.5 rounded-full bg-secondary my-1 mx-4" />
+        <div className="bg-secondary mx-4 my-1 h-0.5 rounded-full" />
         <DropdownMenuItem asChild>
           <a>
             <X />

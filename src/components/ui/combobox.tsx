@@ -27,6 +27,7 @@ export function Combobox({
   groups,
   className,
   onSelect,
+  onInputChange,
   defaultValue,
   value,
   setValue,
@@ -39,6 +40,7 @@ export function Combobox({
   emptyRender?: React.ReactNode;
   className?: string;
   onSelect?: (value: string) => void;
+  onInputChange?: (value: string) => void;
   defaultValue?: string;
   value?: string;
   setValue?: (value: string) => void;
@@ -76,15 +78,20 @@ export function Combobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn("w-20 justify-between overflow-hidden", className)}
+            className={cn(
+              "w-20 justify-between overflow-hidden dark:bg-input/30",
+              className
+            )}
           >
             {localValue
               ? groups
                   .flatMap((group) => group.values)
-                  .find((v) => v.id === localValue)?.selectionRender ??
+                  .find((v) => v.id == localValue)?.selectionRender ??
                 groups
                   .flatMap((group) => group.values)
-                  .find((v) => v.id === localValue)?.render
+                  .find((v) => v.id == localValue)?.render ??
+                placeholders?.emptyValue ??
+                "Select..."
               : placeholders?.emptyValue ?? "Select..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -92,7 +99,10 @@ export function Combobox({
         <DrawerContent>
           <DrawerTitle className="sr-only">Command Menu</DrawerTitle>
           <Command>
-            <CommandInput placeholder={placeholders?.search ?? "Search..."} />
+            <CommandInput
+              placeholder={placeholders?.search ?? "Search..."}
+              onInput={(evt) => onInputChange?.(evt.currentTarget.value)}
+            />
             <CommandList>
               <CommandEmpty>
                 {emptyRender ?? <>No results found.</>}
@@ -133,7 +143,10 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-20 justify-between overflow-hidden", className)}
+          className={cn(
+            "w-20 justify-between overflow-hidden dark:bg-input/30",
+            className
+          )}
         >
           {localValue
             ? groups

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  PolarRadiusAxis,
-  RadialBar,
-  RadialBarChart,
-  Label,
-  PolarGrid,
-} from "recharts";
+import { PolarRadiusAxis, RadialBar, RadialBarChart, Label } from "recharts";
 
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 
@@ -38,7 +32,7 @@ export function RadialChart({ percentage }: { percentage: number }) {
   return (
     <ChartContainer
       config={chartConfig}
-      className="h-8 w-8 pointer-events-none"
+      className="pointer-events-none h-8 w-8"
     >
       <RadialBarChart
         data={chartData}
@@ -60,8 +54,8 @@ export function RadialChart({ percentage }: { percentage: number }) {
             content={({ viewBox }) => {
               if (!viewBox) return null;
 
-              const cx: number = (viewBox as any).cx || 0;
-              const cy: number = (viewBox as any).cy || 0;
+              const cx: number = (viewBox as { cx: number }).cx ?? 0;
+              const cy: number = (viewBox as { cy: number }).cy ?? 0;
 
               return (
                 <text

@@ -2,7 +2,7 @@
 
 import PostHogClient from "@/server/posthog";
 import type { CanvasApiCtx } from "../../..";
-import type { CanvasErrors, Submission } from "../../../types";
+import type { Submission } from "../../../types";
 
 export type FrontPageInput = {
   courseId: number;
@@ -50,7 +50,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
         const res = await fetch(
           new URL(
             `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions/self/files`,
-            ctx.user.canvas.url
+            ctx.user.canvas.url,
           ),
           {
             method: "POST",
@@ -58,7 +58,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
             },
             body: data,
-          }
+          },
         );
         if (!res.ok) {
           // console.error(
@@ -120,14 +120,14 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
       }
       const submitURL = new URL(
         `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions`,
-        ctx.user.canvas.url
+        ctx.user.canvas.url,
       );
       submitURL.searchParams.append(
         "submission[submission_type]",
-        "online_upload"
+        "online_upload",
       );
       fileIds.forEach((id) =>
-        submitURL.searchParams.append("submission[file_ids][]", String(id))
+        submitURL.searchParams.append("submission[file_ids][]", String(id)),
       );
       const response = await fetch(submitURL, {
         method: "POST",

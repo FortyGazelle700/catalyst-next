@@ -1,10 +1,10 @@
 "use client";
 
-import { PlannerNote } from "@/server/api/canvas/types";
+import { type PlannerNote } from "@/server/api/canvas/types";
 import { Loader, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TextEditor } from "@/components/editor/editor";
+import { TextEditor } from "@/components/editor/editor.dynamic";
 import { useContext, useState } from "react";
 import { DateTimePicker } from "@/components/catalyst/date-time-picker";
 import { CoursePicker } from "@/components/catalyst/course-picker";
