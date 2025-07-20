@@ -30,7 +30,7 @@
     "**/*.ts",
     "**/*.tsx",
     "./src/instrumentation.js",
-    "./eslint.config.mjs",
+    "./*.config.mjs",
     ".next/types/**/*.ts",
     "**/*.d.ts"
   ],

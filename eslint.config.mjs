@@ -5,6 +5,9 @@ import prettier from "eslint-config-prettier";
 import drizzle from "eslint-plugin-drizzle";
 import pluginReact from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import next from "@next/eslint-plugin-next";
+
+import { globalIgnores } from "eslint/config";
 
 export default [
   js.configs.recommended,
@@ -17,6 +20,7 @@ export default [
     plugins: {
       react: pluginReact,
       "react-hooks": reactHooks,
+      "@next/next": next,
     },
     languageOptions: {
       parserOptions: {
@@ -26,6 +30,7 @@ export default [
       },
       globals: {
         ...globals.browser,
+        process: true,
       },
     },
     settings: {
@@ -109,4 +114,13 @@ export default [
       ...prettier.rules,
     },
   },
+  globalIgnores([
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.min.js",
+    "**/*.map",
+    "**/public/**",
+    "**/.next/**",
+  ]),
 ];

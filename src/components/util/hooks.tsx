@@ -17,3 +17,98 @@ export function useMediaQuery(query: string) {
 
   return value;
 }
+
+export const tailwindBreakpoints = {
+  "2xs": 25,
+  xs: 30,
+  sm: 40,
+  md: 48,
+  lg: 64,
+  xl: 80,
+  "2xl": 96,
+};
+
+export const tailwindContainerBreakpoints = {
+  "3xs": 16,
+  "2xs": 18,
+  xs: 20,
+  sm: 24,
+  md: 28,
+  lg: 32,
+  xl: 36,
+  "2xl": 42,
+  "3xl": 48,
+  "4xl": 56,
+  "5xl": 64,
+  "6xl": 72,
+  "7xl": 80,
+};
+
+export function useTailwindBreakpoints({
+  breakpoint,
+  reverse = false,
+}: {
+  breakpoint: keyof typeof tailwindBreakpoints;
+  reverse?: boolean;
+}) {
+  const [isBreakpoint, setIsBreakpoint] = React.useState<boolean | undefined>(
+    undefined,
+  );
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(
+      `(min-width: ${tailwindBreakpoints[breakpoint]}rem)`,
+    );
+    const onChange = () => {
+      setIsBreakpoint(
+        reverse
+          ? window.innerWidth < tailwindBreakpoints[breakpoint] * 16
+          : window.innerWidth >= tailwindBreakpoints[breakpoint] * 16,
+      );
+    };
+    mql.addEventListener("change", onChange);
+    setIsBreakpoint(
+      reverse
+        ? window.innerWidth < tailwindBreakpoints[breakpoint] * 16
+        : window.innerWidth >= tailwindBreakpoints[breakpoint] * 16,
+    );
+    return () => mql.removeEventListener("change", onChange);
+  }, [breakpoint, reverse]);
+
+  return !!isBreakpoint;
+}
+
+export function useTailwindContainerBreakpoints({
+  breakpoint,
+  ref,
+  reverse = false,
+}: {
+  breakpoint: keyof typeof tailwindContainerBreakpoints;
+  ref: React.RefObject<HTMLElement | null>;
+  reverse?: boolean;
+}) {
+  const [isBreakpoint, setIsBreakpoint] = React.useState<boolean | undefined>(
+    undefined,
+  );
+
+  React.useEffect(() => {
+    if (!ref?.current) return;
+
+    const rootFontSize = parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+    );
+
+    const px = tailwindContainerBreakpoints[breakpoint] * rootFontSize;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry?.contentRect.width ?? 0;
+      setIsBreakpoint(reverse ? width < px : width >= px);
+    });
+
+    observer.observe(ref.current);
+
+    return () => observer.disconnect();
+  }, [ref, breakpoint, reverse]);
+
+  return !!isBreakpoint;
+}

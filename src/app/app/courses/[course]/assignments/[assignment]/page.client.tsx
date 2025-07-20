@@ -99,6 +99,7 @@ import {
   useState,
 } from "react";
 import { upload } from "@vercel/blob/client";
+import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
@@ -411,13 +412,46 @@ const SubmissionElements = {
   }) => {
     const [open, setOpen] = useState(false);
 
-    return (
+    const textEditor = useMemo(
+      () => (
+        <TextEditor
+          content={text}
+          setContent={setText}
+          saveId={saveId}
+          className="min-h-[10rem]"
+        />
+      ),
+      [saveId, text, setText],
+    );
+
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      containerRef.current = document.querySelector(
+        "[data-container='assignment']",
+      )!;
+    }, []);
+
+    const isMobile = useTailwindContainerBreakpoints({
+      breakpoint: "4xl",
+      reverse: true,
+      ref: containerRef,
+    });
+
+    return isMobile ? (
+      <div className="bg-background overflow-hidden rounded-md p-1">
+        {textEditor}
+      </div>
+    ) : (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button className="grid cursor-pointer place-items-center gap-1 rounded-sm border px-8 py-12">
             <span className="text-muted-foreground flex items-center gap-1 text-xs">
               <ArrowLeft
-                className={cn("size-3 transition-all", open && "rotate-180")}
+                className={cn(
+                  "size-3 rotate-0 transition-all",
+                  open && "rotate-180",
+                )}
               />{" "}
               {open ? "Close" : "Open"} Text Box
             </span>
@@ -437,12 +471,7 @@ const SubmissionElements = {
           sideOffset={14}
           className="h-[20rem] w-[60ch] overflow-auto"
         >
-          <TextEditor
-            content={text}
-            setContent={setText}
-            saveId={saveId}
-            className="min-h-[10rem]"
-          />
+          {textEditor}
         </PopoverContent>
       </Popover>
     );
@@ -691,7 +720,7 @@ function TextSubmitButton({
               </Button>
             </div>
           </div>
-          <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full items-center justify-center gap-8 overflow-auto px-2 py-16">
+          <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full flex-col items-center justify-center gap-8 overflow-auto px-2 py-16 lg:flex-row">
             <div className="flex flex-col items-center gap-2">
               <div className="flex w-96 flex-row items-center gap-2 rounded-full border px-4 py-2">
                 <span className="flex items-center gap-2">
@@ -699,11 +728,11 @@ function TextSubmitButton({
                   Text Entry
                 </span>
                 <span className="text-muted-foreground flex flex-1 items-center justify-end text-xs">
-                  Something goes here
+                  {text.split(" ").length} words
                 </span>
               </div>
             </div>
-            <ArrowRight className="text-muted-foreground" />
+            <ArrowRight className="text-muted-foreground shrink-0 rotate-90 lg:rotate-0" />
             <div className="flex w-96 flex-col items-start gap-2 rounded-xl border p-4">
               <span className="flex items-center gap-1 pt-8">
                 <Notebook className="size-4" />
@@ -743,7 +772,7 @@ function TextSubmitButton({
         </ResponsiveModalContent>
       </ResponsiveModal>
     );
-  }, [courses, finalOpen, assignment, submit]);
+  }, [courses, finalOpen, assignment, submit, text]);
 
   const handleSubmissionState = useMemo(() => {
     return (
@@ -1030,8 +1059,8 @@ function FileUploadSubmitButton({
             >
               <ArrowLeft /> View Files
             </Button>
-            <Breadcrumb>
-              <BreadcrumbList>
+            <Breadcrumb className="w-full flex-1 overflow-hidden">
+              <BreadcrumbList className="flex flex-nowrap items-center gap-2 overflow-x-auto [&_*]:whitespace-nowrap">
                 <BreadcrumbItem>
                   <BreadcrumbLink href="" className="flex items-center gap-1">
                     {assignment.name}
@@ -1053,7 +1082,7 @@ function FileUploadSubmitButton({
               </Button>
             </div>
           </div>
-          <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full items-center justify-center gap-8 overflow-auto px-2 py-16">
+          <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full flex-col items-center justify-center gap-8 overflow-auto px-2 py-16 lg:flex-row">
             <div className="flex flex-col items-center gap-2">
               {files.map((file) => (
                 <div
@@ -1070,7 +1099,7 @@ function FileUploadSubmitButton({
                 </div>
               ))}
             </div>
-            <ArrowRight className="text-muted-foreground" />
+            <ArrowRight className="text-muted-foreground shrink-0 rotate-90 lg:rotate-0" />
             <div className="flex w-96 flex-col items-start gap-2 rounded-xl border p-4">
               <span className="flex items-center gap-1 pt-8">
                 <Notebook className="size-4" />
@@ -1255,12 +1284,12 @@ function FileUploadSubmitButton({
                       </ResponsiveModalDescription>
                     </ResponsiveModalHeader>
                   </VisuallyHidden>
-                  <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex items-center justify-start gap-2 border-b p-6 backdrop-blur">
+                  <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex w-[calc(100%+theme(spacing.12))] flex-col items-start justify-start gap-2 overflow-hidden border-b p-6 backdrop-blur md:flex-row md:items-center">
                     <Button variant="outline" onClick={() => setOpen(false)}>
                       <X /> Close
                     </Button>
-                    <Breadcrumb>
-                      <BreadcrumbList>
+                    <Breadcrumb className="w-full flex-1 overflow-hidden">
+                      <BreadcrumbList className="flex flex-nowrap items-center gap-2 overflow-x-auto [&_*]:whitespace-nowrap">
                         <BreadcrumbItem>
                           <BreadcrumbLink href="">
                             {assignment.name}
@@ -1283,7 +1312,7 @@ function FileUploadSubmitButton({
                       </BreadcrumbList>
                     </Breadcrumb>
                     <div className="ml-auto flex items-center gap-2">
-                      <div className="flex items-center gap-2 rounded-full border p-1">
+                      <div className="flex shrink-0 items-center gap-2 rounded-full border p-1">
                         <Button
                           variant="destructive"
                           size="icon"
@@ -1293,11 +1322,12 @@ function FileUploadSubmitButton({
                               Math.min(Math.max(1, i), files.length - 2),
                             );
                           }}
+                          className="shrink-0"
                           disabled={files.length == 0}
                         >
                           <Trash />
                         </Button>
-                        <span className="text-muted-foreground flex items-center gap-1 pr-2 pl-4 text-xs">
+                        <span className="text-muted-foreground flex shrink-0 items-center gap-1 pr-2 pl-4 font-mono text-xs">
                           File Preview {fileIdx + 1}
                           <Slash className="size-2" />
                           {files.length}
@@ -1307,6 +1337,7 @@ function FileUploadSubmitButton({
                           size="icon"
                           onClick={() => setFileIdx((i) => i - 1)}
                           disabled={fileIdx == 0}
+                          className="shrink-0"
                         >
                           <ArrowLeft />
                         </Button>
@@ -1315,6 +1346,7 @@ function FileUploadSubmitButton({
                           size="icon"
                           onClick={() => setFileIdx((i) => i + 1)}
                           disabled={fileIdx == files.length - 1}
+                          className="shrink-0"
                         >
                           <ArrowRight />
                         </Button>

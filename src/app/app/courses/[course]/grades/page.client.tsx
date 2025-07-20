@@ -95,7 +95,7 @@ export default function GradesClientPage({
       <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
         <div className="min-h-max flex-1 overflow-x-auto p-16 @4xl:min-h-full @4xl:overflow-auto">
           <h1 className="h1 mb-2">Grades</h1>
-          <div className="flex flex-col gap-4">
+          <div className="@container flex flex-col gap-4">
             <div className="bg-secondary sticky -top-12 z-10 -mx-4 flex items-center gap-2 rounded-lg px-4 py-2">
               <div className="flex-1 px-2">Name</div>
               <div className="w-[10ch] px-2 text-right">score</div>
@@ -109,7 +109,7 @@ export default function GradesClientPage({
               {assignments.map((assignment) => (
                 <div
                   key={assignment.id}
-                  className="flex flex-col items-stretch gap-2 border-b py-2 md:flex-row"
+                  className="flex flex-col items-stretch gap-2 border-b py-2 @3xl:flex-row"
                 >
                   <Button
                     variant="ghost"
@@ -172,17 +172,23 @@ export default function GradesClientPage({
                         -1) != (assignment.submission?.score ?? -1) ? (
                         <>
                           <span>
-                            {scoreOverrides[assignment?.id] == ""
-                              ? "N/A"
-                              : scoreOverrides[assignment?.id]}
+                            {scoreOverrides[assignment?.id] == "" ? (
+                              <Minus />
+                            ) : (
+                              scoreOverrides[assignment?.id]
+                            )}
                           </span>
                           <span
                             className="text-muted-foreground line-through transition-colors"
                             key={`score-${assignment.id}`}
                           >
-                            {assignment.submission?.score
-                              ? Number(assignment.submission?.score.toFixed(2))
-                              : "N/A"}
+                            {Number.isNaN(
+                              assignment.submission?.score ?? Number.NaN,
+                            ) ? (
+                              <Minus />
+                            ) : (
+                              Number(assignment.submission?.score.toFixed(2))
+                            )}
                           </span>
                         </>
                       ) : (
@@ -190,9 +196,13 @@ export default function GradesClientPage({
                           className="transition-colors"
                           key={`score-${assignment.id}`}
                         >
-                          {assignment.submission?.score
-                            ? Number(assignment.submission?.score.toFixed(2))
-                            : "N/A"}
+                          {Number.isNaN(
+                            assignment.submission?.score ?? Number.NaN,
+                          ) ? (
+                            <Minus />
+                          ) : (
+                            Number(assignment.submission?.score?.toFixed(2))
+                          )}
                         </span>
                       )}
                     </div>
@@ -208,16 +218,18 @@ export default function GradesClientPage({
                         <>
                           <span>
                             {totalOverrides[assignment?.id] == ""
-                              ? "N/A"
+                              ? "0"
                               : totalOverrides[assignment?.id]}
                           </span>
                           <span
                             className="text-muted-foreground line-through transition-colors"
                             key={`score-${assignment.id}`}
                           >
-                            {assignment.points_possible
-                              ? Number(assignment.points_possible.toFixed(2))
-                              : "N/A"}
+                            {Number.isNaN(
+                              assignment.points_possible ?? Number.NaN,
+                            )
+                              ? "0"
+                              : Number(assignment.points_possible.toFixed(2))}
                           </span>
                         </>
                       ) : (
@@ -225,9 +237,11 @@ export default function GradesClientPage({
                           className="transition-colors"
                           key={`score-${assignment.id}`}
                         >
-                          {assignment.points_possible
-                            ? Number(assignment.points_possible.toFixed(2))
-                            : "N/A"}
+                          {Number.isNaN(
+                            assignment.points_possible ?? Number.NaN,
+                          )
+                            ? "0"
+                            : Number(assignment.points_possible.toFixed(2))}
                         </span>
                       )}
                     </div>
@@ -261,7 +275,7 @@ export default function GradesClientPage({
                                   }));
                                 }}
                                 placeholder="N/A"
-                                inputmode="numeric"
+                                inputMode="numeric"
                               />
                               <span className="text-muted-foreground mr-2 text-xs">
                                 pts
@@ -313,7 +327,7 @@ export default function GradesClientPage({
                                   }));
                                 }}
                                 placeholder={String(assignment.points_possible)}
-                                inputmode="numeric"
+                                inputMode="numeric"
                               />
                               <span className="text-muted-foreground mr-2 text-xs">
                                 pts
@@ -402,8 +416,17 @@ function GradesSidebar({
               correctly.
             </div>
             <h2 className="flex items-center gap-2 text-2xl font-bold">
-              <RadialChart percentage={calculatedWhatIfScore} />{" "}
-              {calculatedWhatIfScore.toFixed(2)}%
+              <RadialChart
+                percentage={
+                  Number.isNaN(calculatedWhatIfScore)
+                    ? -1
+                    : calculatedWhatIfScore
+                }
+              />
+              {Number.isNaN(calculatedWhatIfScore)
+                ? "0"
+                : calculatedWhatIfScore.toFixed(2)}
+              %
             </h2>
           </SidebarGroup>
           <SidebarGroup>
@@ -460,7 +483,7 @@ function GradesSidebar({
                   <div className="flex items-center gap-2">
                     <div className="flex-1 font-bold">{group.name}</div>
                     <div className="text-right">
-                      {group.group_weight ?? "N/A"}%
+                      {group.group_weight ?? "0"}%
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -473,8 +496,8 @@ function GradesSidebar({
                     <div className="flex items-center gap-1 text-right text-xs">
                       {Math.round(score * 100) / 100}/
                       {Math.round(outOf * 100) / 100} <Dot />{" "}
-                      {((score / outOf) * 100).toFixed(2) == "NaN"
-                        ? "N/A"
+                      {Number.isNaN((score / outOf) * 100)
+                        ? "0"
                         : ((score / outOf) * 100).toFixed(2)}
                       % {isOverridden && "*"}
                     </div>

@@ -6,6 +6,7 @@
 @custom-variant mobile (@media (pointer: coarse));
 
 @theme {
+  --breakpoint-2xs: 25rem;
   --breakpoint-xs: 30rem;
 }
 
@@ -264,7 +265,7 @@
   }
 
   .p {
-    @apply text-base leading-7 /*[&:not(:first-child)]:mt-6*/;
+    @apply /*[&:not(:first-child)]:mt-6*/ text-base leading-7;
   }
 
   .quote {
@@ -276,15 +277,15 @@
   }
 
   .snippet {
-    @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
+    @apply bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
   }
 
   .lead {
-    @apply text-xl text-muted-foreground;
+    @apply text-muted-foreground text-xl;
   }
 
   .table {
-    @apply w-full border-collapse overflow-hidden rounded-lg [&_td[align=center]]:text-center [&_td[align=right]]:text-right [&_td]:border [&_td]:px-4 [&_td]:py-2 [&_td]:text-start [&_th[align=center]]:text-center [&_th[align=right]]:text-right [&_th]:border [&_th]:px-4 [&_th]:py-2 [&_th]:text-start [&_th]:font-bold [&_tr]:m-0 [&_tr]:border-t [&_tr]:p-0 [&_tr_th]:bg-secondary;
+    @apply [&_tr_th]:bg-secondary w-full border-collapse overflow-hidden rounded-lg [&_td]:border [&_td]:px-4 [&_td]:py-2 [&_td]:text-start [&_td[align=center]]:text-center [&_td[align=right]]:text-right [&_th]:border [&_th]:px-4 [&_th]:py-2 [&_th]:text-start [&_th]:font-bold [&_th[align=center]]:text-center [&_th[align=right]]:text-right [&_tr]:m-0 [&_tr]:border-t [&_tr]:p-0;
   }
 
   .stack {
@@ -292,11 +293,11 @@
   }
 
   .ol {
-    @apply list-decimal my-6 ml-6 [&>li]:mt-2;
+    @apply my-6 ml-6 list-decimal [&>li]:mt-2;
   }
 
   .ul {
-    @apply list-disc my-6 ml-6 [&>li]:mt-2;
+    @apply my-6 ml-6 list-disc [&>li]:mt-2;
   }
 
   .li {
@@ -305,7 +306,7 @@
 
   .render-fancy {
     /* @apply [&_h1]:h1 [&_h2]:h2 [&_h3]:h3 [&_h4]:h4 [&_blockquote]:quote focus:border-primary/50 [&_:is(ul,li)]:ml-8 [&_a]:underline [&_iframe]:max-w-full [&_mark]:rounded [&_mark]:box-decoration-clone [&_mark]:px-1 [&_mark]:py-0.5 [&_ol_li]:list-decimal [&_span[data-type="emoji"]]:inline-flex [&_span[data-type="emoji"]]:items-center dark:[&_span[data-type="emoji"]]:hue-rotate-180 dark:[&_span[data-type="emoji"]]:invert [&_span[data-type="emoji"]_img]:size-[1em] [&_ul_li]:list-disc; */
-    @apply rounded bg-background text-foreground dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert focus:border-primary/50;
+    @apply bg-background text-foreground focus:border-primary/50 rounded dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert;
     & h1 {
       @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
     }
@@ -319,7 +320,7 @@
       @apply scroll-m-20 text-xl font-semibold tracking-tight;
     }
     & p {
-      @apply text-base leading-7 /*[&:not(:first-child)]:mt-6*/;
+      @apply /*[&:not(:first-child)]:mt-6*/ text-base leading-7;
     }
     & a {
       @apply underline;
@@ -331,22 +332,22 @@
       @apply my-6 ml-6 list-disc [&>li]:mt-2;
     }
     & pre {
-      @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
+      @apply bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
     }
     & .lead {
-      @apply text-xl text-muted-foreground;
+      @apply text-muted-foreground text-xl;
     }
     & table {
-      @apply w-full border-collapse overflow-hidden [&_td[align=center]]:text-center [&_td[align=right]]:text-right [&_td]:border [&_td]:border-[#E1E8F5] [&_td]:px-4 [&_td]:py-2 [&_td]:text-start [&_th[align=center]]:text-center [&_th[align=right]]:text-right [&_th]:border [&_th]:border-[#E1E8F5] [&_th]:px-4 [&_th]:py-2 [&_th]:text-start [&_th]:font-bold [&_tr]:m-0 [&_tr]:border-t [&_tr]:border-[#E1E8F5] [&_tr]:p-0 [&_tr_th]:bg-secondary;
+      @apply [&_tr_th]:bg-secondary w-full border-collapse overflow-hidden [&_td]:border [&_td]:border-[#E1E8F5] [&_td]:px-4 [&_td]:py-2 [&_td]:text-start [&_td[align=center]]:text-center [&_td[align=right]]:text-right [&_th]:border [&_th]:border-[#E1E8F5] [&_th]:px-4 [&_th]:py-2 [&_th]:text-start [&_th]:font-bold [&_th[align=center]]:text-center [&_th[align=right]]:text-right [&_tr]:m-0 [&_tr]:border-t [&_tr]:border-[#E1E8F5] [&_tr]:p-0;
     }
     & .stack {
       @apply grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1;
     }
     & ol {
-      @apply list-decimal my-6 ml-6 [&>li]:mt-2;
+      @apply my-6 ml-6 list-decimal [&>li]:mt-2;
     }
     & ul {
-      @apply list-disc my-6 ml-6 [&>li]:mt-2;
+      @apply my-6 ml-6 list-disc [&>li]:mt-2;
     }
     & li {
       @apply mt-2;
@@ -354,7 +355,7 @@
   }
 
   .render-white-content {
-    @apply rounded bg-background text-foreground dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert;
+    @apply bg-background text-foreground rounded dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert;
   }
 }
 
