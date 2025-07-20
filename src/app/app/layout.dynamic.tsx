@@ -14,5 +14,5 @@ export const CoursesGroupClient = dynamic(
       Array.from({ length: 10 }).map((_, i) => (
         <Skeleton key={i} className="h-12" />
       )),
-  }
+  },
 );

@@ -388,236 +388,216 @@ export function Breadcrumbs({
     ([k, v]) => (pathId = pathId.replace(String(v), `[${k}]`)),
   );
 
-  switch (pathId) {
-    case "/app":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/todo":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Todo asLink={false} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/todo/[id]":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Todo />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.TodoItem id={Number(params.id)} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/todo/[id]/edit":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Todo />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.TodoItem id={Number(params.id)} asLink />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Edit />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses asLink={false} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course
-              courseId={Number(params.course)}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/people":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.People
-              courseId={Number(params.course)}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/pages/[page]":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Pages courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Page
-              courseId={Number(params.course)}
-              pageId={params.page}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/assignments":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Assignments courseId={Number(params.course)} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/assignments/[assignment]":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Assignments courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Assignment
-              courseId={Number(params.course)}
-              assignmentId={Number(params.assignment)}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/modules":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Modules
-              courseId={Number(params.course)}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/courses/[course]/grades":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Courses />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Course courseId={Number(params.course)} />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Grades
-              courseId={Number(params.course)}
-              asLink={false}
-            />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/feedback":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Feedback asLink={false} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/schedule":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Schedule />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/schedule/now":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Schedule />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.ScheduleNow asLink={false} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    case "/app/settings":
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Settings asLink={false} />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-    default:
-      return (
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbBits.Catalyst />
-            <BreadcrumbSeparator />
-            <BreadcrumbBits.Error404 />
-          </BreadcrumbList>
-        </Breadcrumb>
-      );
-  }
+  return (
+    <Breadcrumb className="w-full overflow-hidden">
+      <BreadcrumbList className="flex flex-nowrap items-center gap-2 overflow-x-auto [&_*]:whitespace-nowrap">
+        <>
+          {(() => {
+            switch (pathId) {
+              case "/app":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                );
+              case "/app/todo":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Todo asLink={false} />
+                  </>
+                );
+              case "/app/todo/[id]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Todo />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.TodoItem id={Number(params.id)} />
+                  </>
+                );
+              case "/app/todo/[id]/edit":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Todo />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.TodoItem id={Number(params.id)} asLink />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Edit />
+                  </>
+                );
+              case "/app/courses":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses asLink={false} />
+                  </>
+                );
+              case "/app/courses/[course]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course
+                      courseId={Number(params.course)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/people":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.People
+                      courseId={Number(params.course)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/pages/[page]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Pages courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Page
+                      courseId={Number(params.course)}
+                      pageId={params.page}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/assignments":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Assignments
+                      courseId={Number(params.course)}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/assignments/[assignment]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Assignments
+                      courseId={Number(params.course)}
+                    />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Assignment
+                      courseId={Number(params.course)}
+                      assignmentId={Number(params.assignment)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/modules":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Modules
+                      courseId={Number(params.course)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/grades":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Grades
+                      courseId={Number(params.course)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/feedback":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Feedback asLink={false} />
+                  </>
+                );
+              case "/app/schedule":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schedule />
+                  </>
+                );
+              case "/app/schedule/now":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schedule />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.ScheduleNow asLink={false} />
+                  </>
+                );
+              case "/app/settings":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Settings asLink={false} />
+                  </>
+                );
+              default:
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Error404 />
+                  </>
+                );
+            }
+          })()}
+        </>
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
 }

@@ -999,7 +999,7 @@ function EditorHistoryProvider({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorState, setDraftState, setDrafts]);
+  }, [editorState]);
 
   useEffect(() => {
     localStorage.setItem(
