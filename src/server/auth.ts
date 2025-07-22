@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     session: async ({ session, user }) => {
       const heads = await headers();
-      const ip = heads.get("x-ip") ?? "<unknown>";
+      const ip = ("136.33.255.145" || heads.get("x-ip")) ?? "<unknown>";
       let ipInfo = global.ipRequests.get(ip);
 
       if (!ip) {
@@ -132,6 +132,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (row.country ?? ipInfo?.country) != ipInfo?.country ||
         (row.region ?? ipInfo?.region) != ipInfo?.region
       ) {
+        console.warn("Session data mismatch detected", {
+          sessionToken: session.sessionToken,
+          server: {
+            ip: row.ip,
+            userAgent: row.userAgent,
+            country: row.country,
+            region: row.region,
+            city: row.city,
+          },
+          request: {
+            ip,
+            userAgent: ua,
+            country: ipInfo?.country,
+            region: ipInfo?.region,
+            city: ipInfo?.city,
+          },
+        });
         return {
           sessionToken: undefined,
           session: undefined,
