@@ -503,7 +503,7 @@ export function MiniTodoList() {
         </>
       ) : (
         <>
-          {todoItems.map((todoItem) => (
+          {todoItems?.map((todoItem) => (
             <TodoItem
               key={todoItem.plannable_id}
               todoItem={todoItem}

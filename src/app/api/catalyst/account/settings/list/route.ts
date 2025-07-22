@@ -13,24 +13,15 @@ export const GET = auth(async (req) => {
     );
   }
 
-  const ctx = await (
+  const settings = await (
     await api({
       session: req.auth,
     })
-  ).canvas.getCtx();
+  ).catalyst.account.settings.list();
 
-  const settings = ctx.user.settings;
+  settings.data.canvas_token = undefined!;
 
-  settings.canvas_token = undefined!;
-
-  return Response.json(
-    {
-      success: true,
-      errors: [],
-      data: settings,
-    },
-    {
-      status: 200,
-    },
-  );
+  return Response.json(settings, {
+    status: settings.success ? 200 : 400,
+  });
 });
