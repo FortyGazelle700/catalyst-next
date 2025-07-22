@@ -12,6 +12,7 @@ import {
   Dot,
   ListTree,
   Loader,
+  Lock,
   Monitor,
   MonitorSmartphone,
   Smartphone,
@@ -230,11 +231,11 @@ export default function GeneralSettings({
         <Button
           variant="outline"
           className="h-20 w-full justify-between !px-10 py-4"
-          onClick={() => setLink("/sessions")}
+          onClick={() => setLink("/security")}
         >
           <div className="flex items-center gap-3">
-            <MonitorSmartphone className="size-6" />
-            <span>Sessions</span>
+            <Lock className="size-6" />
+            <span>Security</span>
           </div>
           <ArrowRight className="size-5 shrink-0" />
         </Button>

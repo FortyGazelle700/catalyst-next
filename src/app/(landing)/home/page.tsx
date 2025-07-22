@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   title: "Home",
 };
 
+export const dynamic = "force-static";
+
 export default async function Home() {
   return (
     <>

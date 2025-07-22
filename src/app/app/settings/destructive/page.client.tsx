@@ -2,8 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import type { ApiCtx } from "@/server/api";
-import { ArrowRight, Gavel, Gem, ListTree } from "lucide-react";
-import { type SetStateAction, type Dispatch } from "react";
+import {
+  ArrowRight,
+  Gavel,
+  ListTree,
+  Loader,
+  Lock,
+  MonitorSmartphone,
+  Trash,
+  X,
+} from "lucide-react";
+import { type SetStateAction, type Dispatch, useState } from "react";
 
 import {
   ResponsiveModal,
@@ -24,6 +33,9 @@ export default function DestructionSettings({
   settings: ApiCtx["user"]["settings"];
   setSettings: Dispatch<SetStateAction<ApiCtx["user"]["settings"]>>;
 }) {
+  const [deleting, setDeleting] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <div>
@@ -35,7 +47,7 @@ export default function DestructionSettings({
         <label className="text-muted-foreground flex w-full items-center justify-between gap-2 rounded-full border px-4 py-2">
           <span>Delete Account & Purge Data</span>
           <div className="flex items-center gap-4">
-            <ResponsiveModal>
+            <ResponsiveModal open={modalOpen} onOpenChange={setModalOpen}>
               <ResponsiveModalTrigger asChild>
                 <Button variant="destructive">Proceed</Button>
               </ResponsiveModalTrigger>
@@ -53,19 +65,32 @@ export default function DestructionSettings({
                 </div>
                 <ResponsiveModalFooter>
                   <ResponsiveModalClose asChild>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="outline">
+                      <X /> Cancel
+                    </Button>
                   </ResponsiveModalClose>
                   <Button
                     variant="destructive"
                     onClick={async () => {
+                      setDeleting(true);
                       await fetch("/api/catalyst/account/delete", {
                         method: "DELETE",
                       });
                       localStorage.clear();
                       await signOut();
                     }}
+                    disabled={deleting}
                   >
-                    Confirm
+                    {deleting ? (
+                      <>
+                        <Loader className="animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash /> Confirm
+                      </>
+                    )}
                   </Button>
                 </ResponsiveModalFooter>
               </ResponsiveModalContent>
@@ -82,11 +107,22 @@ export default function DestructionSettings({
         <Button
           variant="outline"
           className="h-20 w-full justify-between !px-10 py-4"
-          onClick={() => setLink("/upgrade")}
+          onClick={() => setLink("/security")}
         >
           <div className="flex items-center gap-3">
-            <Gem className="size-6" />
-            <span>Upgrade to Pro</span>
+            <Lock className="size-6" />
+            <span>Security</span>
+          </div>
+          <ArrowRight className="size-5 shrink-0" />
+        </Button>
+        <Button
+          variant="outline"
+          className="h-20 w-full justify-between !px-10 py-4"
+          onClick={() => setLink("/sessions")}
+        >
+          <div className="flex items-center gap-3">
+            <MonitorSmartphone className="size-6" />
+            <span>Devices</span>
           </div>
           <ArrowRight className="size-5 shrink-0" />
         </Button>

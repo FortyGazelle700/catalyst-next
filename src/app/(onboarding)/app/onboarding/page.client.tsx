@@ -76,6 +76,8 @@ export default function OnboardingPageClient({
   const [settings, setSettings] =
     useState<Record<string, string>>(defaultSettings);
 
+  const [deleting, setDeleting] = useState(false);
+
   const firstRender = useRef(true);
 
   useEffect(() => {
@@ -303,6 +305,7 @@ export default function OnboardingPageClient({
                 className="justify-start"
                 variant="destructive"
                 onClick={async () => {
+                  setDeleting(true);
                   await fetch("/api/catalyst/account/delete", {
                     method: "DELETE",
                   });
@@ -311,8 +314,18 @@ export default function OnboardingPageClient({
                     redirectTo: "/app/auth",
                   });
                 }}
+                disabled={deleting}
               >
-                <Trash /> Delete Account
+                {deleting ? (
+                  <>
+                    <Loader className="animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash /> Delete Account
+                  </>
+                )}
               </Button>
             </div>
           </ResponsivePopoverContent>
