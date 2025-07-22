@@ -14,6 +14,8 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import type { IpLocationResponse } from "@/global";
 
+import { unstable_cache } from "next/cache";
+
 const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
@@ -48,7 +50,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         $client: postgres.Sql<Record<string, never>>;
       };
 
-      if (ipInfo == undefined) {
+      ipInfo = await unstable_cache(async () => {
+        if (ipInfo != undefined) return ipInfo;
         const dbReq = await db
           .select()
           .from(ipData)
@@ -58,10 +61,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (dbReq.length != 0) {
           ipInfo = dbReq?.at(0) as IpLocationResponse | undefined;
         } else {
-          global.ipRequests.set(ip, null);
           const response = await fetch(`http://ip-api.com/json/${ip}`);
           ipInfo = (await response.json()) as IpLocationResponse;
-          global.ipRequests.set(ip, ipInfo);
           await db
             .insert(ipData)
             .values({
@@ -75,7 +76,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             });
         }
-      }
+        global.ipRequests.set(ip, ipInfo!);
+      }, [ip])();
 
       const row = (
         await db
@@ -111,7 +113,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         row.ip != ip ||
         row.userAgent != ua ||
         row.country != ipInfo?.country ||
-        row.region != ipInfo?.region ||
+        row.region != ipInfo?.regionName ||
         row.city != ipInfo?.city;
 
       if (shouldUpdate) {
@@ -121,7 +123,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             ip,
             userAgent: ua,
             country: ipInfo?.country,
-            region: ipInfo?.region,
+            region: ipInfo?.regionName,
             city: ipInfo?.city,
           })
           .where(eq(sessions.sessionToken, session.sessionToken));
@@ -129,8 +131,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (
         (row.userAgent ?? ua) != ua ||
-        (row.country ?? ipInfo?.country) != ipInfo?.country ||
-        (row.region ?? ipInfo?.region) != ipInfo?.region
+        (((row.country ?? ipInfo?.country) != ipInfo?.country ||
+          (row.region ?? ipInfo?.regionName) != ipInfo?.regionName) &&
+          row.ip != ip)
       ) {
         console.warn("Session data mismatch detected", {
           sessionToken: session.sessionToken,
@@ -145,7 +148,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             ip,
             userAgent: ua,
             country: ipInfo?.country,
-            region: ipInfo?.region,
+            region: ipInfo?.regionName,
             city: ipInfo?.city,
           },
         });
