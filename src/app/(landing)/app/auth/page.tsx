@@ -18,17 +18,25 @@ import {
 } from "@/components/ui/breadcrumb";
 import TermsOfService from "@/app/(landing)/policies/(policies)/service/page.mdx";
 import PrivacyPolicy from "@/app/(landing)/policies/(policies)/privacy/page.mdx";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Continue",
 };
 
-export default function AuthPage() {
+export default async function AuthPage() {
+  const session = await auth();
+
+  if (session?.authorized) {
+    redirect("/app");
+  }
+
   return (
-    <div className="flex-1 grid place-items-center">
-      <div className="border rounded-xl px-8 pt-8 py-4 w-[min(60ch,100vw)] gap-2 flex flex-col">
-        <div className="flex gap-2 items-center justify-start">
-          <Button variant="outline" href="/">
+    <div className="grid flex-1 place-items-center">
+      <div className="flex w-[min(60ch,calc(100vw-theme(spacing.10)))] flex-col gap-2 rounded-xl border px-8 py-4 pt-8">
+        <div className="flex items-center justify-start gap-2">
+          <Button variant="outline" href="/home">
             <ArrowLeft /> Exit
           </Button>
         </div>
@@ -38,21 +46,21 @@ export default function AuthPage() {
           <PrivacyButton />.
         </p>
         <div className="-mx-8 my-4">
-          <hr className="w-full h-0.25 bg-border my-2" />
+          <hr className="bg-border my-2 h-0.25 w-full" />
         </div>
-        <div className="flex items-center justify-center py-4 gap-4">
-          <div className="rounded-full border p-4 bg-border/30">
+        <div className="flex items-center justify-center gap-4 py-4">
+          <div className="bg-border/30 rounded-full border p-4">
             <FlaskConical className="size-6" />
           </div>
           <ChevronsLeftRightEllipsis />
-          <div className="rounded-full border p-4 bg-border/30">
+          <div className="bg-border/30 rounded-full border p-4">
             <GoogleSVG className="size-6" />
           </div>
         </div>
-        <div className="flex items-center justify-between pb-4 gap-2 -m-4 mt-4 -mr-4">
-          <p className="text-xs text-center font-bold text-muted-foreground pl-2 flex items-center gap-2">
-            <Info className="size-4" /> Connect with Google to access your
-            Catalyst account
+        <div className="-m-4 mt-4 -mr-4 flex flex-col items-center justify-between gap-4 pb-4 sm:flex-row">
+          <p className="text-muted-foreground flex items-center gap-2 pl-2 text-left text-xs font-bold">
+            <Info className="size-4 shrink-0" /> Connect with Google to access
+            your Catalyst account
           </p>
           <GoogleAuth />
         </div>
@@ -68,7 +76,7 @@ const TosButton = () => {
       trigger={
         <Button
           variant="link"
-          className="h-auto text-xs text-muted-foreground p-0"
+          className="text-muted-foreground h-auto p-0 text-xs"
         >
           Terms of Service
         </Button>
@@ -100,7 +108,7 @@ const PrivacyButton = () => {
       trigger={
         <Button
           variant="link"
-          className="h-auto text-xs text-muted-foreground p-0"
+          className="text-muted-foreground h-auto p-0 text-xs"
         >
           Privacy Policy
         </Button>

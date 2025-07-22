@@ -50,10 +50,15 @@ export async function canvas($ctx: ApiCtx) {
       list: await (await import("./todo/list")).default(ctx),
     },
     getCtx: async () => ctx,
+    verifyToken: await (await import("./verify-tokenault(ctx),
   };
 }
 
 async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
+  if (!ctx?.user) {
+    throw new Error("User context is required for Canvas API");
+  }
+
   const { schools } = await import("@/server/db/schema");
   const { eq } = await import("drizzle-orm");
   const { createDecipheriv } = await import("crypto");

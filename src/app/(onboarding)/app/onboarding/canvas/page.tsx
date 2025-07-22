@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default async function OnboardingCanvasPage() {
-  const { data: settings } = await (await api({})).catalyst.settings.list();
+  const { data: settings } = await (
+    await api({})
+  ).catalyst.account.settings.list();
   const { data: school } = await (
     await api({})
   ).catalyst.schools.get({
@@ -18,9 +20,9 @@ export default async function OnboardingCanvasPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col w-full">
+      <div className="flex w-full flex-col">
         <div
-          className="w-full my-4 bg-border rounded-full h-1 overflow-hidden"
+          className="bg-border my-4 h-1 w-full overflow-hidden rounded-full"
           key="progress-bar"
         >
           <div
@@ -28,7 +30,7 @@ export default async function OnboardingCanvasPage() {
             style={{ width: "66%" }}
           />
         </div>
-        <div className="flex justify-between text-muted-foreground text-xs -mt-2 rounded-full">
+        <div className="text-muted-foreground -mt-2 flex justify-between rounded-full text-xs">
           <span>Canvas Information</span>
           <span>Step 2 / 3</span>
         </div>

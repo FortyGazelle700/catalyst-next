@@ -5,7 +5,6 @@ import { api } from "@/server/api";
 import { periodType } from "@/server/db/schema";
 
 const schema = z.object({
-  id: z.string().optional(),
   periods: z.array(
     z.object({
       id: z.string(),

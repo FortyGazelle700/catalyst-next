@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import {
   ResponsiveModal,
@@ -32,10 +32,35 @@ export function LinkModal({
   content: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const firstRender = useRef(true);
 
   const Content = useMemo(() => {
     return content;
   }, [content]);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
+    if (open) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("modal", link);
+      window.history.replaceState(null, "", url.toString());
+    } else {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("modal");
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [link, open]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("modal") == link) {
+      setOpen(true);
+    }
+  }, [link]);
 
   return (
     <ResponsiveModal open={open} onOpenChange={(open) => setOpen(open)}>

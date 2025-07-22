@@ -1,7 +1,7 @@
 "use server";
 
 import { createCipheriv } from "crypto";
-import { type ApiCtx } from "../..";
+import { type ApiCtx } from "../../..";
 
 export default async function set(ctx: ApiCtx) {
   return async ({ key, value }: { key: string; value: string }) => {

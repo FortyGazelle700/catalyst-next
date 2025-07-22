@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 
 export default async function OnboardingPage() {
   const { data: schools } = await (await api({})).catalyst.schools.list();
-  const { data: settings } = await (await api({})).catalyst.settings.list();
+  const { data: settings } = await (
+    await api({})
+  ).catalyst.account.settings.list();
 
   settings.canvas_token = undefined as unknown as string;
   settings.email =
@@ -22,14 +24,14 @@ export default async function OnboardingPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col w-full">
-        <div className="w-full my-4 bg-border rounded-full h-1 overflow-hidden">
+      <div className="flex w-full flex-col">
+        <div className="bg-border my-4 h-1 w-full overflow-hidden rounded-full">
           <div
-            className="bg-primary h-full rounded-full transition-all duration-500 vt-name-[nav-slider]"
+            className="bg-primary vt-name-[nav-slider] h-full rounded-full transition-all duration-500"
             style={{ width: "33%" }}
           />
         </div>
-        <div className="flex justify-between text-muted-foreground text-xs -mt-2 rounded-full">
+        <div className="text-muted-foreground -mt-2 flex justify-between rounded-full text-xs">
           <span>General Information</span>
           <span>Step 1 / 3</span>
         </div>

@@ -21,6 +21,15 @@ export default async function SchedulePage() {
     await api({})
   ).catalyst.schools.periods.list({});
 
+  const { data: periodData } = await (
+    await api({})
+  ).catalyst.account.settings.listPeriods();
+
+  const defaultValues: Record<string, string> = {};
+  for (const item of periodData) {
+    defaultValues[item.periodId] = item.value;
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full flex-col">
@@ -35,7 +44,11 @@ export default async function SchedulePage() {
           <span>Step 3 / 3</span>
         </div>
       </div>
-      <ScheduleClientPage courses={courses ?? []} periods={periods ?? []} />
+      <ScheduleClientPage
+        courses={courses ?? []}
+        periods={periods ?? []}
+        defaultValues={defaultValues}
+      />
     </div>
   );
 }

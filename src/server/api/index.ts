@@ -45,7 +45,7 @@ async function genCtx({
   session?: Session | null;
 }): Promise<ApiCtx> {
   const sql =
-    (global.db as postgres.Sql<Record<string, unknown>>) ??
+    global.db ??
     postgres(process.env.DATABASE_URL!, {
       max: 1,
       ssl: "require",

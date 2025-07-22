@@ -7,8 +7,8 @@ export const metadata: Metadata = {
 
 export default async function InboxPage() {
   return (
-    <>
+    <div className="h-full flex-1 overflow-hidden">
       <SettingsClientRenderer />
-    </>
+    </div>
   );
 }

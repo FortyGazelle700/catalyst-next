@@ -5,7 +5,6 @@ import { type ApiCtx } from "../../..";
 
 export default async function createSchool(ctx: ApiCtx) {
   return async (input: {
-    id?: string;
     periods: {
       id: string;
       name: string;

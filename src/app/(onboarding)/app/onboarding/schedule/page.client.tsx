@@ -11,8 +11,10 @@ import { useState } from "react";
 export default function ScheduleClientPage({
   courses,
   periods,
+  defaultValues,
 }: {
   courses: Course[];
+  defaultValues: Record<string, string>;
   periods: {
     id: string;
     name: string;
@@ -41,38 +43,38 @@ export default function ScheduleClientPage({
   }[];
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(defaultValues);
 
   const [saving, setSaving] = useState(false);
 
   return (
     <>
-      <div className="flex flex-col w-full -mb-4">
+      <div className="-mb-4 flex w-full flex-col">
         {periods?.map(
           (period, index) =>
             period && (
               <div
                 key={period.id}
                 className={cn(
-                  "flex sm:flex-row flex-col w-full items-center gap-2 p-4",
-                  index != 0 && "border-t"
+                  "flex w-full flex-col items-center gap-2 p-4 sm:flex-row",
+                  index != 0 && "border-t",
                 )}
               >
-                <h2 className="text-left font-bold w-full sm:w-auto pl-4 sm:pl-0">
+                <h2 className="w-full pl-4 text-left font-bold sm:w-auto sm:pl-0">
                   {period.name}
                 </h2>
                 {(() => {
                   switch (period.type) {
                     case "filler":
                       return (
-                        <span className="sm:ml-auto w-full sm:max-w-[20rem] flex-1 text-muted-foreground bg-input/30 px-4 py-2 rounded-full border border-input text-sm">
+                        <span className="text-muted-foreground bg-input/30 border-input w-full flex-1 rounded-full border px-4 py-2 text-sm sm:ml-auto sm:max-w-[20rem]">
                           No Selectable Options
                         </span>
                       );
                     case "single":
                       return (
                         <Combobox
-                          className="sm:ml-auto w-full sm:max-w-[20rem] flex-1"
+                          className="w-full flex-1 sm:ml-auto sm:max-w-[20rem]"
                           onSelect={(valueId) => {
                             setValues((prev) => ({
                               ...prev,
@@ -84,10 +86,13 @@ export default function ScheduleClientPage({
                             {
                               id: period.id,
                               header: "",
-                              values: period.options!.map((value) => ({
-                                id: value.id,
-                                render: value.name,
-                              })),
+                              values: [
+                                { id: "", render: "Empty" },
+                                ...period.options!.map((value) => ({
+                                  id: value.id,
+                                  render: value.name,
+                                })),
+                              ],
                             },
                           ]}
                         />
@@ -95,7 +100,7 @@ export default function ScheduleClientPage({
                     case "course":
                       return (
                         <Combobox
-                          className="sm:ml-auto w-full sm:max-w-[20rem] flex-1"
+                          className="w-full flex-1 sm:ml-auto sm:max-w-[20rem]"
                           placeholders={{
                             emptyValue: "Select a course",
                             search: "Search for a course",
@@ -111,8 +116,24 @@ export default function ScheduleClientPage({
                             {
                               id: period.id,
                               header: "",
-                              values:
-                                courses.map((course) => ({
+                              values: [
+                                {
+                                  id: "",
+                                  render: (
+                                    <div className="flex flex-col gap-2 overflow-hidden">
+                                      <span className="font-bold">Blank</span>
+                                      <span className="text-muted-foreground truncate text-xs">
+                                        Empty
+                                      </span>
+                                    </div>
+                                  ),
+                                  selectionRender: (
+                                    <div className="flex flex-col gap-2 truncate">
+                                      Filler
+                                    </div>
+                                  ),
+                                },
+                                ...(courses.map((course) => ({
                                   id: String(course.id),
                                   render: (
                                     <div className="flex flex-col gap-2 overflow-hidden">
@@ -120,7 +141,7 @@ export default function ScheduleClientPage({
                                         {course.classification ??
                                           "No Classification"}
                                       </span>
-                                      <span className="truncate text-xs text-muted-foreground">
+                                      <span className="text-muted-foreground truncate text-xs">
                                         {course.original_name}
                                       </span>
                                     </div>
@@ -132,7 +153,8 @@ export default function ScheduleClientPage({
                                       ({course.original_name})
                                     </div>
                                   ),
-                                })) ?? [],
+                                })) ?? []),
+                              ],
                             },
                           ]}
                         />
@@ -140,43 +162,46 @@ export default function ScheduleClientPage({
                   }
                 })()}
               </div>
-            )
+            ),
         )}
       </div>
-      <div className="flex justify-between items-end sm:items-center gap-2 mt-4">
+      <div className="mt-4 flex items-end justify-between gap-2 sm:items-center">
         <Button
           variant="outline"
           onClick={async () => {
             router.push(
               `/app/onboarding/canvas?${new URLSearchParams(
-                window.location.search
-              ).toString()}`
+                window.location.search,
+              ).toString()}`,
             );
           }}
         >
           <ArrowLeft /> Back
         </Button>
-        <div className="flex sm:flex-row flex-col items-end sm:items-center gap-4">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex flex-col items-end gap-4 sm:flex-row sm:items-center">
+          <span className="text-muted-foreground text-xs">
             You can change these settings anytime
           </span>
           <Button
             onClick={async () => {
               setSaving(true);
-              await fetch("/api/catalyst/settings/set-periods", {
+              await fetch("/api/catalyst/account/settings/set-periods", {
                 method: "POST",
                 body: JSON.stringify({
                   periods: {
-                    ...periods.reduce((acc, period) => {
-                      acc[period.id] = values[period.id] ?? "";
-                      return acc;
-                    }, {} as Record<string, string>),
+                    ...periods.reduce(
+                      (acc, period) => {
+                        acc[period.id] = values[period.id] ?? "";
+                        return acc;
+                      },
+                      {} as Record<string, string>,
+                    ),
                   },
                 }),
               });
               router.push(
                 new URLSearchParams(window.location.search).get("redirectTo") ??
-                  "/app"
+                  "/app",
               );
             }}
             disabled={saving}

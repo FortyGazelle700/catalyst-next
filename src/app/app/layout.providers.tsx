@@ -1,8 +1,17 @@
 "use client";
 
 import { type CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  type Dispatch,
+  type SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { CommandMenuProvider } from "./command-menu";
+import { useRouter, usePathname } from "next/navigation";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
   time: {
@@ -17,6 +26,11 @@ type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
 
 export const TimeContext = createContext<Date>(new Date());
 export const CoursesContext = createContext<CoursesContextValue>([]);
+export const CoursesRefreshContext = createContext<
+  Dispatch<SetStateAction<number>>
+>(() => {
+  /**/
+});
 
 function TimeProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(new Date());
@@ -45,6 +59,8 @@ function CourseProvider({
   const [originalCourses, setOriginalCourses] =
     useState<CourseListWithPeriodDataOutput>(ssrCourses);
   const [courses, setCourses] = useState<CoursesContextValue>([]);
+
+  const [forceRefresh, setForce] = useState(Math.random());
 
   const lastFetch = useRef(new Date());
   const unfocused = useRef(false);
@@ -80,7 +96,7 @@ function CourseProvider({
         code().catch(console.error);
       }
     });
-  }, [ssrCourses]);
+  }, [ssrCourses, forceRefresh]);
 
   useEffect(() => {
     const newCourses = originalCourses.map((originalCourse) => {
@@ -156,10 +172,55 @@ function CourseProvider({
   }, [courses.length, now, originalCourses]);
 
   return (
-    <CoursesContext.Provider value={courses}>
-      {children}
-    </CoursesContext.Provider>
+    <CoursesRefreshContext.Provider value={setForce}>
+      <CoursesContext.Provider value={courses}>
+        {children}
+      </CoursesContext.Provider>
+    </CoursesRefreshContext.Provider>
   );
+}
+
+function SessionVerificationProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const verifySession = async () => {
+      const res = await fetch("/api/catalyst/account/ping");
+      if (!res.ok) {
+        console.error("Session verification failed:", res.statusText);
+        router.replace("/app/auth");
+        return;
+      }
+      const data = (await res.json()) as {
+        success: boolean;
+        data: null;
+        errors: { message: string }[];
+      };
+      if (!data.success) {
+        console.error("Session verification failed:", data.errors);
+        router.replace("/app/auth");
+      }
+    };
+
+    verifySession().catch(console.error);
+    const check = setInterval(
+      () => {
+        verifySession().catch(console.error);
+      },
+      10 * 60 * 1000,
+    );
+
+    return () => {
+      clearInterval(check);
+    };
+  }, [router, pathname]);
+
+  return <>{children}</>;
 }
 
 export function AppLayoutProviders({
@@ -170,10 +231,12 @@ export function AppLayoutProviders({
   courses: CourseListWithPeriodDataOutput;
 }) {
   return (
-    <CommandMenuProvider>
-      <TimeProvider>
-        <CourseProvider courses={courses}>{children}</CourseProvider>
-      </TimeProvider>
-    </CommandMenuProvider>
+    <SessionVerificationProvider>
+      <CommandMenuProvider>
+        <TimeProvider>
+          <CourseProvider courses={courses}>{children}</CourseProvider>
+        </TimeProvider>
+      </CommandMenuProvider>
+    </SessionVerificationProvider>
   );
 }

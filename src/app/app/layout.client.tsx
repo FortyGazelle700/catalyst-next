@@ -796,7 +796,7 @@ export function SignOut() {
   return (
     <DropdownMenuItem onClick={() => signOut()}>
       <LogOut />
-      Log out
+      Log Out
     </DropdownMenuItem>
   );
 }
@@ -881,7 +881,7 @@ export function AppSidebarClient({
               <AccordionHeader className="-mt-2 group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-4">
                 <SidebarGroupLabel className="flex h-10 justify-between">
                   Courses
-                  <AccordionTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground grid size-6 flex-shrink-0 cursor-pointer place-items-center rounded-full transition-all">
+                  <AccordionTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground grid size-6 shrink-0 cursor-pointer place-items-center rounded-full transition-all">
                     <ChevronRight className="size-4 transform opacity-0 transition-all group-hover:opacity-100 group-data-[state=open]:rotate-90" />
                   </AccordionTrigger>
                 </SidebarGroupLabel>
@@ -906,7 +906,7 @@ export function AppSidebarClient({
               <AccordionHeader className="-mt-2 group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-4">
                 <SidebarGroupLabel className="flex h-10 justify-between">
                   Messages
-                  <AccordionTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground grid size-6 flex-shrink-0 cursor-pointer place-items-center rounded-full transition-all">
+                  <AccordionTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground grid size-6 shrink-0 cursor-pointer place-items-center rounded-full transition-all">
                     <ChevronRight className="size-4 transform opacity-0 transition-all group-hover:opacity-100 group-data-[state=open]:rotate-90" />
                   </AccordionTrigger>
                 </SidebarGroupLabel>
@@ -1147,7 +1147,7 @@ export function AppSidebarClient({
                     title="Settings"
                     description="Modify Settings"
                     breadcrumbs={<Breadcrumbs pathname="/app/settings" />}
-                    content={<SettingsModalPage />}
+                    content={<SettingsModalPage modal={true} />}
                   />
                 </SidebarMenuButton>
               </TooltipTrigger>

@@ -140,6 +140,16 @@
   --animate-accordion-down: accordion-down var(--duration) ease-out forwards;
   --animate-swap: swap 20s ease-out forwards infinite;
   --animate-swap-indicator: swap-indicator 20s ease-out forwards infinite;
+  --animate-gradient-shift: gradient-shift 2s ease-in-out infinite alternate;
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0%;
+    }
+    100% {
+      background-position: 100%;
+    }
+  }
 
   @keyframes accordion-up {
     from {

@@ -28,8 +28,8 @@ export default async function list(ctx: ApiCtx) {
       .where(
         and(
           eq(schoolPermissions.userId, ctx.user.get.id),
-          eq(schoolPermissions.role, "owner")
-        )
+          eq(schoolPermissions.role, "owner"),
+        ),
       );
 
     if (userPermissions.length > 0) {
@@ -42,18 +42,18 @@ export default async function list(ctx: ApiCtx) {
           .limit(1)
           .then((res) => res[0]);
 
+        if (!school || school.isPublic) continue;
+
         const periodsList = await ctx.db
           .select()
           .from(periods)
           .where(eq(periods.schoolId, schoolId))
           .limit(1);
 
-        if (school) {
-          schoolsList.push({
-            ...school,
-            isComplete: periodsList.length > 0,
-          });
-        }
+        schoolsList.push({
+          ...school,
+          isComplete: periodsList.length > 0,
+        });
       }
     }
 
