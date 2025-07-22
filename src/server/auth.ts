@@ -55,11 +55,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .where(eq(ipData.ip, ip))
           .limit(1);
 
-        if (dbReq) {
+        if (dbReq.length != 0) {
           ipInfo = dbReq?.at(0) as IpLocationResponse | undefined;
         } else {
           global.ipRequests.set(ip, null);
-          const response = await fetch(`https://ip-api.com/json/${ip}`);
+          const response = await fetch(`http://ip-api.com/json/${ip}`);
           ipInfo = (await response.json()) as IpLocationResponse;
           global.ipRequests.set(ip, ipInfo);
           await db
