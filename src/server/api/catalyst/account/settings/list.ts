@@ -9,7 +9,7 @@ export default async function list(ctx: ApiCtx) {
       data: {
         ...ctx.user.settings,
         email: ctx.user.get?.email,
-      } as Record<string, string | undefined>,
+      } as Record<string, string>,
       errors: [] as {
         message: string;
       }[],
