@@ -50,7 +50,7 @@ export async function canvas($ctx: ApiCtx) {
       list: await (await import("./todo/list")).default(ctx),
     },
     getCtx: async () => ctx,
-    verifyToken: await (await import("./verify-tokenault(ctx),
+    verifyToken: await (await import("./verify-token")).default(ctx),
   };
 }
 
