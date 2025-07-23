@@ -146,12 +146,12 @@ export default function SettingsClientRenderer({
   return (
     <div
       className={cn(
-        "@container flex h-full w-full",
+        "@container flex h-full w-full overflow-auto @4xl:overflow-hidden",
         modal &&
           "-mx-4 -my-8 h-[calc(100%+theme(spacing.12))] max-h-136 w-[calc(100%+theme(spacing.8))]",
       )}
     >
-      <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
+      <div className="flex h-max w-full flex-col-reverse items-stretch overflow-auto @4xl:h-full @4xl:flex-row @4xl:overflow-hidden">
         <div className="min-h-max flex-1 overflow-clip overflow-x-auto px-10 py-12 @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:min-h-full @4xl:overflow-auto">
           <h1 className="h1 mb-2">
             {[...sidebarItems, ...nonRenderedItems].find(
