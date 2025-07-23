@@ -62,6 +62,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ipInfo = dbReq?.at(0) as IpLocationResponse | undefined;
         } else {
           const response = await fetch(`http://ip-api.com/json/${ip}`);
+          if (!response.ok) {
+            console.error(
+              "IP Check Failed",
+              response.status,
+              response.statusText,
+              response.json(),
+            );
+          }
           ipInfo = (await response.json()) as IpLocationResponse;
           await db
             .insert(ipData)
