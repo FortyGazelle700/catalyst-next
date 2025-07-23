@@ -85,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             });
         }
         global.ipRequests.set(ip, ipInfo!);
-      }, [ip])();
+      }, [`ip_log_${ip}`])();
 
       const row = (
         await db
@@ -138,10 +138,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (
-        (row.userAgent ?? ua) != ua ||
-        (((row.country ?? ipInfo?.country) != ipInfo?.country ||
-          (row.region ?? ipInfo?.regionName) != ipInfo?.regionName) &&
-          row.ip != ip)
+        (row.userAgent ?? ua) != ua // ||
+        // (((row.country ?? ipInfo?.country) != ipInfo?.country ||
+        //   (row.region ?? ipInfo?.regionName) != ipInfo?.regionName) &&
+        //   row.ip != ip)
       ) {
         console.warn("Session data mismatch detected", {
           sessionToken: session.sessionToken,
