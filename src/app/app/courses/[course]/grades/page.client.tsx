@@ -283,7 +283,7 @@ export default function GradesClientPage({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="flex-shrink-0"
+                                className="shrink-0"
                                 onClick={() => {
                                   setScoreOverrides((prev) => ({
                                     ...prev,
@@ -296,7 +296,7 @@ export default function GradesClientPage({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="flex-shrink-0"
+                                className="shrink-0"
                                 onClick={() => {
                                   setScoreOverrides((prev) => ({
                                     ...prev,
@@ -335,7 +335,7 @@ export default function GradesClientPage({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="flex-shrink-0"
+                                className="shrink-0"
                                 onClick={() => {
                                   setTotalOverrides((prev) => ({
                                     ...prev,
@@ -400,19 +400,19 @@ function GradesSidebar({
         collapsible="none"
         className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:w-[20rem]"
       >
-        <SidebarHeader>
+        <SidebarHeader className="p-4">
           <h1 className="flex items-center gap-1 text-2xl font-bold">
             <Percent /> Grades
           </h1>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-2">
           <SidebarGroup>
             <SidebarGroupLabel>
               <Info /> Overview
             </SidebarGroupLabel>
-            <div className="text-destructive-foreground flex items-center gap-1 px-2 text-xs">
-              <AlertCircle className="size-3 flex-shrink-0" /> Submissions may
-              not work as intended. Please verify that your submission submit
+            <div className="text-destructive-foreground bg-destructive/30 my-2 flex items-center gap-2 rounded-sm px-3 py-2 text-xs">
+              <AlertCircle className="size-4 shrink-0" /> Submissions may not
+              work as intended. Please verify that your submission submit
               correctly.
             </div>
             <h2 className="flex items-center gap-2 text-2xl font-bold">

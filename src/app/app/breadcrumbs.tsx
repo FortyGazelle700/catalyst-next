@@ -33,6 +33,19 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
+  TodoCreate: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/todo/create">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Create</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
   TodoItem: ({ id, asLink = false }: { id: number; asLink?: boolean }) => {
     const [name, setName] = useState<string | null>(null);
 
@@ -410,6 +423,16 @@ export function Breadcrumbs({
                     <BreadcrumbBits.Catalyst />
                     <BreadcrumbSeparator />
                     <BreadcrumbBits.Todo asLink={false} />
+                  </>
+                );
+              case "/app/todo/create":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Todo />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.TodoCreate asLink={false} />
                   </>
                 );
               case "/app/todo/[id]":

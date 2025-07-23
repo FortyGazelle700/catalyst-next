@@ -4,7 +4,7 @@ import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
 const schema = z.object({
-  settings: z.record(z.string()),
+  token: z.string(),
 });
 
 export const POST = auth(async (req) => {
@@ -30,7 +30,7 @@ export const POST = auth(async (req) => {
     await api({
       session: req.auth,
     })
-  ).catalyst.settings.setMany(result.data?.settings);
+  ).canvas.verifyToken({ token: body.token });
 
   return Response.json(response, {
     status: response.success ? 200 : 400,

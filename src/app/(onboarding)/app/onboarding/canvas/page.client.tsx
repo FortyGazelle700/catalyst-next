@@ -5,13 +5,15 @@ import { Input } from "@/components/ui/input";
 import {
   ArrowLeft,
   ArrowRight,
+  Check,
   ExternalLink,
   Info,
   Loader,
   RotateCw,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimationPlayer } from "@/components/catalyst/animation-player";
 
 export default function OnboardingPageClient({
@@ -28,36 +30,88 @@ export default function OnboardingPageClient({
 
   const [saving, setSaving] = useState(false);
 
+  const [tokenState, setTokenState] = useState<"success" | "error" | "pending">(
+    "pending",
+  );
+
+  useEffect(() => {
+    setTokenState("pending");
+
+    const request = async () => {
+      const req = await fetch("/api/verify-token", {
+        method: "POST",
+        body: JSON.stringify({ token: token }),
+      });
+      if (req.status == 200) {
+        setTokenState("success");
+      } else {
+        setTokenState("error");
+      }
+    };
+
+    const debouncer = setTimeout(() => {
+      request().catch(console.error);
+    }, 1000);
+
+    return () => {
+      clearTimeout(debouncer);
+    };
+  }, [token]);
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2 flex-col">
-        <label className="text-xs text-muted-foreground flex-1">
+      <div className="flex flex-col gap-2">
+        <label className="text-muted-foreground flex-1 text-xs">
           Canvas Token
           <Input
             value={
               tokenIsSaved
-                ? "10968~hatU3zFhYaCCYAE2BaANYnBxKhaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
+                ? "10968~hatU3zFhYaCCYAE2BaANYnBxKHaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
                 : token
             }
             onChange={(evt) => {
               setToken(evt.target.value);
             }}
-            placeholder="10968~hatU3zFhYaCCYAE2BaANYnBxKhaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
+            placeholder="10968~hatU3zFhYaCCYAE2BaANYnBxKHaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
             disabled={tokenIsSaved}
             readOnly={tokenIsSaved}
             className="text-foreground"
           />
-          <div className="flex items-center justify-between md:flex-row flex-col gap-2 mt-1">
-            {tokenIsSaved ? (
-              <div className="flex items-center gap-1 text-yellow-600 dark:text-yellow-500 text-xs px-2">
-                <Info className="size-4 mt-0.5 flex-shrink-0" />
+          <div className="mt-1 flex flex-col items-center justify-between gap-2 md:flex-row">
+            {(tokenIsSaved ?? true) ? (
+              <div className="flex items-center gap-1 px-2 text-xs text-yellow-600 dark:text-yellow-500">
+                <Info className="mt-0.5 size-4 shrink-0" />
                 <span>
                   This is not your actual token, your token is saved, but if you
                   need to change it, you can reroll it.
                 </span>
               </div>
             ) : (
-              <span></span>
+              <span className="flex items-center gap-1">
+                {(() => {
+                  switch (tokenState) {
+                    case "pending":
+                      return (
+                        <>
+                          <Loader className="size-3 animate-spin" />{" "}
+                          Verifying...
+                        </>
+                      );
+                    case "error":
+                      return (
+                        <>
+                          <X className="size-3" /> Failed
+                        </>
+                      );
+                    case "success":
+                      return (
+                        <>
+                          <Check className="size-3" /> Verified
+                        </>
+                      );
+                  }
+                })()}
+              </span>
             )}
             <Button
               onClick={() => {
@@ -76,7 +130,7 @@ export default function OnboardingPageClient({
             src="/canvas.lottie.json"
             autoplay
             loop
-            className="border rounded-md overflow-hidden"
+            className="overflow-hidden rounded-md border"
           />
           <Button
             href={canvasUrl}
@@ -88,14 +142,14 @@ export default function OnboardingPageClient({
           </Button>
         </div>
       </div>
-      <div className="flex justify-between items-center gap-2 mt-4">
+      <div className="mt-4 flex items-center justify-between gap-2">
         <Button
           variant="outline"
           onClick={async () => {
             router.push(
               `/app/onboarding?${new URLSearchParams(
-                window.location.search
-              ).toString()}`
+                window.location.search,
+              ).toString()}`,
             );
           }}
         >
@@ -105,7 +159,7 @@ export default function OnboardingPageClient({
           onClick={async () => {
             setSaving(true);
             if (!tokenIsSaved) {
-              await fetch("/api/catalyst/settings/set-many", {
+              await fetch("/api/catalyst/account/settings/set-many", {
                 method: "POST",
                 body: JSON.stringify({
                   settings: {
@@ -116,8 +170,8 @@ export default function OnboardingPageClient({
             }
             router.push(
               `/app/onboarding/schedule?${new URLSearchParams(
-                window.location.search
-              ).toString()}`
+                window.location.search,
+              ).toString()}`,
             );
           }}
           disabled={saving || (!tokenIsSaved && !token)}

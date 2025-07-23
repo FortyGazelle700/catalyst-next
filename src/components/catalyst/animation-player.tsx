@@ -14,12 +14,12 @@ const AudioVideoControls = dynamic(
   () => import("./attachment").then((mod) => mod.AudioVideoControls),
   {
     ssr: false,
-  }
+  },
 );
 
 export function AnimationPlayer({
   src,
-  autoplay = true,
+  autoplay = false,
   loop = true,
   className = "",
 }: {
@@ -38,7 +38,7 @@ export function AnimationPlayer({
 
   const toRemove = setInterval(() => {
     const el = lottieContainer?.current?.querySelector(
-      'svg > g > g:has(g > g[opacity="0.8"])'
+      'svg > g > g:has(g > g[opacity="0.8"])',
     );
     el?.remove();
 
@@ -51,12 +51,12 @@ export function AnimationPlayer({
   return (
     <div
       className={cn(
-        "overflow-hidden w-full aspect-video bg-black/10 relative",
-        className
+        "relative aspect-video w-full overflow-hidden bg-black/10",
+        className,
       )}
       ref={lottieContainer}
     >
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2">
+      <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center gap-2">
         <Loader className="animate-spin" />
         <span>Loading animation...</span>
       </div>
@@ -75,7 +75,7 @@ export function AnimationPlayer({
         hasAudio={false}
         hasDownload={false}
         type="animation"
-        className="z-10 absolute inset-4 top-auto bg-background mx-auto"
+        className="bg-background absolute inset-4 top-auto z-10 mx-auto"
       />
     </div>
   );

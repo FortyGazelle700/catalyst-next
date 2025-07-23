@@ -79,7 +79,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -95,14 +95,27 @@ export const sessions = createTable(
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    lastAccessed: timestamp("last_accessed", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
     expires: timestamp("expires", {
       mode: "date",
       withTimezone: true,
     }).notNull(),
+    ip: varchar("ip", { length: 45 }),
+    userAgent: varchar("user_agent", { length: 128 }),
+    country: varchar("country", { length: 64 }),
+    region: varchar("region", { length: 64 }),
+    city: varchar("city", { length: 64 }),
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -121,27 +134,25 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
 
 ////////////////////////////////////////
 
-export const settingState = varenum("setting_state", ["draft", "saved"]);
-export const userRelationState = varenum("relation_state", [
+export const userRelationState = varenum("relation_state_enum", [
   "requested",
   "friends",
   "denied",
   "blocked",
 ]);
-export const periodType = varenum("period_type", [
+export const periodType = varenum("period_type_enum", [
   "single",
   "course",
   "filler",
 ]);
-export const permissionRole = varenum("permission_role", [
+export const permissionRole = varenum("permission_role_enum", [
   "owner",
-  "manager",
-  "viewer",
+  "admin",
 ]);
 
 export const settings = createTable(
@@ -161,7 +172,7 @@ export const settings = createTable(
     // compoundKey: primaryKey({
     //   columns: [setting.userId, setting.key],
     // }),
-  })
+  }),
 );
 
 export const settingsToUserRelation = relations(settings, ({ one }) => ({
@@ -191,7 +202,7 @@ export const schools = createTable(
   (school) => ({
     nameIdx: index("school_name_idx").on(school.name),
     districtIdx: index("school_district_idx").on(school.district),
-  })
+  }),
 );
 
 export const schoolPermissions = createTable(
@@ -209,12 +220,12 @@ export const schoolPermissions = createTable(
   },
   (schoolPermission) => ({
     schoolIdIdx: index("school_permission_school_id_idx").on(
-      schoolPermission.schoolId
+      schoolPermission.schoolId,
     ),
     userIdIdx: index("school_permission_user_id_idx").on(
-      schoolPermission.userId
+      schoolPermission.userId,
     ),
-  })
+  }),
 );
 
 export const periods = createTable(
@@ -242,7 +253,7 @@ export const periods = createTable(
     periodIdIdx: index("period_period_id_idx").on(period.periodId),
     optionIdIdx: index("period_option_id_idx").on(period.optionId),
     schoolIdIdx: index("period_school_id_idx").on(period.schoolId),
-  })
+  }),
 );
 
 export const schedules = createTable("schedule", {
@@ -271,9 +282,9 @@ export const periodTimes = createTable(
   (periodTime) => ({
     optionIdIdx: index("period_time_option_id_idx").on(periodTime.optionId),
     scheduleIdIdx: index("period_time_schedule_id_idx").on(
-      periodTime.scheduleId
+      periodTime.scheduleId,
     ),
-  })
+  }),
 );
 
 export const periodTimeToScheduleRelation = relations(
@@ -283,7 +294,7 @@ export const periodTimeToScheduleRelation = relations(
       fields: [periodTimes.scheduleId],
       references: [schedules.id],
     }),
-  })
+  }),
 );
 
 export const periodTimeToPeriodRelation = relations(periodTimes, ({ one }) => ({
@@ -307,9 +318,9 @@ export const scheduleValues = createTable(
   (scheduleValue) => ({
     userIdIdx: index("schedule_value_user_id_idx").on(scheduleValue.userId),
     periodIdIdx: index("schedule_value_period_id_idx").on(
-      scheduleValue.periodId
+      scheduleValue.periodId,
     ),
-  })
+  }),
 );
 
 export const scheduleDates = createTable(
@@ -327,7 +338,7 @@ export const scheduleDates = createTable(
   },
   (scheduleDate) => ({
     schoolIdIdx: index("schedule_date_school_id_idx").on(scheduleDate.schoolId),
-  })
+  }),
 );
 
 export const scheduleDateToScheduleRelation = relations(
@@ -337,7 +348,7 @@ export const scheduleDateToScheduleRelation = relations(
       fields: [scheduleDates.scheduleId],
       references: [schedules.id],
     }),
-  })
+  }),
 );
 
 export const notifications = createTable(
@@ -354,10 +365,15 @@ export const notifications = createTable(
   },
   (notification) => ({
     userIdIdx: index("notification_user_id_idx").on(notification.userId),
-  })
+  }),
 );
 
-export const courseClassification = createTable("course_classification", {
+export const ipData = createTable("cache_ip_data", {
+  ip: varchar("ip", { length: 512 }).notNull().primaryKey(),
+  data: jsonb("data"),
+});
+
+export const courseClassification = createTable("cache_course_classification", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -380,12 +396,12 @@ export const userRelationships = createTable(
   },
   (userRelationship) => ({
     userIdIdx: index("user_relationship_user_id_idx").on(
-      userRelationship.userId
+      userRelationship.userId,
     ),
     relatedUserIdIdx: index("user_relationship_related_user_id_idx").on(
-      userRelationship.relatedUserId
+      userRelationship.relatedUserId,
     ),
-  })
+  }),
 );
 
 export const chats = createTable(
@@ -402,7 +418,7 @@ export const chats = createTable(
   },
   (chat) => ({
     nameIdx: index("chat_name_idx").on(chat.name),
-  })
+  }),
 );
 
 export const chatMessages = createTable(
@@ -428,7 +444,7 @@ export const chatMessages = createTable(
   (chatMessage) => ({
     chatIdIdx: index("chat_message_chat_id_idx").on(chatMessage.chatId),
     userIdIdx: index("chat_message_user_id_idx").on(chatMessage.userId),
-  })
+  }),
 );
 
 export const feedback = createTable("feedback", {

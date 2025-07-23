@@ -67,18 +67,18 @@ export function AttachmentPreview({
               width={32}
               height={32}
               alt={""}
-              className="outline-border grid size-8 flex-shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"
+              className="outline-border grid size-8 shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"
             />
           );
         } else if (attachment.type.startsWith("audio/")) {
           return (
-            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
+            <div className="outline-border grid size-8 shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <Music className="size-8" />
             </div>
           );
         } else if (attachment.type.startsWith("video/")) {
           return (
-            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
+            <div className="outline-border grid size-8 shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <Video className="size-8" />
             </div>
           );
@@ -91,13 +91,13 @@ export function AttachmentPreview({
           attachment.type == "text/plain"
         ) {
           return (
-            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
+            <div className="outline-border grid size-8 shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <FileText className="size-8" />
             </div>
           );
         } else if (attachment.type == "application/zip") {
           return (
-            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
+            <div className="outline-border grid size-8 shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <FolderArchive className="size-8" />
             </div>
           );
@@ -106,13 +106,13 @@ export function AttachmentPreview({
           attachment.name.endsWith(".dmg")
         ) {
           return (
-            <div className="outline-border grid size-8 flex-shrink-0 place-items-center rounded outline-1 outline-offset-2">
+            <div className="outline-border grid size-8 shrink-0 place-items-center rounded outline-1 outline-offset-2">
               <AppWindowMac className="size-8" />
             </div>
           );
         } else {
           return (
-            <div className="bg-secondary outline-border grid size-8 flex-shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"></div>
+            <div className="bg-secondary outline-border grid size-8 shrink-0 place-items-center rounded-sm outline-1 outline-offset-2"></div>
           );
         }
       })()}
@@ -721,7 +721,7 @@ export function PDF({ src }: { src: File }) {
         onLoadSuccess={onLoad}
         onLoadError={onError}
         className={cn(
-          "mx-auto flex w-[clamp(50ch,100%,100ch)] flex-col !items-stretch !gap-4 text-black [&>div]:!min-w-0 [&>div]:flex-shrink-0 [&>div]:overflow-hidden [&>div]:rounded-xl [&>div]:border [&>div>*]:!h-auto [&>div>*]:!w-full",
+          "mx-auto flex w-[clamp(50ch,100%,100ch)] flex-col !items-stretch !gap-4 text-black [&>div]:!min-w-0 [&>div]:shrink-0 [&>div]:overflow-hidden [&>div]:rounded-xl [&>div]:border [&>div>*]:!h-auto [&>div>*]:!w-full",
           (isLoading || isError) && "hidden",
         )}
       >

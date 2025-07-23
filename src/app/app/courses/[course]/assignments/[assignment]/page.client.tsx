@@ -110,9 +110,9 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
         collapsible="none"
         className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:w-[20rem]"
       >
-        <SidebarHeader>
-          <h1 className="flex items-center gap-1 text-2xl font-bold">
-            <Notebook /> {assignment.name}
+        <SidebarHeader className="p-4">
+          <h1 className="flex items-center gap-2 text-2xl font-bold">
+            <Notebook className="shrink-0" /> {assignment.name}
           </h1>
         </SidebarHeader>
         <SidebarContent>
@@ -491,9 +491,9 @@ export function SubmissionArea({ assignment }: { assignment: Assignment }) {
     <>
       <div className="flex-1" />
       <SidebarGroup className="bg-sidebar sticky bottom-0 flex flex-col gap-2">
-        <div className="text-destructive-foreground flex items-center gap-1 px-2 text-xs">
-          <AlertCircle className="size-3 flex-shrink-0" /> Submissions may not
-          work as intended. Please verify that your submission submit correctly.
+        <div className="text-destructive-foreground bg-destructive/30 my-2 flex items-center gap-2 rounded-sm px-3 py-2 text-xs">
+          <AlertCircle className="size-4 shrink-0" /> Submissions may not work
+          as intended. Please verify that your submission submit correctly.
         </div>
         <div className="bg-secondary mx-4 h-0.5 rounded-full" />
         <h2 className="mt-2 flex items-center gap-1 px-2 text-xs font-bold">

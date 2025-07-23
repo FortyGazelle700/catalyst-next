@@ -231,7 +231,7 @@ export function CourseList() {
             )}
           </div>
           <div
-            className="group relative flex h-40 w-96 flex-shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5"
+            className="group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all hover:scale-105 hover:shadow-2xl"
             style={{
               backgroundColor: `color-mix(in oklab, ${subjectColors(
                 currentCourse.classification ?? "",
@@ -281,45 +281,65 @@ export function CourseList() {
             <div className="pointer-events-none absolute top-18 right-4 bottom-4 left-5 flex flex-1 translate-y-16 scale-90 items-center gap-2 opacity-0 transition-all group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
               <Link
                 href={`/app/courses/${currentCourse.id}`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    currentCourse.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <House />
               </Link>
               <Link
                 href={`/app/courses/${currentCourse.id}/modules`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    currentCourse.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <LayoutDashboard />
               </Link>
               <Link
                 href={`/app/courses/${currentCourse.id}/people`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    currentCourse.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <UsersRound />
               </Link>
               <Link
                 href={`/app/courses/${currentCourse.id}/grades`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    currentCourse.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      currentCourse.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <Percent />
               </Link>
@@ -332,7 +352,7 @@ export function CourseList() {
         .map((course) => (
           <div
             key={course.id}
-            className="group relative flex h-40 w-96 flex-shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5"
+            className="group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all hover:scale-105 hover:shadow-2xl"
             style={{
               backgroundColor: `color-mix(in oklab, ${subjectColors(
                 course.classification ?? "",
@@ -380,45 +400,65 @@ export function CourseList() {
             <div className="pointer-events-none absolute top-18 right-4 bottom-4 left-5 flex flex-1 translate-y-16 scale-90 items-center gap-2 opacity-0 transition-all group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
               <Link
                 href={`/app/courses/${course.id}`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    course.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <House />
               </Link>
               <Link
                 href={`/app/courses/${course.id}/modules`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    course.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <LayoutDashboard />
               </Link>
               <Link
                 href={`/app/courses/${course.id}/people`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    course.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <UsersRound />
               </Link>
               <Link
                 href={`/app/courses/${course.id}/grades`}
-                className="grid h-full flex-1 place-items-center rounded"
-                style={{
-                  background: `color-mix(in oklab, ${subjectColors(
-                    course.classification ?? "",
-                  )}, var(--ui-background) 60%)`,
-                }}
+                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+                style={
+                  {
+                    background: `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 60%)`,
+                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                      course.classification ?? "",
+                    )}, var(--ui-background) 70%)`,
+                  } as React.CSSProperties
+                }
               >
                 <Percent />
               </Link>
@@ -463,7 +503,7 @@ export function MiniTodoList() {
         </>
       ) : (
         <>
-          {todoItems.map((todoItem) => (
+          {todoItems?.map((todoItem) => (
             <TodoItem
               key={todoItem.plannable_id}
               todoItem={todoItem}

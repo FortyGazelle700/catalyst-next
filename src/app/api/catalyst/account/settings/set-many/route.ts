@@ -4,7 +4,7 @@ import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
 const schema = z.object({
-  periods: z.record(z.string()),
+  settings: z.record(z.string()),
 });
 
 export const POST = auth(async (req) => {
@@ -30,7 +30,7 @@ export const POST = auth(async (req) => {
     await api({
       session: req.auth,
     })
-  ).catalyst.settings.setPeriods(result.data?.periods);
+  ).catalyst.account.settings.setMany(result.data?.settings);
 
   return Response.json(response, {
     status: response.success ? 200 : 400,

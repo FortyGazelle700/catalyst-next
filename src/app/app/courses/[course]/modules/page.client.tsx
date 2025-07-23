@@ -169,12 +169,12 @@ function ModuleSidebar({
         collapsible="none"
         className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:w-[20rem]"
       >
-        <SidebarHeader>
+        <SidebarHeader className="p-4">
           <h1 className="flex items-center gap-1 text-2xl font-bold">
             <LayoutDashboard /> Modules
           </h1>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="px-4">
           <SidebarGroup>sidebar group</SidebarGroup>
         </SidebarContent>
       </Sidebar>

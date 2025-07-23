@@ -60,8 +60,14 @@ export default function OnboardingPageClient({
   schools: {
     id: string;
     name: string | null;
-    isComplete: boolean;
+    district: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    zip: string | null;
+    canvasURL: string | null;
     isPublic: boolean | null;
+    isComplete: boolean | null;
   }[];
   settings: Record<string, string>;
 }) {
@@ -69,6 +75,8 @@ export default function OnboardingPageClient({
 
   const [settings, setSettings] =
     useState<Record<string, string>>(defaultSettings);
+
+  const [deleting, setDeleting] = useState(false);
 
   const firstRender = useRef(true);
 
@@ -79,7 +87,7 @@ export default function OnboardingPageClient({
     }
     localStorage.setItem(
       "catalyst-onboarding-settings",
-      JSON.stringify(settings),
+      JSON.stringify({ ...settings, email: undefined }),
     );
   }, [settings]);
 
@@ -104,7 +112,7 @@ export default function OnboardingPageClient({
           Email
           <Input value={settings.email} readOnly />
           <div className="flex items-center gap-1 px-2 text-xs text-yellow-600 dark:text-yellow-500">
-            <Info className="mt-0.5 size-4 flex-shrink-0" />
+            <Info className="mt-0.5 size-4 shrink-0" />
             <span>
               Information populated by Google. This information cannot be
               changed.
@@ -296,11 +304,28 @@ export default function OnboardingPageClient({
               <Button
                 className="justify-start"
                 variant="destructive"
-                onClick={() => {
-                  /**/
+                onClick={async () => {
+                  setDeleting(true);
+                  await fetch("/api/catalyst/account/delete", {
+                    method: "DELETE",
+                  });
+                  localStorage.clear();
+                  await signOut({
+                    redirectTo: "/app/auth",
+                  });
                 }}
+                disabled={deleting}
               >
-                <Trash /> Delete Account
+                {deleting ? (
+                  <>
+                    <Loader className="animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash /> Delete Account
+                  </>
+                )}
               </Button>
             </div>
           </ResponsivePopoverContent>
@@ -321,7 +346,7 @@ export default function OnboardingPageClient({
           <Button
             onClick={async () => {
               setSaving(true);
-              await fetch("/api/catalyst/settings/set-many", {
+              await fetch("/api/catalyst/account/settings/set-many", {
                 method: "POST",
                 body: JSON.stringify({
                   settings: {

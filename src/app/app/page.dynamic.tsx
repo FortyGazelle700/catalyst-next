@@ -9,9 +9,9 @@ export const TimeCard = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className="relative flex-auto @3xl:flex-1 border stack h-52 @3xl:h-52 rounded-t-md rounded-b-xs @3xl:rounded-l-md @3xl:rounded-r-xs group overflow-hidden" />
+      <Skeleton className="stack group relative h-52 flex-auto overflow-hidden rounded-t-md rounded-b-xs border @3xl:h-52 @3xl:flex-1 @3xl:rounded-l-md @3xl:rounded-r-xs" />
     ),
-  }
+  },
 );
 
 export const CourseList = dynamic(
@@ -23,9 +23,9 @@ export const CourseList = dynamic(
     ssr: false,
     loading: () =>
       Array.from({ length: 10 }).map((_, idx) => (
-        <Skeleton key={idx} className="w-96 h-40 rounded-xs flex-shrink-0" />
+        <Skeleton key={idx} className="h-40 w-96 shrink-0 rounded-xs" />
       )),
-  }
+  },
 );
 
 export const MiniTodoList = dynamic(
@@ -35,6 +35,6 @@ export const MiniTodoList = dynamic(
     })),
   {
     ssr: false,
-    loading: () => <Skeleton className="w-96 h-52 rounded-xs" />,
-  }
+    loading: () => <Skeleton className="h-52 w-96 rounded-xs" />,
+  },
 );

@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 
-export default function AssignmentRedirect({
+export default async function AssignmentRedirect({
   params,
 }: {
-  params: { course: string };
+  params: Promise<{ course: string }>;
 }) {
-  redirect(`/app/courses/${params.course}/modules`);
+  redirect(`/app/courses/${(await params).course}/modules`);
 }

@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   title: "Home",
 };
 
+export const dynamic = "force-static";
+
 export default async function Home() {
   return (
     <>
@@ -303,7 +305,7 @@ function ScreenshotsSection() {
       id="integrations"
     >
       <div className="flex flex-col items-center justify-center gap-8 lg:flex-row">
-        <div className="relative h-auto flex-1 flex-shrink">
+        <div className="relative h-auto flex-1">
           <ScreenshotsCarousel />
         </div>
         <div className="bg-accent h-1 w-24 rounded-full lg:h-24 lg:w-1" />

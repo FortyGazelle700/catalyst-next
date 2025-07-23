@@ -25,7 +25,9 @@ export default async function AppRedirect({
   const session = await auth();
   const url = new URL((await headers()).get("x-url") ?? "/app");
 
-  if (!session) redirect(`/app/auth?redirectTo=${url.pathname}`);
+  if (!session?.authorized) {
+    redirect(`/app/auth?redirectTo=${url.pathname}`);
+  }
 
   const requiredSettings = [
     "f_name",
@@ -36,7 +38,7 @@ export default async function AppRedirect({
   ];
   const { data: settings } = await (
     await api({ session })
-  ).catalyst.settings.list();
+  ).catalyst.account.settings.list();
 
   if (!requiredSettings.every((key) => Object.keys(settings).includes(key))) {
     redirect(`/app/onboarding?redirectTo=${url.pathname}`);

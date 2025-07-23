@@ -239,7 +239,7 @@ export function TodoItem({
           </div>
         </div>
       </div>
-      <div className="flex flex-shrink-0 flex-row items-end justify-end @3xl:flex-col">
+      <div className="flex shrink-0 flex-row items-end justify-end @3xl:flex-col">
         <div className="flex flex-1 items-start justify-start gap-2 @3xl:justify-end">
           {todoItem.plannable_type == "planner_note" ? (
             <>

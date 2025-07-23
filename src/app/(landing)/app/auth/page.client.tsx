@@ -19,6 +19,7 @@ export const GoogleAuth = () => {
           redirectTo: searchParams.get("redirectTo") ?? "/app",
         });
       }}
+      className="ml-auto"
       disabled={loading}
     >
       {loading ? (

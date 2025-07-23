@@ -15,11 +15,25 @@ export async function catalyst(ctx: ApiCtx) {
         list: await (await import("./schools/periods/list")).default(ctx),
       },
     },
-    settings: {
-      set: await (await import("./settings/set")).default(ctx),
-      setMany: await (await import("./settings/set-many")).default(ctx),
-      list: await (await import("./settings/list")).default(ctx),
-      setPeriods: await (await import("./settings/set-periods")).default(ctx),
+    account: {
+      delete: await (await import("./account/delete")).default(ctx),
+      sessions: {
+        list: await (await import("./account/sessions/list")).default(ctx),
+        revoke: await (await import("./account/sessions/revoke")).default(ctx),
+      },
+      settings: {
+        set: await (await import("./account/settings/set")).default(ctx),
+        setMany: await (
+          await import("./account/settings/set-many")
+        ).default(ctx),
+        list: await (await import("./account/settings/list")).default(ctx),
+        listPeriods: await (
+          await import("./account/settings/list-periods")
+        ).default(ctx),
+        setPeriods: await (
+          await import("./account/settings/set-periods")
+        ).default(ctx),
+      },
     },
     support: {
       feedback: {
