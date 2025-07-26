@@ -52,17 +52,19 @@ type Options = {
       >["catalyst"]["schools"]["schedules"]["detailedList"]
     >
   >["data"];
+  observesDST?: boolean;
 };
 
 export default function PeriodsPageClient({
   schoolId,
   periods,
   schedules: defaultSchedules,
+  observesDST = false,
 }: Options) {
   const [schedules, setSchedules] = useState(defaultSchedules);
   const [saving, setSaving] = useState(false);
   const [tzOffset, setTzOffset] = useState(0);
-  const [observeDST, setObserveDST] = useState(false);
+  const [observeDST, setObserveDST] = useState(observesDST);
   const [use24HourMode, setUse24HourMode] = useState(false);
 
   useEffect(() => {

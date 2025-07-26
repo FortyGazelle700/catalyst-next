@@ -14,6 +14,10 @@ export default async function SchedulePage({
 }) {
   const schoolId = (await params).id;
 
+  const { data: school } = await (
+    await api({})
+  ).catalyst.schools.get({ id: schoolId });
+
   const { data: schedules } = await (
     await api({})
   ).catalyst.schools.schedules.detailedList({ id: schoolId });
@@ -28,6 +32,7 @@ export default async function SchedulePage({
         schoolId={schoolId}
         periods={periods}
         schedules={schedules}
+        observesDST={school?.observeDST ?? false}
       />
     </div>
   );
