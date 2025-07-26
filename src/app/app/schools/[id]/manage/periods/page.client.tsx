@@ -19,6 +19,7 @@ import {
   WrapText,
   Loader,
   Save,
+  MoreHorizontal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -351,6 +352,27 @@ export default function PeriodsPageClient({
           <br />
           If you need to add more periods later, you can do so in the settings.
         </span>
+        <div>
+          <h2 className="mt-2 flex items-center gap-2 font-bold">
+            <MoreHorizontal /> Other Settings
+          </h2>
+        </div>
+        <div className="flex items-center justify-start gap-4">
+          <Button
+            variant="link"
+            href={`/app/schools/${schoolId}/manage/schedules`}
+            className="text-muted-foreground h-auto p-0 text-xs"
+          >
+            Manage Schedules
+          </Button>
+          <Button
+            variant="link"
+            href={`/app/schools/${schoolId}/manage/schedules/dates`}
+            className="text-muted-foreground h-auto p-0 text-xs"
+          >
+            Manage Schedule Dates
+          </Button>
+        </div>
         <div className="mt-2 mb-3 flex items-center justify-between gap-2">
           <Button variant="outline" href={`/app/schools/${schoolId}/manage`}>
             <ArrowLeft />

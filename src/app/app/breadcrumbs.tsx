@@ -182,7 +182,7 @@ export const BreadcrumbBits = {
   }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
-        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/schedule`}>
+        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/schedules`}>
           {children}
         </BreadcrumbLink>
       ) : (

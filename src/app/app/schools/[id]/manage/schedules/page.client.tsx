@@ -13,6 +13,7 @@ import {
   Trash,
   GripVertical,
   Minus,
+  MoreHorizontal,
 } from "lucide-react";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import {
@@ -155,6 +156,27 @@ export default function PeriodsPageClient({
               {'"'}09:36{'"'}.
             </span>
           </label>
+          <div>
+            <h2 className="mt-2 flex items-center gap-2 font-bold">
+              <MoreHorizontal /> Other Settings
+            </h2>
+          </div>
+          <div className="flex items-center justify-start gap-4">
+            <Button
+              variant="link"
+              href={`/app/schools/${schoolId}/manage/periods`}
+              className="text-muted-foreground h-auto p-0 text-xs"
+            >
+              Manage Periods
+            </Button>
+            <Button
+              variant="link"
+              href={`/app/schools/${schoolId}/manage/schedules/dates`}
+              className="text-muted-foreground h-auto p-0 text-xs"
+            >
+              Manage Schedule Dates
+            </Button>
+          </div>
         </div>
         <div className="mt-2 mb-3 flex items-center justify-between gap-2">
           <Button variant="outline" href={`/app/schools/${schoolId}/manage`}>
