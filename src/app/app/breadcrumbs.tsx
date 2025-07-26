@@ -94,13 +94,14 @@ export const BreadcrumbBits = {
     schoolId,
     asLink = true,
   }: {
-    schoolId: string;
+    schoolId?: string;
     asLink?: boolean;
   }) => {
     const [name, setName] = useState<string | null>(null);
 
     useEffect(() => {
       (async () => {
+        if (schoolId == undefined) return;
         const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`);
         const res = (await req.json()) as {
           success: boolean;
@@ -599,6 +600,19 @@ export function Breadcrumbs({
                     <BreadcrumbBits.TodoItem id={Number(params.id)} asLink />
                     <BreadcrumbSeparator />
                     <BreadcrumbBits.Edit />
+                  </>
+                );
+              case "/app/schools":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School
+                      schoolId={undefined}
+                      asLink={false}
+                    />
                   </>
                 );
               case "/app/schools/[id]":

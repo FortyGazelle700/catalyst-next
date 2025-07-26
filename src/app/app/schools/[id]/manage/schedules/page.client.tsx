@@ -260,11 +260,15 @@ function ClassPeriodCreator({
   tzOffset: number;
 }) {
   return (
-    <Accordion type="multiple">
+    <Accordion
+      type="multiple"
+      className="w-full"
+      defaultValue={[...schedules.map((s) => s.id)]}
+    >
       {schedules.map((schedule) => (
         <AccordionItem value={schedule.id} key={schedule.id}>
           <AccordionTrigger>{schedule.name}</AccordionTrigger>
-          <AccordionContent className="flex flex-col gap-2" forceMount>
+          <AccordionContent className="flex min-h-0 flex-col gap-2" forceMount>
             <div className="flex items-center gap-2">
               <Input
                 value={schedule.name}

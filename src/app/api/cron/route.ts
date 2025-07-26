@@ -12,7 +12,7 @@ import { and, eq, lt } from "drizzle-orm";
 const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
-    max: 3,
+    max: 1,
     ssl: "require",
   });
 

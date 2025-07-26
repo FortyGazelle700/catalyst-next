@@ -19,7 +19,7 @@ import { unstable_cache } from "next/cache";
 const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
-    max: 3,
+    max: 1,
     ssl: "require",
   });
 
