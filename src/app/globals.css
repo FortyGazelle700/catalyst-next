@@ -373,7 +373,7 @@ html,
 body {
   scroll-behavior: smooth;
   overflow: hidden;
-  height: calc(100dvh - env(safe-area-inset-bottom));
+  height: calc(100vh - env(safe-area-inset-bottom));
 }
 
 .scrollbar-both-edges {
