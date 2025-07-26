@@ -25,12 +25,7 @@ export default async function list(ctx: ApiCtx) {
     const userPermissions = await ctx.db
       .select()
       .from(schoolPermissions)
-      .where(
-        and(
-          eq(schoolPermissions.userId, ctx.user.get.id),
-          eq(schoolPermissions.role, "owner"),
-        ),
-      );
+      .where(and(eq(schoolPermissions.userId, ctx.user.get.id)));
 
     if (userPermissions.length > 0) {
       const schoolIds = userPermissions.map((perm) => perm.schoolId);

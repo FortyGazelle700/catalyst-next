@@ -39,6 +39,8 @@ export async function api(props: { session?: Session | null }) {
   };
 }
 
+export type Api = typeof api;
+
 async function genCtx({
   session,
 }: {
@@ -47,7 +49,7 @@ async function genCtx({
   const sql =
     global.db ??
     postgres(process.env.DATABASE_URL!, {
-      max: 1,
+      max: 3,
       ssl: "require",
     });
 

@@ -1,11 +1,5 @@
 "use client";
 
-import {
-  ResponsivePopover,
-  ResponsivePopoverContent,
-  ResponsivePopoverTitle,
-  ResponsivePopoverTrigger,
-} from "@/components/catalyst/responsible-popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,17 +11,15 @@ import {
 import type { FindSchoolResult } from "@/server/api/catalyst/schools/find";
 import {
   ArrowLeft,
-  ArrowRight,
   Ban,
   Loader,
   MapIcon,
+  MoreHorizontal,
   Pin,
-  RotateCcw,
+  Save,
   School,
-  Trash,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Map } from "@/components/catalyst/map.dynamic";
 
@@ -238,6 +230,7 @@ export default function SchoolPageClient({
   school: defaultSchool,
 }: {
   school?: {
+    id: string | null;
     name: string | null;
     district: string | null;
     address: string | null;
@@ -247,8 +240,6 @@ export default function SchoolPageClient({
     canvasURL: string | null;
   };
 }) {
-  const router = useRouter();
-
   const [name, setName] = useState(defaultSchool?.name ?? "");
   const [district, setDistrict] = useState(defaultSchool?.district ?? "");
   const [address, setAddress] = useState(defaultSchool?.address ?? "");
@@ -344,7 +335,7 @@ export default function SchoolPageClient({
   );
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row">
+    <div className="flex flex-col gap-4 @4xl:flex-row">
       <div className="flex flex-1 flex-col gap-4">
         <div>
           <h2 className="mt-2 flex items-center gap-2 font-bold">
@@ -474,70 +465,39 @@ export default function SchoolPageClient({
             />
           </label>
         </div>
+        <div>
+          <h2 className="mt-2 flex items-center gap-2 font-bold">
+            <MoreHorizontal /> Other Settings
+          </h2>
+        </div>
+        <div className="flex items-center justify-start gap-4">
+          <Button
+            variant="link"
+            href={`/app/schools/${defaultSchool?.id}/manage/periods`}
+            className="text-muted-foreground h-auto p-0 text-xs"
+          >
+            Manage Periods
+          </Button>
+          <Button
+            variant="link"
+            href={`/app/schools/${defaultSchool?.id}/manage/schedules`}
+            className="text-muted-foreground h-auto p-0 text-xs"
+          >
+            Manage Schedules
+          </Button>
+          <Button
+            variant="link"
+            href={`/app/schools/${defaultSchool?.id}/manage/schedules/dates`}
+            className="text-muted-foreground h-auto p-0 text-xs"
+          >
+            Manage Schedule Dates
+          </Button>
+        </div>
         <div className="mt-2 mb-3 flex items-center justify-between gap-2">
-          <ResponsivePopover>
-            <ResponsivePopoverTrigger asChild>
-              <Button variant="outline">
-                <ArrowLeft />
-                Back
-              </Button>
-            </ResponsivePopoverTrigger>
-            <ResponsivePopoverContent className="@container w-84 md:w-52">
-              <ResponsivePopoverTitle className="mb-4 text-center">
-                Are you sure you want to cancel?
-              </ResponsivePopoverTitle>
-              <div className="mx-auto flex flex-col gap-2">
-                <Button
-                  variant="secondary"
-                  className="justify-start"
-                  onClick={() => {
-                    router.push(
-                      `/app/onboarding?${new URLSearchParams(
-                        window.location.search,
-                      ).toString()}`,
-                    );
-                  }}
-                >
-                  <ArrowLeft /> Back
-                </Button>
-                <Button
-                  variant="outline"
-                  className="justify-start"
-                  onClick={() => {
-                    setName("");
-                    setDistrict("");
-                    setAddress("");
-                    setCity("");
-                    setState("");
-                    setZip("");
-                    setCanvasUrl("");
-                    setCoords([0, 0]);
-                    localStorage.removeItem("schoolData");
-                  }}
-                >
-                  <RotateCcw /> Reset
-                </Button>
-                <Button
-                  variant="destructive"
-                  className="justify-start"
-                  onClick={async () => {
-                    await fetch("/api/catalyst/schools/delete", {
-                      method: "DELETE",
-                    });
-                    localStorage.removeItem("schoolData");
-                    localStorage.removeItem("onboardingPeriods");
-                    router.push(
-                      `/app/onboarding?${new URLSearchParams(
-                        window.location.search,
-                      ).toString()}`,
-                    );
-                  }}
-                >
-                  <Trash /> Delete School
-                </Button>
-              </div>
-            </ResponsivePopoverContent>
-          </ResponsivePopover>
+          <Button variant="outline" href={`/app/schools/${defaultSchool?.id}`}>
+            <ArrowLeft />
+            Back
+          </Button>
           <Button
             onClick={async () => {
               setSaving(true);
@@ -553,11 +513,7 @@ export default function SchoolPageClient({
                   canvasUrl,
                 }),
               });
-              router.push(
-                `/app/onboarding/school/periods?${new URLSearchParams(
-                  window.location.search,
-                ).toString()}`,
-              );
+              setSaving(false);
             }}
             disabled={
               saving ||
@@ -576,14 +532,14 @@ export default function SchoolPageClient({
               </>
             ) : (
               <>
-                Save and Continue
-                <ArrowRight />
+                Save
+                <Save />
               </>
             )}
           </Button>
         </div>
       </div>
-      <div className="border-border flex h-96 flex-col gap-1 overflow-hidden rounded-xs border md:h-auto md:flex-1">
+      <div className="border-border flex h-96 flex-col gap-1 overflow-hidden rounded-xs border @4xl:h-auto @4xl:flex-1">
         <span className="flex items-center gap-2 px-3 py-2 text-xs">
           <MapIcon className="size-3" />
           Map Preview

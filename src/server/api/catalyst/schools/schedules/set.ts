@@ -1,24 +1,28 @@
 "use server";
 
-import type { periodType } from "@/server/db/schema";
 import { type ApiCtx } from "../../..";
 
 export default async function createSchool(ctx: ApiCtx) {
   return async (input: {
     schoolId?: string;
-    periods: {
+    options: {
+      observeDST?: boolean;
+      timezone?: string;
+    };
+    schedules: {
       id: string;
       name: string;
-      order: number;
-      options?: {
-        id: string;
+      periods: {
+        start: string;
+        end: string;
         order: number;
-        name: string;
+        optionId: string;
       }[];
-      type: (typeof periodType.enumValues)[number];
     }[];
   }) => {
-    const { schoolPermissions, periods } = await import("@/server/db/schema");
+    const { schools, schoolPermissions, schedules, periodTimes } = await import(
+      "@/server/db/schema"
+    );
     const { and, eq } = await import("drizzle-orm");
 
     if (!ctx.user.get?.id) {
@@ -53,32 +57,36 @@ export default async function createSchool(ctx: ApiCtx) {
     }
 
     await ctx.db.transaction(async (trx) => {
-      await trx.delete(periods).where(eq(periods.schoolId, school.schoolId));
+      await trx
+        .update(schools)
+        .set({
+          observeDST: input.options.observeDST ?? false,
+          timezone: input.options.timezone ?? "America/New_York",
+        })
+        .where(eq(schools.id, school.schoolId));
 
-      for (const period of input.periods) {
-        if (period.options) {
-          for (const option of period.options) {
-            await trx.insert(periods).values({
-              periodId: period.id,
-              optionId: option.id,
-              periodOrder: period.order,
-              optionOrder: option.order,
-              periodName: period.name,
-              optionName: option.name,
-              type: period.type,
-              schoolId: school.schoolId,
-            });
-          }
-        } else {
-          await trx.insert(periods).values({
-            periodId: period.id,
-            optionId: period.id,
-            periodOrder: period.order,
-            optionOrder: 1,
-            periodName: period.name,
-            optionName: period.name,
-            type: period.type,
+      await trx
+        .delete(schedules)
+        .where(eq(schedules.schoolId, school.schoolId));
+      await trx
+        .delete(periodTimes)
+        .where(eq(periodTimes.schoolId, school.schoolId));
+
+      for (const schedule of input.schedules) {
+        await trx.insert(schedules).values({
+          id: schedule.id,
+          schoolId: school.schoolId,
+          name: schedule.name,
+        });
+
+        for (const period of schedule.periods) {
+          await trx.insert(periodTimes).values({
             schoolId: school.schoolId,
+            scheduleId: schedule.id,
+            start: period.start,
+            end: period.end,
+            order: period.order,
+            optionId: period.optionId,
           });
         }
       }

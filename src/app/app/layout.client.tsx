@@ -855,7 +855,7 @@ export function AppSidebarClient({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="School">
-                <Link href="/app/school">
+                <Link href="/app/schools">
                   <School />
                   <span>School</span>
                 </Link>

@@ -8,7 +8,7 @@ declare global {
 const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
-    max: 1,
+    max: 3,
     ssl: "require",
   });
 
