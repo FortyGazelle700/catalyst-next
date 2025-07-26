@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -19,9 +20,8 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTable;
 
-export const users = createTable("user", {
+export const users = pgTable("user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -36,7 +36,7 @@ export const users = createTable("user", {
   image: varchar("image", { length: 255 }),
 });
 
-export const proUsers = createTable("pro_user", {
+export const proUsers = pgTable("pro_user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -53,7 +53,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));
 
-export const accounts = createTable(
+export const accounts = pgTable(
   "account",
   {
     userId: varchar("user_id", { length: 255 })
@@ -86,7 +86,7 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
-export const sessions = createTable(
+export const sessions = pgTable(
   "session",
   {
     sessionToken: varchar("session_token", { length: 255 })
@@ -108,7 +108,7 @@ export const sessions = createTable(
       withTimezone: true,
     }).notNull(),
     ip: varchar("ip", { length: 45 }),
-    userAgent: varchar("user_agent", { length: 128 }),
+    userAgent: varchar("user_agent", { length: 256 }),
     country: varchar("country", { length: 64 }),
     region: varchar("region", { length: 64 }),
     city: varchar("city", { length: 64 }),
@@ -122,7 +122,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-export const verificationTokens = createTable(
+export const verificationTokens = pgTable(
   "verification_token",
   {
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -155,7 +155,7 @@ export const permissionRole = varenum("permission_role_enum", [
   "admin",
 ]);
 
-export const settings = createTable(
+export const settings = pgTable(
   "setting",
   {
     id: varchar("id", { length: 255 })
@@ -183,7 +183,7 @@ export const userToSettingsRelation = relations(users, ({ many }) => ({
   settings: many(settings),
 }));
 
-export const schools = createTable(
+export const schools = pgTable(
   "school",
   {
     id: varchar("id", { length: 255 })
@@ -196,8 +196,12 @@ export const schools = createTable(
     city: varchar("city", { length: 32 }),
     state: varchar("state", { length: 2 }),
     zip: varchar("zip", { length: 10 }),
+    lat: doublePrecision("lat"),
+    long: doublePrecision("long"),
     canvasURL: varchar("canvas_url", { length: 255 }),
     isPublic: boolean("is_public"),
+    observeDST: boolean("observe_dst").default(false),
+    timezone: varchar("timezone", { length: 64 }).default("America/New_York"),
   },
   (school) => ({
     nameIdx: index("school_name_idx").on(school.name),
@@ -205,7 +209,7 @@ export const schools = createTable(
   }),
 );
 
-export const schoolPermissions = createTable(
+export const schoolPermissions = pgTable(
   "school_permission",
   {
     id: varchar("id", { length: 255 })
@@ -228,7 +232,7 @@ export const schoolPermissions = createTable(
   }),
 );
 
-export const periods = createTable(
+export const periods = pgTable(
   "period",
   {
     id: varchar("id", { length: 255 })
@@ -256,7 +260,7 @@ export const periods = createTable(
   }),
 );
 
-export const schedules = createTable("schedule", {
+export const schedules = pgTable("schedule", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -265,7 +269,7 @@ export const schedules = createTable("schedule", {
   name: varchar("name", { length: 32 }).notNull(),
 });
 
-export const periodTimes = createTable(
+export const periodTimes = pgTable(
   "period_time",
   {
     id: varchar("id", { length: 255 })
@@ -304,7 +308,7 @@ export const periodTimeToPeriodRelation = relations(periodTimes, ({ one }) => ({
   }),
 }));
 
-export const scheduleValues = createTable(
+export const scheduleValues = pgTable(
   "schedule_value",
   {
     id: varchar("id", { length: 255 })
@@ -323,7 +327,7 @@ export const scheduleValues = createTable(
   }),
 );
 
-export const scheduleDates = createTable(
+export const scheduleDates = pgTable(
   "schedule_date",
   {
     id: varchar("id", { length: 255 })
@@ -341,6 +345,24 @@ export const scheduleDates = createTable(
   }),
 );
 
+export const scheduleDatesSchedule = pgTable(
+  "schedule_date_schedules",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    schoolId: varchar("school_id", { length: 255 }).notNull(),
+    scheduleId: varchar("schedule_id", { length: 255 }).notNull(),
+    repeat: integer("repeat").notNull(),
+  },
+  (scheduleDate) => ({
+    schoolIdIdx: index("schedule_date_schedules_school_id_idx").on(
+      scheduleDate.schoolId,
+    ),
+  }),
+);
+
 export const scheduleDateToScheduleRelation = relations(
   scheduleDates,
   ({ one }) => ({
@@ -351,7 +373,7 @@ export const scheduleDateToScheduleRelation = relations(
   }),
 );
 
-export const notifications = createTable(
+export const notifications = pgTable(
   "notification",
   {
     id: varchar("id", { length: 255 })
@@ -368,12 +390,12 @@ export const notifications = createTable(
   }),
 );
 
-export const ipData = createTable("cache_ip_data", {
+export const ipData = pgTable("cache_ip_data", {
   ip: varchar("ip", { length: 512 }).notNull().primaryKey(),
   data: jsonb("data"),
 });
 
-export const courseClassification = createTable("cache_course_classification", {
+export const courseClassification = pgTable("cache_course_classification", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -382,7 +404,7 @@ export const courseClassification = createTable("cache_course_classification", {
   value: varchar("value"),
 });
 
-export const userRelationships = createTable(
+export const userRelationships = pgTable(
   "user_relationship",
   {
     id: varchar("id", { length: 255 })
@@ -404,7 +426,7 @@ export const userRelationships = createTable(
   }),
 );
 
-export const chats = createTable(
+export const chats = pgTable(
   "chat",
   {
     id: varchar("id", { length: 255 })
@@ -421,7 +443,7 @@ export const chats = createTable(
   }),
 );
 
-export const chatMessages = createTable(
+export const chatMessages = pgTable(
   "chat_message",
   {
     id: varchar("id", { length: 255 })
@@ -447,7 +469,7 @@ export const chatMessages = createTable(
   }),
 );
 
-export const feedback = createTable("feedback", {
+export const feedback = pgTable("feedback", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()

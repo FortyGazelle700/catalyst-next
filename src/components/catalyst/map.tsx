@@ -8,16 +8,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Ban, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-L.Marker.prototype.options.icon = L.icon({
-  iconUrl: "/map-pin.svg",
-  iconRetinaUrl: "/blank.png",
-  shadowUrl: "/blank.png",
-  iconSize: [64, 64],
-  iconAnchor: [32, 64],
-  popupAnchor: [0, 0],
-  shadowSize: [0, 0],
-});
-
 export function Map({
   coords,
   className,
@@ -75,6 +65,16 @@ export function MapMap({
   coords: L.LatLngTuple;
   className?: string;
 }) {
+  L.Marker.prototype.options.icon = L.icon({
+    iconUrl: "/map-pin.svg",
+    iconRetinaUrl: "/map-pin.svg",
+    shadowUrl: "/blank.png",
+    iconSize: [64, 64],
+    iconAnchor: [32, 64],
+    popupAnchor: [0, 0],
+    shadowSize: [0, 0],
+  });
+
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export function MapMap({
   setTimeout(() => {
     // @ts-expect-error It doesn't know about dynamic imports for css
     import("leaflet/dist/leaflet.css").catch(console.error);
-  }, 100);
+  }, 10);
 
   const mapComponent = useMemo(
     () => (

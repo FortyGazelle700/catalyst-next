@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       }
 
-      const ua = heads.get("x-ua")?.substring(0, 128) ?? "<unknown>";
+      const ua = heads.get("x-ua")?.substring(0, 256) ?? "<unknown>";
 
       const db = global.db as PostgresJsDatabase<Record<string, never>> & {
         $client: postgres.Sql<Record<string, never>>;

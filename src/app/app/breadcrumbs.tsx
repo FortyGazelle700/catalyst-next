@@ -77,6 +77,147 @@ export const BreadcrumbBits = {
       </BreadcrumbItem>
     );
   },
+  Schools: ({ asLink = true }: { asLink?: boolean }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href="/app/schools">{children}</BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Schools</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  School: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => {
+    const [name, setName] = useState<string | null>(null);
+
+    useEffect(() => {
+      (async () => {
+        if (schoolId == undefined) return;
+        const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`);
+        const res = (await req.json()) as {
+          success: boolean;
+          data: {
+            id: string;
+            name: string;
+          } | null;
+          errors: { message: string }[];
+        };
+        const data = res?.data;
+        setName(data?.name ?? "Item Not Found");
+      })().catch(console.error);
+    }, [schoolId]);
+
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href={`/app/schools/${schoolId}`}>
+          {children}
+        </BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>
+          {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
+        </BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  SchoolManage: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href={`/app/schools/${schoolId}/manage`}>
+          {children}
+        </BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Manage</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  SchoolManagePeriods: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/periods`}>
+          {children}
+        </BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Periods</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  SchoolManageSchedule: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/schedules`}>
+          {children}
+        </BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Schedule</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  SchoolManageScheduleDates: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => {
+    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
+      asLink ? (
+        <BreadcrumbLink
+          href={`/app/schools/${schoolId}/manage/schedules/dates`}
+        >
+          {children}
+        </BreadcrumbLink>
+      ) : (
+        <BreadcrumbPage>{children}</BreadcrumbPage>
+      );
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender>Schedule Dates</BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
   Courses: ({ asLink = true }: { asLink?: boolean }) => {
     const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
       asLink ? (
@@ -115,7 +256,11 @@ export const BreadcrumbBits = {
     return (
       <BreadcrumbItem>
         <BreadcrumbRender>
-          {currentCourse ? currentCourse.original_name : <Skeleton />}
+          {currentCourse ? (
+            currentCourse.original_name
+          ) : (
+            <Skeleton className="h-4 w-[20ch] rounded-full" />
+          )}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
@@ -455,6 +600,102 @@ export function Breadcrumbs({
                     <BreadcrumbBits.TodoItem id={Number(params.id)} asLink />
                     <BreadcrumbSeparator />
                     <BreadcrumbBits.Edit />
+                  </>
+                );
+              case "/app/schools":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School
+                      schoolId={undefined}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/manage":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManage
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/manage/periods":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManage schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManagePeriods
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/manage/schedules":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManage schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManageSchedule
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/manage/schedules/dates":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManage schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManageSchedule
+                      schoolId={params.id ?? ""}
+                    />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolManageScheduleDates
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
                   </>
                 );
               case "/app/courses":

@@ -5,14 +5,46 @@ import { type ApiCtx } from "..";
 export async function catalyst(ctx: ApiCtx) {
   return {
     schools: {
+      members: await (await import("./schools/members")).default(ctx),
       find: await (await import("./schools/find")).default(ctx),
       get: await (await import("./schools/get")).default(ctx),
+      getPermissions: await (
+        await import("./schools/get-permissions")
+      ).default(ctx),
       create: await (await import("./schools/create")).default(ctx),
       list: await (await import("./schools/list")).default(ctx),
       delete: await (await import("./schools/delete")).default(ctx),
       periods: {
         set: await (await import("./schools/periods/set")).default(ctx),
         list: await (await import("./schools/periods/list")).default(ctx),
+      },
+      schedules: {
+        set: await (await import("./schools/schedules/set")).default(ctx),
+        list: await (await import("./schools/schedules/list")).default(ctx),
+        dates: {
+          schedule: {
+            list: await (
+              await import("./schools/schedules/dates/schedule/list")
+            ).default(ctx),
+            set: await (
+              await import("./schools/schedules/dates/schedule/set")
+            ).default(ctx),
+          },
+          list: {
+            list: await (
+              await import("./schools/schedules/dates/list/list")
+            ).default(ctx),
+            set: await (
+              await import("./schools/schedules/dates/list/set")
+            ).default(ctx),
+          },
+        },
+        details: await (
+          await import("./schools/schedules/details")
+        ).default(ctx),
+        detailedList: await (
+          await import("./schools/schedules/detailedList")
+        ).default(ctx),
       },
     },
     account: {
@@ -23,6 +55,7 @@ export async function catalyst(ctx: ApiCtx) {
       },
       settings: {
         set: await (await import("./account/settings/set")).default(ctx),
+        get: await (await import("./account/settings/get")).default(ctx),
         setMany: await (
           await import("./account/settings/set-many")
         ).default(ctx),

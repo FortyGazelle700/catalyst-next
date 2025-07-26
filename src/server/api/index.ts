@@ -39,6 +39,8 @@ export async function api(props: { session?: Session | null }) {
   };
 }
 
+export type Api = typeof api;
+
 async function genCtx({
   session,
 }: {
