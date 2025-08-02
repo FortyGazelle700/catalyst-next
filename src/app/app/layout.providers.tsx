@@ -12,6 +12,7 @@ import {
 } from "react";
 import { CommandMenuProvider } from "./command-menu";
 import { useRouter, usePathname } from "next/navigation";
+import Pusher from "pusher-js";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
   time: {
@@ -31,6 +32,7 @@ export const CoursesRefreshContext = createContext<
 >(() => {
   /**/
 });
+export const PubSubContext = createContext<Pusher | null>(null);
 
 function TimeProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(new Date());
@@ -223,6 +225,46 @@ function SessionVerificationProvider({
   return <>{children}</>;
 }
 
+function PubSubProvider({ children }: { children: React.ReactNode }) {
+  const [pubSub, setPubSub] = useState<Pusher | null>(null);
+
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_APP_KEY!, {
+      wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
+      httpHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
+      forceTLS: true,
+      disableStats: true,
+      enabledTransports: ["ws", "wss"],
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
+      userAuthentication: {
+        endpoint: "/api/catalyst/realtime/auth",
+        transport: "ajax",
+      },
+    });
+    pusher.signin();
+
+    setPubSub(pusher);
+
+    return () => {
+      pusher.disconnect();
+    };
+  }, []);
+
+  return (
+    <PubSubContext.Provider value={pubSub}>{children}</PubSubContext.Provider>
+  );
+}
+
+export function useRealtime() {
+  const context = useContext(PubSubContext);
+  if (!context) {
+    console.warn(
+      "useRealtime is still loading, this may be due to the Pusher connection not being established yet.",
+    );
+  }
+  return context;
+}
+
 export function AppLayoutProviders({
   children,
   courses,
@@ -234,7 +276,9 @@ export function AppLayoutProviders({
     <SessionVerificationProvider>
       <CommandMenuProvider>
         <TimeProvider>
-          <CourseProvider courses={courses}>{children}</CourseProvider>
+          <CourseProvider courses={courses}>
+            <PubSubProvider>{children}</PubSubProvider>
+          </CourseProvider>
         </TimeProvider>
       </CommandMenuProvider>
     </SessionVerificationProvider>

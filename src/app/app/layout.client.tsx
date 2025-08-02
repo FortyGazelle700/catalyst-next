@@ -809,6 +809,7 @@ export function AppSidebarClient({
   session: Session | null;
 }) {
   const cookies = useMemo(() => new Cookies(), []);
+
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="">

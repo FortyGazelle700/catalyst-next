@@ -65,7 +65,7 @@ export default [
       "no-console": [
         "warn",
         {
-          allow: ["warn", "error"], // Allow specific methods if needed
+          allow: ["info", "warn", "error"], // Allow specific methods if needed
         },
       ],
       "@typescript-eslint/array-type": "off",

@@ -4,6 +4,7 @@ import { type ApiCtx } from "..";
 
 export async function catalyst(ctx: ApiCtx) {
   return {
+    realtime: await import("./realtime").then((mod) => mod.default(ctx)),
     schools: {
       members: await (await import("./schools/members")).default(ctx),
       find: await (await import("./schools/find")).default(ctx),

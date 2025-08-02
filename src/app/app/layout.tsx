@@ -16,6 +16,8 @@ import { Breadcrumbs } from "./breadcrumbs";
 import { ErrorBoundary } from "react-error-boundary";
 import Error from "@/app/error";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+import RealtimeManager from "./realtime-manager";
 
 export default async function AppRedirect({
   children,
@@ -97,7 +99,19 @@ async function AppLayout({
             <Breadcrumbs />
           </div>
           <SidebarInset className="max-h-full max-w-full flex-1 overflow-auto rounded-2xl border">
-            <ErrorBoundary FallbackComponent={Error}>{children}</ErrorBoundary>
+            <ErrorBoundary FallbackComponent={Error}>
+              <div className="flex flex-1 flex-col gap-4 overflow-x-hidden">
+                {children}
+              </div>
+            </ErrorBoundary>
+            <div className="pointer-events-none absolute top-0 z-10 flex h-full w-full items-stretch justify-stretch overflow-clip">
+              <Toaster
+                richColors
+                position="bottom-left"
+                className="pointer-events-auto !absolute"
+              />
+            </div>
+            <RealtimeManager />
           </SidebarInset>
           <MobileNav />
         </div>
