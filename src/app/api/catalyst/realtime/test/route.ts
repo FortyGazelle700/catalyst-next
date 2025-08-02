@@ -1,7 +1,5 @@
-import crypto from "crypto";
 import { auth } from "@/server/auth";
 import { api } from "@/server/api";
-import Pusher from "pusher";
 
 export const GET = auth(async (req) => {
   if (!req.auth) {
@@ -15,7 +13,7 @@ export const GET = auth(async (req) => {
     );
   }
 
-  const ctx = await (
+  await (
     await api({
       session: req.auth,
     })
