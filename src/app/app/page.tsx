@@ -42,7 +42,7 @@ export default async function DashboardPage() {
                 <h4 className="text-4xl font-bold">0</h4>
                 <Button
                   variant="outline"
-                  href="/app/social/inbox"
+                  href="/app/social/chats/canvas"
                   size="icon"
                   className="absolute top-4 right-4 grid"
                 >
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
                 </Button>
               </div>
               <Link
-                href="/app/social/inbox"
+                href="/app/social/chats/canvas"
                 className="bg-secondary pointer-events-none absolute inset-0 grid scale-150 place-items-center opacity-0 transition-all group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100"
               >
                 <ArrowRight className="transition-all group-hover:-rotate-45" />

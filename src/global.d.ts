@@ -46,6 +46,25 @@ declare global {
   };
 
   var ipRequests: Map<string, IpLocationResponse | null>;
+
+  interface DocumentPictureInPicture {
+    requestWindow(options?: {
+      width?: number;
+      height?: number;
+    }): Promise<Window>;
+    window?: Window;
+  }
+
+  interface Document {
+    pictureInPictureElement?: Element;
+  }
+
+  interface Window {
+    globalDebug: Record<string, unknown>;
+    opener: Window | null;
+  }
+
+  declare var documentPictureInPicture: DocumentPictureInPicture;
 }
 
 export {};

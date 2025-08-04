@@ -2,7 +2,7 @@
 
 import type { InferSelectModel } from "drizzle-orm";
 import type { sessions } from "@/server/db/schema";
-import { type ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 
 export type SessionResult = InferSelectModel<typeof sessions> & {
   isCurrent: boolean;

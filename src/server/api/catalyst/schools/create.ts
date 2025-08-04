@@ -1,6 +1,6 @@
 "use server";
 
-import { type ApiCtx } from "../..";
+import { type ApiCtx } from "@/server/api";
 import type { LocationDetails } from "./find";
 
 export default async function createSchool(ctx: ApiCtx) {

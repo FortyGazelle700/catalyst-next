@@ -1,6 +1,6 @@
 "use server";
 
-import { type ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 import set from "./set";
 
 export default async function setMany(ctx: ApiCtx) {

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 
 export function useMediaQuery(query: string) {
   const [value, setValue] = React.useState(false);
@@ -42,6 +43,10 @@ export const tailwindContainerBreakpoints = {
   "5xl": 64,
   "6xl": 72,
   "7xl": 80,
+  //
+  xshort: 5,
+  short: 10,
+  tall: 20,
 };
 
 export function useTailwindBreakpoints({
@@ -82,33 +87,56 @@ export function useTailwindContainerBreakpoints({
   breakpoint,
   ref,
   reverse = false,
+  useHeight = false,
+  forceUpdates = false,
 }: {
-  breakpoint: keyof typeof tailwindContainerBreakpoints;
+  breakpoint: keyof typeof tailwindContainerBreakpoints | number;
   ref: React.RefObject<HTMLElement | null>;
   reverse?: boolean;
+  useHeight?: boolean;
+  forceUpdates?: boolean;
 }) {
   const [isBreakpoint, setIsBreakpoint] = React.useState<boolean | undefined>(
     undefined,
   );
+  const [update, setUpdate] = React.useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!ref?.current) return;
 
     const rootFontSize = parseFloat(
       getComputedStyle(document.documentElement).fontSize,
     );
 
-    const px = tailwindContainerBreakpoints[breakpoint] * rootFontSize;
+    const px =
+      (typeof breakpoint == "number"
+        ? breakpoint
+        : tailwindContainerBreakpoints[breakpoint]) * rootFontSize;
 
     const observer = new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0;
-      setIsBreakpoint(reverse ? width < px : width >= px);
+      const height = entry?.contentRect.height ?? 0;
+      const value = useHeight ? height : width;
+      setIsBreakpoint(reverse ? value < px : value >= px);
     });
 
     observer.observe(ref.current);
 
     return () => observer.disconnect();
-  }, [ref, breakpoint, reverse]);
+  }, [update, ref, breakpoint, reverse, useHeight]);
+
+  useEffect(() => {
+    const onupdate = () => {
+      if (!forceUpdates) return;
+      setUpdate(Math.random());
+    };
+
+    window.addEventListener("resize", onupdate);
+
+    return () => {
+      window.removeEventListener("resize", onupdate);
+    };
+  }, [forceUpdates]);
 
   return !!isBreakpoint;
 }

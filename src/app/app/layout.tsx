@@ -17,7 +17,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Error from "@/app/error";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import RealtimeManager from "./realtime-manager";
+import RealtimeManager from "./manager.realtime";
 
 export default async function AppRedirect({
   children,

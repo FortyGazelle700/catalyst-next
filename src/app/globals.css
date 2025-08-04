@@ -4,6 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant mobile (@media (pointer: coarse));
+@custom-variant @xshort (@container (min-height: 5rem));
+@custom-variant @short (@container (min-height: 10rem));
+@custom-variant @tall (@container (min-height: 20rem));
+
+@layer utilities {
+  .\@container-size {
+    container-type: size;
+  }
+}
 
 @theme {
   --breakpoint-2xs: 25rem;

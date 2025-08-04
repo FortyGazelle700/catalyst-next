@@ -1,4 +1,4 @@
-import { type ApiCtx } from "../..";
+import { type ApiCtx } from "@/server/api";
 
 export interface LocationDetails {
   place_id: number;
