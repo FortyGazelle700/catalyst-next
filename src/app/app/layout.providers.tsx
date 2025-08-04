@@ -12,6 +12,8 @@ import {
 } from "react";
 import { CommandMenuProvider } from "./command-menu";
 import { useRouter, usePathname } from "next/navigation";
+import Pusher from "pusher-js";
+import { pipManager } from "./manager.pip";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
   time: {
@@ -31,19 +33,39 @@ export const CoursesRefreshContext = createContext<
 >(() => {
   /**/
 });
+export const PubSubContext = createContext<Pusher | null>(null);
+type PipItem = {
+  open: () => Promise<void>;
+  close: () => Promise<void>;
+  toggle: () => Promise<void>;
+  isOpen: () => boolean;
+  canOpen: () => boolean;
+};
+export const PipContext = createContext<Record<string, PipItem> | null>(null);
 
 function TimeProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    const msToNextSecond = 60 * 1000 - now.getMilliseconds();
-    setTimeout(() => {
-      interval = setInterval(() => setNow(new Date()), 1000);
-      setNow(new Date());
+
+    const updateTime = () => setNow(new Date());
+
+    // Calculate milliseconds to next second
+    const currentTime = new Date();
+    const msToNextSecond = 1000 - currentTime.getMilliseconds();
+
+    // Set timeout to sync with the next second boundary
+    const timeout = setTimeout(() => {
+      updateTime(); // Update immediately when we hit the second boundary
+      interval = setInterval(updateTime, 1000); // Then update every second
     }, msToNextSecond);
-    return () => clearInterval(interval);
-  }, [now]);
+
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, []);
 
   return <TimeContext.Provider value={now}>{children}</TimeContext.Provider>;
 }
@@ -53,11 +75,11 @@ function CourseProvider({
   courses: ssrCourses,
 }: {
   children: React.ReactNode;
-  courses: CourseListWithPeriodDataOutput;
+  courses?: CourseListWithPeriodDataOutput;
 }) {
   const now = useContext(TimeContext);
   const [originalCourses, setOriginalCourses] =
-    useState<CourseListWithPeriodDataOutput>(ssrCourses);
+    useState<CourseListWithPeriodDataOutput>(ssrCourses ?? []);
   const [courses, setCourses] = useState<CoursesContextValue>([]);
 
   const [forceRefresh, setForce] = useState(Math.random());
@@ -75,7 +97,7 @@ function CourseProvider({
       };
       courses = courses.map((course: CourseListWithPeriodDataOutput[0]) => {
         if (course.classification == "Not Available") {
-          course.classification = ssrCourses.find(
+          course.classification = ssrCourses?.find(
             (c) => c.id == course.id,
           )?.classification;
         }
@@ -85,9 +107,6 @@ function CourseProvider({
       lastFetch.current = new Date();
     };
     code().catch(console.error);
-    setTimeout(() => {
-      code().catch(console.error);
-    }, 10 * 1000);
     setInterval(() => {
       code().catch(console.error);
     }, 60 * 1000);
@@ -119,9 +138,12 @@ function CourseProvider({
         `${now.toISOString().split("T")[0]}T${course.time?.endTime}Z`,
       );
 
-      if (start.getDate() != now.getDate()) start.setDate(now.getDate());
-      if (end.getDate() != now.getDate()) end.setDate(now.getDate());
+      if (now < end) {
+        start.setDate(start.getDate() - 1);
+        end.setDate(end.getDate() - 1);
+      }
 
+      if (start < now) start.setDate(start.getDate() + 1);
       if (end < start) end.setDate(end.getDate() + 1);
 
       if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -145,6 +167,7 @@ function CourseProvider({
       return course;
     }) as CoursesContextValue;
     const currentCourse = newCourses.find((course) => course.time?.active);
+
     if (!currentCourse) {
       const nextCourse = newCourses
         .filter(
@@ -154,7 +177,12 @@ function CourseProvider({
         )
         .sort((a, b) => +a.time.start! - +b.time.start!)[0];
 
-      if (nextCourse) {
+      const oneHour = 1000 * 60 * 60;
+      if (
+        nextCourse &&
+        now.getTime() >= nextCourse.time.start!.getTime() - oneHour &&
+        now.getTime() < nextCourse.time.start!.getTime()
+      ) {
         nextCourse.time.activePinned = true;
       }
     }
@@ -164,6 +192,7 @@ function CourseProvider({
       unfocused.current == true
     ) {
       unfocused.current = false;
+      window.globalDebug.courses = newCourses;
       setCourses(newCourses);
     }
     window.addEventListener("blur", () => {
@@ -223,6 +252,141 @@ function SessionVerificationProvider({
   return <>{children}</>;
 }
 
+function PubSubProvider({ children }: { children: React.ReactNode }) {
+  const [pubSub, setPubSub] = useState<Pusher | null>(null);
+
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_APP_KEY!, {
+      wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
+      httpHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
+      forceTLS: true,
+      disableStats: true,
+      enabledTransports: ["ws", "wss"],
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
+      userAuthentication: {
+        endpoint: "/api/catalyst/realtime/auth",
+        transport: "ajax",
+      },
+    });
+    pusher.signin();
+
+    setPubSub(pusher);
+
+    return () => {
+      pusher.disconnect();
+    };
+  }, []);
+
+  return (
+    <PubSubContext.Provider value={pubSub}>{children}</PubSubContext.Provider>
+  );
+}
+
+export function useRealtime() {
+  const context = useContext(PubSubContext);
+  if (!context) {
+    console.warn(
+      "useRealtime is still loading, this may be due to the Pusher connection not being established yet.",
+    );
+  }
+  return context;
+}
+
+export function PipProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
+  const [pips, setPips] = useState<Record<string, PipItem> | null>(null);
+
+  const [openPip, setOpenPip] = useState<string | null>(
+    typeof window != "undefined" ? localStorage.getItem("openPip") : null,
+  );
+
+  useEffect(() => {
+    localStorage.setItem("openPip", openPip ?? "");
+  }, [openPip]);
+
+  useEffect(() => {
+    const pip = Object.keys(pipManager).reduce(
+      (acc, key) => {
+        acc[key] = {
+          open: async () => {
+            if (!acc[key]!.canOpen()) {
+              console.error("Browser does not support Picture-in-Picture");
+              return;
+            }
+            const pip = pipManager[key]!;
+            const win = await window.documentPictureInPicture.requestWindow({
+              width: pip.window.width,
+              height: pip.window.height,
+            });
+            win.window.name = pip.window.title;
+            win.document.title = pip.window.title;
+            win.document.body.style.margin = "0";
+            win.document.body.style.overflow = "hidden";
+            win.document.body.style.background = "black";
+            const iframe = win.document.createElement("iframe");
+            iframe.style.width = "100vw";
+            iframe.style.height = "100vh";
+            iframe.style.border = "none";
+            iframe.src = `/pip/${key}`;
+            win.document.body.append(iframe);
+            win.addEventListener("message", (e) => {
+              const evt = e.data as {
+                action: "navigate" | "close";
+                url?: string;
+              };
+              if (evt.action == "navigate" && evt.url) {
+                router.push(evt.url);
+                window.focus();
+              }
+              if (evt.action == "close") {
+                setOpenPip(null);
+              }
+            });
+            setOpenPip(key);
+          },
+          close: async () => {
+            window.documentPictureInPicture?.window?.close();
+          },
+          toggle: async () => {
+            if (window.documentPictureInPicture?.window) {
+              window.documentPictureInPicture?.window?.close();
+            } else {
+              await acc[key]?.open();
+            }
+          },
+          isOpen: () => {
+            const pip = pipManager[key]!;
+            return (
+              typeof window != "undefined" &&
+              window.documentPictureInPicture?.window?.name == pip.window.title
+            );
+          },
+          canOpen: () => {
+            return (
+              typeof window != "undefined" &&
+              !!window.documentPictureInPicture?.requestWindow
+            );
+          },
+        };
+        return acc;
+      },
+      {} as Record<string, PipItem>,
+    );
+    setPips(pip);
+  }, [router, openPip]);
+
+  return <PipContext.Provider value={pips}>{children}</PipContext.Provider>;
+}
+
+export function usePip() {
+  const context = useContext(PipContext);
+  if (!context) {
+    console.warn("usePip is still loading");
+  }
+  return context;
+}
+
 export function AppLayoutProviders({
   children,
   courses,
@@ -230,11 +394,19 @@ export function AppLayoutProviders({
   children: React.ReactNode;
   courses: CourseListWithPeriodDataOutput;
 }) {
+  if (typeof window != "undefined") {
+    window.globalDebug ??= {};
+  }
+
   return (
     <SessionVerificationProvider>
       <CommandMenuProvider>
         <TimeProvider>
-          <CourseProvider courses={courses}>{children}</CourseProvider>
+          <CourseProvider courses={courses}>
+            <PubSubProvider>
+              <PipProvider>{children}</PipProvider>
+            </PubSubProvider>
+          </CourseProvider>
         </TimeProvider>
       </CommandMenuProvider>
     </SessionVerificationProvider>

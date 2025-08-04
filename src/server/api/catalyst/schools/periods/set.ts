@@ -1,7 +1,7 @@
 "use server";
 
 import type { periodType } from "@/server/db/schema";
-import { type ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 
 export default async function createSchool(ctx: ApiCtx) {
   return async (input: {

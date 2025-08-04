@@ -1,4 +1,4 @@
-import { type ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 
 export default async function list(ctx: ApiCtx) {
   return async ({ id }: { id?: string }) => {

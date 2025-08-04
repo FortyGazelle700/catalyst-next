@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { type ApiCtx } from "../..";
+import { type ApiCtx } from "@/server/api";
 import { scheduleValues } from "@/server/db/schema";
 
 export default async function list(ctx: ApiCtx) {

@@ -25,8 +25,8 @@ export async function POST(req: Request) {
   ) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const dayOfWeek = Temporal.Now.zonedDateTimeISO("America/New_York").dayOfWeek;
-  const hour = Temporal.Now.zonedDateTimeISO("America/New_York").hour;
+  const dayOfWeek = Temporal.Now.zonedDateTimeISO("UTC").dayOfWeek;
+  const hour = Temporal.Now.zonedDateTimeISO("UTC").hour;
   const offset = dstOffset();
   if (dayOfWeek == 7 && offset != 0 && hour == 4) {
     await makeScheduleChanges(offset);

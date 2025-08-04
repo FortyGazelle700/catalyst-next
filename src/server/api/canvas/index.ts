@@ -1,10 +1,13 @@
 "use server";
 
-import { type ApiCtx } from "..";
+import { type ApiCtx } from "@/server/api";
+import type { User } from "./types";
 
 export type CanvasApiCtx = ApiCtx & {
   user: {
     canvas: {
+      id: number;
+      data: User;
       url: string;
       token: string;
     };
@@ -40,6 +43,15 @@ export async function canvas($ctx: ApiCtx) {
       modules: {
         list: await (await import("./courses/modules/list")).default(ctx),
       },
+    },
+    chats: {
+      inbox: {
+        get: await (await import("./chats/inbox/get")).default(ctx),
+        list: await (await import("./chats/inbox/list")).default(ctx),
+        reply: await (await import("./chats/inbox/reply")).default(ctx),
+        compose: await (await import("./chats/inbox/compose")).default(ctx),
+      },
+      list: await (await import("./chats/list")).default(ctx),
     },
     todo: {
       mini: await (await import("./todo/mini")).default(ctx),
@@ -102,11 +114,22 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
     token = "";
   }
 
+  const url = new URL("/api/v1/users/self", school?.canvasURL ?? "");
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = (await response.json()) as User;
+  const canvasId = data?.id;
+
   return {
     ...ctx,
     user: {
       ...ctx.user,
       canvas: {
+        id: canvasId ?? -1,
+        data: data,
         url: school?.canvasURL ?? "",
         token: token ?? "",
       },

@@ -1,4 +1,4 @@
-import { type ApiCtx } from "../..";
+import { type ApiCtx } from "@/server/api";
 
 export default async function list(ctx: ApiCtx) {
   return async ({ id }: { id?: string }) => {
@@ -19,8 +19,8 @@ export default async function list(ctx: ApiCtx) {
       .where(
         and(
           eq(schoolPermissions.userId, ctx.user.get.id),
-          eq(schoolPermissions.role, "owner")
-        )
+          eq(schoolPermissions.role, "owner"),
+        ),
       );
 
     if (id) {

@@ -53,10 +53,11 @@ import {
   School,
   Search,
   Settings,
+  PictureInPicture2,
 } from "lucide-react";
 import Link from "next/link";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { CoursesContext, TimeContext } from "./layout.providers";
+import { CoursesContext, TimeContext, usePip } from "./layout.providers";
 import { Temporal } from "@js-temporal/polyfill";
 import { NumberCounter } from "@/components/catalyst/number-counter";
 import { signOut } from "next-auth/react";
@@ -486,6 +487,8 @@ export function ScheduleWidget() {
   const now = useContext(TimeContext);
   const courses = useContext(CoursesContext);
 
+  const pip = usePip();
+
   const currentCourse = useMemo(() => {
     return courses?.find((course) => course.time?.activePinned);
   }, [courses]);
@@ -574,6 +577,42 @@ export function ScheduleWidget() {
           </div>
           <div className="bg-secondary mx-4 my-1 h-0.5 rounded-full" />
           <DropdownMenuItem asChild>
+            <Link href="/app/schedule/now">
+              <Timer />
+              <span>View in Fullscreen</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a
+              onClick={async () => {
+                if (pip?.schedule?.isOpen()) {
+                  await pip?.schedule?.close();
+                } else {
+                  await pip?.schedule?.open();
+                }
+              }}
+            >
+              {pip?.schedule?.isOpen() ? (
+                <>
+                  <DoorOpen />
+                  <span>Close Mini Mode</span>
+                </>
+              ) : (
+                <>
+                  <PictureInPicture2 />
+                  <span>Open Mini Mode</span>
+                </>
+              )}
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/app/schedule">
+              <Clock />
+              <span>Open Full Schedule</span>
+            </Link>
+          </DropdownMenuItem>
+          <div className="bg-secondary mx-4 my-1 h-0.5 rounded-full" />
+          <DropdownMenuItem asChild>
             <a>
               <X />
               <span>Close</span>
@@ -597,13 +636,18 @@ export function ScheduleWidget() {
         >
           <RadialCountdown
             percentage={
-              (timeLeft.total("milliseconds") /
-                totalDuration.total("milliseconds")) *
-              100
+              hasStarted
+                ? (timeLeft.total("milliseconds") /
+                    totalDuration.total("milliseconds")) *
+                  100
+                : -(
+                    (timeToStart.total("milliseconds") / (1000 * 60 * 60)) *
+                    100
+                  )
             }
             className={cn(
               "bg-background fill-foreground rounded-full transition-all group-data-[collapsible=icon]:-ml-2",
-              !hasStarted ? "opacity-20" : "opacity-100",
+              !hasStarted ? "opacity-40" : "opacity-100",
             )}
           />
           <div className="grid flex-1 text-left text-sm leading-tight">
@@ -775,6 +819,41 @@ export function ScheduleWidget() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
+          <button
+            onClick={async () => {
+              if (pip?.schedule?.isOpen()) {
+                await pip?.schedule?.close();
+              } else {
+                await pip?.schedule?.open();
+              }
+            }}
+            disabled={!pip?.schedule?.canOpen()}
+            className={cn("w-full", !pip?.schedule?.canOpen() && "opacity-50")}
+          >
+            {pip?.schedule?.isOpen() ? (
+              <div className="flex items-center gap-2">
+                <DoorOpen />
+                <span>Close Mini Mode</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <PictureInPicture2 />
+                <span>Open Mini Mode</span>
+              </div>
+            )}
+            {!pip?.schedule?.canOpen() && (
+              <Tooltip>
+                <TooltipTrigger className="absolute inset-0" asChild>
+                  <div />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Mini Mode is not available on this device / browser.
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </button>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link href="/app/schedule">
             <Clock />
             <span>Open Full Schedule</span>
@@ -809,6 +888,7 @@ export function AppSidebarClient({
   session: Session | null;
 }) {
   const cookies = useMemo(() => new Cookies(), []);
+
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="">

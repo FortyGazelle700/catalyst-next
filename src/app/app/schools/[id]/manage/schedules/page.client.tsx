@@ -68,7 +68,8 @@ export default function PeriodsPageClient({
   const [use24HourMode, setUse24HourMode] = useState(false);
 
   useEffect(() => {
-    setTzOffset(new Date().getTimezoneOffset() / -60);
+    const tzOffset = new Date().getTimezoneOffset() / -60;
+    setTzOffset(tzOffset);
   }, []);
 
   return (

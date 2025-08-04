@@ -163,10 +163,10 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
             time: time
               ? {
                   ...time,
-                  startTime: `${Number(time?.start.split(":")[0]) - 1}:${
+                  startTime: `${time?.start.split(":")[0]}:${
                     time?.start.split(":")[1]
                   }`,
-                  endTime: `${Number(time?.end.split(":")[0]) - 1}:${
+                  endTime: `${time?.end.split(":")[0]}:${
                     time?.end.split(":")[1]
                   }`,
                 }

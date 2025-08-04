@@ -6,6 +6,8 @@ import type { CanvasErrors, User } from "../types";
 export type PeopleInput = {
   courseId: number;
   useCache?: boolean;
+  limit?: number;
+  cursor?: number;
 };
 
 export default async function getPeople(ctx: CanvasApiCtx) {
@@ -26,11 +28,13 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       }
       const url = new URL(
         `/api/v1/courses/${input.courseId}/users`,
-        ctx.user.canvas.url
+        ctx.user.canvas.url,
       );
       url.searchParams.append("include[]", "avatar_url");
       url.searchParams.append("include[]", "enrollments");
-      url.searchParams.append("limit", "100");
+      url.searchParams.append("include[]", "communication_channel");
+      url.searchParams.append("per_page", String(input?.limit ?? 100));
+      url.searchParams.append("page", String(input?.cursor ?? 1));
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -72,7 +76,7 @@ export default async function getPeople(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await people();

@@ -1,6 +1,6 @@
 "use server";
 
-import { type ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 
 export default async function set(ctx: ApiCtx) {
   return async (input: Record<string, string>) => {

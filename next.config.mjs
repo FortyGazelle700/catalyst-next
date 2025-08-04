@@ -2,6 +2,7 @@ import createMDX from "@next/mdx";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: false,
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   experimental: {
     optimizePackageImports: ["recharts", "@js-temporal/polyfill"],
@@ -32,7 +33,7 @@ const nextConfig = {
 };
 
 const withBundleAnalyzer = (await import("@next/bundle-analyzer")).default({
-  enabled: process.env.ANALYZE === "true",
+  enabled: process.env.ANALYZE == "true",
 });
 
 const withMDX = createMDX({});
