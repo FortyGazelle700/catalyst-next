@@ -10,6 +10,7 @@ export default async function set(ctx: ApiCtx) {
     const { db } = ctx;
     const { id } = ctx.user.get!;
     const { settings: newSettings } = ctx.user;
+    const { revalidateTag } = await import("next/cache");
 
     if (key == "canvas_token") {
       const cipher = createCipheriv(
@@ -41,6 +42,8 @@ export default async function set(ctx: ApiCtx) {
         })
         .onConflictDoNothing();
     }
+
+    revalidateTag(`user_${ctx.user.get?.id}:course:list_with_data`);
 
     newSettings[key] = value;
     return {

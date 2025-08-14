@@ -201,14 +201,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
         ],
         {
           revalidate: 60,
-          tags: [
-            `user_${ctx.user.get?.id}:course:list_with_data`,
-            `user_${ctx.user.get?.id}:course:list_with_data@${[
-              ...Object.entries(input)
-                .map(([k, v]) => `${k}=${v}`)
-                .sort((a, b) => a.localeCompare(b)),
-            ].join(",")}`,
-          ],
+          tags: [`user_${ctx.user.get?.id}:course:list_with_data`],
         },
       )();
     }

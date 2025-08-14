@@ -193,14 +193,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
       ],
       {
         revalidate: 1000 * 60 * 5,
-        tags: [
-          `user_${ctx.user.get?.id}:todo:list`,
-          `user_${ctx.user.get?.id}:todo:list@${[
-            ...Object.entries(input)
-              .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-              .sort((a, b) => a.localeCompare(b)),
-          ].join(",")}`,
-        ],
+        tags: [`user_${ctx.user.get?.id}:todo:list`],
       },
     )();
   };

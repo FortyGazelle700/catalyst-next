@@ -23,6 +23,7 @@ export async function canvas($ctx: ApiCtx) {
       listWithPeriodData: await (
         await import("./courses/list-with-period-data")
       ).default(ctx),
+      syllabus: await (await import("./courses/syllabus")).default(ctx),
       frontPage: await (await import("./courses/front-page")).default(ctx),
       people: await (await import("./courses/people")).default(ctx),
       page: await (await import("./courses/page")).default(ctx),
@@ -91,6 +92,21 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
   let token;
 
   const encryptedToken = ctx.user.settings.canvas_token ?? "";
+
+  if (!encryptedToken || !school?.canvasURL) {
+    return {
+      ...ctx,
+      user: {
+        ...ctx.user,
+        canvas: {
+          id: -1,
+          data: {} as User,
+          url: "",
+          token: token ?? "",
+        },
+      },
+    } as CanvasApiCtx;
+  }
 
   const key = process.env.AUTH_SECRET?.substring(0, 32) ?? "";
   const iv = process.env.AUTH_SECRET?.substring(33, 33 + 16) ?? "";
