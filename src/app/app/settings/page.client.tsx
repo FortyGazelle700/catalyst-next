@@ -234,7 +234,7 @@ function ModuleSidebar({
     <>
       <Sidebar
         collapsible="none"
-        className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-[calc(100%-var(--spacing)*4)] @4xl:w-[20rem]"
+        className="scrollbar-auto m-2 min-h-max w-[calc(100%-1rem)] overflow-auto rounded-xs @4xl:h-full @4xl:w-[20rem]"
       >
         <SidebarHeader className="px-6 pt-6 pb-4">
           <h1 className="flex items-center gap-2 text-2xl font-bold">

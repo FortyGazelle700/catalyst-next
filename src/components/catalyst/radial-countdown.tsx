@@ -12,7 +12,7 @@ export function RadialCountdown({
   percentage: number;
   className?: string;
 }) {
-  const color = "var(--primary)";
+  const color = "var(--ui-primary)";
 
   const chartData = [{ name: "progress", value: 1, fill: color }];
 

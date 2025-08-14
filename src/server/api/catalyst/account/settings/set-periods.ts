@@ -6,6 +6,7 @@ export default async function set(ctx: ApiCtx) {
   return async (input: Record<string, string>) => {
     const { scheduleValues } = await import("@/server/db/schema");
     const { eq, and, count } = await import("drizzle-orm");
+    const { revalidateTag } = await import("next/cache");
 
     for (const [key, value] of Object.entries(input)) {
       const existing = await ctx.db
@@ -35,6 +36,8 @@ export default async function set(ctx: ApiCtx) {
           );
       }
     }
+
+    revalidateTag(`user_${ctx.user.get?.id}:course:list_with_data`);
 
     return {
       success: true,

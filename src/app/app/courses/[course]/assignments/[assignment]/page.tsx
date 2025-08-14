@@ -50,7 +50,7 @@ export default async function AssignmentPage({
   }
 
   function replaceCanvasURL(str: string) {
-    const baseURL = `/${
+    const baseURL = `${
       process.env.PUBLISH_URL ?? "http://localhost:3000"
     }/app/`;
     const pattern =

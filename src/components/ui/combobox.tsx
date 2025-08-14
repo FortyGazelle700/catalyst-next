@@ -151,10 +151,12 @@ export function Combobox({
           {localValue
             ? (groups
                 .flatMap((group) => group.values)
-                .find((v) => v.id === localValue)?.selectionRender ??
+                .find((v) => v.id == localValue)?.selectionRender ??
               groups
                 .flatMap((group) => group.values)
-                .find((v) => v.id === localValue)?.render)
+                .find((v) => v.id == localValue)?.render ??
+              placeholders?.emptyValue ??
+              "Select...")
             : (placeholders?.emptyValue ?? "Select...")}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

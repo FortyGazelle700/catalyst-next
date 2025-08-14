@@ -14,44 +14,52 @@ import { useParams, usePathname } from "next/navigation";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { CoursesContext } from "./layout.providers";
 
+function BreadcrumbRender({
+  asLink,
+  href,
+  children,
+}: {
+  asLink?: boolean;
+  href?: string;
+  children: React.ReactNode;
+}) {
+  return asLink ? (
+    <BreadcrumbLink href={href ?? ""}>{children}</BreadcrumbLink>
+  ) : (
+    <BreadcrumbPage>{children}</BreadcrumbPage>
+  );
+}
+
 export const BreadcrumbBits = {
   Catalyst: () => (
     <BreadcrumbItem>
-      <BreadcrumbLink href="/app">Catalyst</BreadcrumbLink>
+      <BreadcrumbRender asLink href="/app">
+        Catalyst
+      </BreadcrumbRender>
     </BreadcrumbItem>
   ),
-  Todo: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/todo">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Todo</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  TodoCreate: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/todo/create">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Create</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  Todo: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/todo">
+        Todo
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  TodoCreate: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/todo/create">
+        Create
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   TodoItem: ({ id, asLink = false }: { id: number; asLink?: boolean }) => {
     const [name, setName] = useState<string | null>(null);
 
     useEffect(() => {
       (async () => {
-        const req = await fetch(`/api/todo/get-note/${id}`);
+        const req = await fetch(`/api/todo/get-note/${id}`, {
+          cache: "force-cache",
+        });
         const res = (await req.json()) as {
           success: boolean;
           data: PlannerNote | undefined;
@@ -62,34 +70,21 @@ export const BreadcrumbBits = {
       })().catch(console.error);
     }, [id]);
 
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/todo/${id}`}>{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-
     return (
       <BreadcrumbItem>
-        <BreadcrumbRender>
+        <BreadcrumbRender asLink={asLink} href={`/app/todo/${id}`}>
           {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
   },
-  Schools: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/schools">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Schools</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  Schools: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/schools">
+        Schools
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   School: ({
     schoolId,
     asLink = true,
@@ -102,7 +97,9 @@ export const BreadcrumbBits = {
     useEffect(() => {
       (async () => {
         if (schoolId == undefined) return;
-        const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`);
+        const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`, {
+          cache: "force-cache",
+        });
         const res = (await req.json()) as {
           success: boolean;
           data: {
@@ -116,17 +113,9 @@ export const BreadcrumbBits = {
       })().catch(console.error);
     }, [schoolId]);
 
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/schools/${schoolId}`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
     return (
       <BreadcrumbItem>
-        <BreadcrumbRender>
+        <BreadcrumbRender asLink={asLink} href={`/app/schools/${schoolId}`}>
           {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
@@ -138,99 +127,71 @@ export const BreadcrumbBits = {
   }: {
     schoolId?: string;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/schools/${schoolId}/manage`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Manage</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/schools/${schoolId}/manage`}
+      >
+        Manage
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   SchoolManagePeriods: ({
     schoolId,
     asLink = true,
   }: {
     schoolId?: string;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/periods`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Periods</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/schools/${schoolId}/manage/periods`}
+      >
+        Periods
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   SchoolManageSchedule: ({
     schoolId,
     asLink = true,
   }: {
     schoolId?: string;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/schools/${schoolId}/manage/schedules`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Schedule</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/schools/${schoolId}/manage/schedules`}
+      >
+        Schedule
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   SchoolManageScheduleDates: ({
     schoolId,
     asLink = true,
   }: {
     schoolId?: string;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink
-          href={`/app/schools/${schoolId}/manage/schedules/dates`}
-        >
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Schedule Dates</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  Courses: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/courses">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Courses</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/schools/${schoolId}/manage/schedules/dates`}
+      >
+        Schedule Dates
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Courses: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/courses">
+        Courses
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Course: ({
     asLink = true,
     courseId: courseId,
@@ -244,18 +205,9 @@ export const BreadcrumbBits = {
       [courses, courseId],
     );
 
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-
     return (
       <BreadcrumbItem>
-        <BreadcrumbRender>
+        <BreadcrumbRender asLink={asLink} href={`/app/courses/${courseId}`}>
           {currentCourse ? (
             currentCourse.original_name
           ) : (
@@ -271,21 +223,13 @@ export const BreadcrumbBits = {
   }: {
     asLink?: boolean;
     courseId?: number;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/pages`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Pages</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href={`/app/courses/${courseId}/pages`}>
+        Pages
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Page: ({
     asLink = true,
     courseId,
@@ -299,7 +243,9 @@ export const BreadcrumbBits = {
 
     useEffect(() => {
       (async () => {
-        const req = await fetch(`/api/courses/${courseId}/page/${pageId}`);
+        const req = await fetch(`/api/courses/${courseId}/page/${pageId}`, {
+          cache: "force-cache",
+        });
         const res = (await req.json()) as {
           success: boolean;
           data: PlannerNote | null;
@@ -310,18 +256,12 @@ export const BreadcrumbBits = {
       })().catch(console.error);
     }, [courseId, pageId]);
 
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/${pageId}`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-
     return (
       <BreadcrumbItem>
-        <BreadcrumbRender>
+        <BreadcrumbRender
+          asLink={asLink}
+          href={`/app/courses/${courseId}/${pageId}`}
+        >
           {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
@@ -333,63 +273,64 @@ export const BreadcrumbBits = {
   }: {
     asLink?: boolean;
     courseId?: number;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/modules`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Modules</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/courses/${courseId}/modules`}
+      >
+        Modules
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Syllabus: ({
+    courseId,
+    asLink = true,
+  }: {
+    courseId: number;
+    asLink?: boolean;
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/courses/${courseId}/syllabus`}
+      >
+        Syllabus
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   People: ({
     courseId,
     asLink = true,
   }: {
     courseId: number;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/people`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>People</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/courses/${courseId}/people`}
+      >
+        People
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Assignments: ({
     courseId,
     asLink = true,
   }: {
     courseId: number;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/assignments`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Assignments</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/courses/${courseId}/assignments`}
+      >
+        Assignments
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Assignment: ({
     courseId,
     assignmentId,
@@ -405,6 +346,7 @@ export const BreadcrumbBits = {
       (async () => {
         const req = await fetch(
           `/api/courses/${courseId}/assignments/${assignmentId}`,
+          { cache: "force-cache" },
         );
         const res = (await req.json()) as {
           success: boolean;
@@ -416,20 +358,12 @@ export const BreadcrumbBits = {
       })().catch(console.error);
     }, [assignmentId, courseId]);
 
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink
-          href={`/app/courses/${courseId}/assignments/${assignmentId}`}
-        >
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-
     return (
       <BreadcrumbItem>
-        <BreadcrumbRender>
+        <BreadcrumbRender
+          asLink={asLink}
+          href={`/app/courses/${courseId}/assignments/${assignmentId}`}
+        >
           {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
         </BreadcrumbRender>
       </BreadcrumbItem>
@@ -441,87 +375,51 @@ export const BreadcrumbBits = {
   }: {
     courseId: number;
     asLink?: boolean;
-  }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={`/app/courses/${courseId}/grades`}>
-          {children}
-        </BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Grades</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  Edit: ({ asLink = true, href }: { asLink?: boolean; href?: string }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href={href ?? ""}>{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Edit</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  Feedback: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Feedback</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  Schedule: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/schedule">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Schedule</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  ScheduleNow: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/schedule/now">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Now</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
-  Settings: ({ asLink = true }: { asLink?: boolean }) => {
-    const BreadcrumbRender = ({ children }: { children: React.ReactNode }) =>
-      asLink ? (
-        <BreadcrumbLink href="/app/settings">{children}</BreadcrumbLink>
-      ) : (
-        <BreadcrumbPage>{children}</BreadcrumbPage>
-      );
-    return (
-      <BreadcrumbItem>
-        <BreadcrumbRender>Settings</BreadcrumbRender>
-      </BreadcrumbItem>
-    );
-  },
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/courses/${courseId}/grades`}
+      >
+        Grades
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Edit: ({ asLink = true, href }: { asLink?: boolean; href?: string }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href={href ?? ""}>
+        Edit
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Feedback: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/settings">
+        Feedback
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Schedule: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/schedule">
+        Schedule
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  ScheduleNow: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/schedule/now">
+        Now
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Settings: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/settings">
+        Settings
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Error404: () => (
     <BreadcrumbItem>
       <BreadcrumbPage>Error: 404</BreadcrumbPage>
@@ -714,6 +612,21 @@ export function Breadcrumbs({
                     <BreadcrumbBits.Courses />
                     <BreadcrumbSeparator />
                     <BreadcrumbBits.Course
+                      courseId={Number(params.course)}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/courses/[course]/syllabus":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Courses />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Course courseId={Number(params.course)} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Syllabus
                       courseId={Number(params.course)}
                       asLink={false}
                     />

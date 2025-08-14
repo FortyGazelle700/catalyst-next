@@ -96,14 +96,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
       ],
       {
         revalidate: 1000 * 60 * 5,
-        tags: [
-          `user_${ctx.user.get?.id}:todo:mini`,
-          `user_${ctx.user.get?.id}:todo:mini@${[
-            ...Object.entries(input)
-              .map(([k, v]) => `${k}=${v}`)
-              .sort((a, b) => a.localeCompare(b)),
-          ].join(",")}`,
-        ],
+        tags: [`user_${ctx.user.get?.id}:todo:mini`],
       },
     )();
   };
