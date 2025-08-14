@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "next build --turbopack",
     "build:analyze": "ANALYZE=true next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "dev": "NEXT_DISABLE_TYPECHECK=1 next dev --turbopack",
+    "dev": "next dev --turbopack",
     "dev:https": "next dev --experimental-https",
     "lint": "next lint",
     "start": "next start"

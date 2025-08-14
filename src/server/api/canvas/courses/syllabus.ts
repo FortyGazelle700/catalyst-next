@@ -1,7 +1,7 @@
 "use server";
 
 import type { CanvasApiCtx } from "..";
-import type { CanvasErrors, Course, Page } from "../types";
+import type { CanvasErrors, Course } from "../types";
 
 export type FrontPageInput = {
   courseId: number;
