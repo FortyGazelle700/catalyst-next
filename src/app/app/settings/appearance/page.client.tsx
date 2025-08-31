@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import type { ApiCtx } from "@/server/api";
 import {
   ArrowRight,
-  Ban,
   Check,
   Gem,
   Lamp,
@@ -14,11 +13,10 @@ import {
   Paintbrush,
   Sun,
   SunMoon,
-  X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-import { type SetStateAction, type Dispatch } from "react";
+import { type SetStateAction, type Dispatch, useEffect } from "react";
 
 export default function AppearanceSettings({
   setLink,
@@ -29,6 +27,12 @@ export default function AppearanceSettings({
   setSettings: Dispatch<SetStateAction<ApiCtx["user"]["settings"]>>;
 }) {
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    if (theme != "oled") {
+      document.documentElement.classList.remove("oled");
+    }
+  }, [theme]);
 
   return (
     <div className="mt-4 flex flex-col gap-4">
@@ -41,20 +45,19 @@ export default function AppearanceSettings({
         <div
           className={cn(
             "stack relative rounded-md",
-            theme === "light" &&
-              "outline-primary/50 outline-2 outline-offset-4",
+            theme == "light" && "outline-primary/50 outline-2 outline-offset-4",
           )}
         >
           <Button
             variant="outline"
             className="h-36 flex-1 flex-col items-start justify-end bg-white text-black hover:bg-gray-200 dark:bg-gray-400 dark:hover:bg-gray-500"
             onClick={() => setTheme("light")}
-            aria-pressed={theme === "light"}
+            aria-pressed={theme == "light"}
           >
             <Sun className="size-6" />
             <span className="text-xl font-bold">Light</span>
           </Button>
-          {theme === "light" && (
+          {theme == "light" && (
             <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
               <Check className="size-3" /> Selected
             </div>
@@ -63,19 +66,19 @@ export default function AppearanceSettings({
         <div
           className={cn(
             "stack relative rounded-md",
-            theme === "dark" && "outline-primary/50 outline-2 outline-offset-4",
+            theme == "dark" && "outline-primary/50 outline-2 outline-offset-4",
           )}
         >
           <Button
             variant="outline"
             className="h-36 flex-1 flex-col items-start justify-end bg-slate-500 !text-white hover:bg-slate-600 dark:bg-slate-950 dark:text-gray-200 dark:hover:bg-slate-800"
             onClick={() => setTheme("dark")}
-            aria-pressed={theme === "dark"}
+            aria-pressed={theme == "dark"}
           >
             <Moon className="size-6" />
             <span className="text-xl font-bold">Dark</span>
           </Button>
-          {theme === "dark" && (
+          {theme == "dark" && (
             <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
               <Check className="size-3" /> Selected
             </div>
@@ -84,7 +87,7 @@ export default function AppearanceSettings({
         <div
           className={cn(
             "stack relative rounded-md",
-            theme === "system" &&
+            theme == "system" &&
               "outline-primary/50 outline-2 outline-offset-4",
           )}
         >
@@ -92,7 +95,7 @@ export default function AppearanceSettings({
             variant="outline"
             className="group relative h-36 w-full flex-1 flex-col items-start justify-end overflow-hidden"
             onClick={() => setTheme("system")}
-            aria-pressed={theme === "system"}
+            aria-pressed={theme == "system"}
           >
             <div className="absolute inset-0 h-full w-full">
               <svg
@@ -109,27 +112,32 @@ export default function AppearanceSettings({
             <Monitor className="z-10 size-6" />
             <span className="z-10 text-xl font-bold">System</span>
           </Button>
-          {theme === "system" && (
+          {theme == "system" && (
             <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
               <Check className="size-3" /> Selected
             </div>
           )}
         </div>
-        <div className="stack relative rounded-md">
-          <div className="z-10 flex h-full w-full flex-col items-center justify-center gap-1 text-white">
-            <Ban />
-            Theme not available
-          </div>
+        <div
+          className={cn(
+            "stack relative rounded-md",
+            theme == "oled" && "outline-primary/50 outline-2 outline-offset-4",
+          )}
+        >
           <Button
             variant="outline"
-            className="text-muted-foreground h-36 flex-1 flex-col items-start justify-end !bg-slate-950 hover:!bg-slate-800 dark:!bg-black dark:hover:!bg-[color-mix(in_oklab,oklch(12.9%_0.042_264.695),black_50%)]"
+            className="bg-black-500 h-36 flex-1 flex-col items-start justify-end bg-black !text-white hover:bg-gray-900"
+            onClick={() => setTheme("oled")}
+            aria-pressed={theme == "oled"}
           >
-            <Lamp className="size-6" />
+            <Moon className="size-6" />
             <span className="text-xl font-bold">OLED</span>
           </Button>
-          <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs opacity-50">
-            <X className="size-3" /> Not Applied
-          </div>
+          {theme == "oled" && (
+            <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
+              <Check className="size-3" /> Selected
+            </div>
+          )}
         </div>
       </div>
       <div>
