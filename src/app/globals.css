@@ -20,37 +20,45 @@
 }
 
 :root {
-  /* Base root colors */
   --ui-root: oklch(100% 0.01 150);
   --ui-root-foreground: oklch(10% 0.05 150);
+  --ui-root-primary: oklch(60% 0.18 150);
+}
 
-  /* Colors derived from root variables */
+.dark {
+  --ui-root: oklch(5% 0.05 150);
+  --ui-root-foreground: oklch(100% 0.03 150);
+  --ui-root-primary: oklch(70% 0.3 150);
+}
+
+.oled {
+  --ui-root: oklch(0% 0.001 150);
+  --ui-root-foreground: oklch(100% 0.03 150);
+  --ui-root-primary: oklch(65% 0.1 150);
+}
+
+:root {
   --ui-background: oklch(from var(--ui-root) l c h);
   --ui-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-card: oklch(from var(--ui-root) l c h);
   --ui-card-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-popover: oklch(from var(--ui-root) l c h);
   --ui-popover-foreground: oklch(from var(--ui-root-foreground) l c h);
-  --ui-primary: oklch(from var(--ui-root-foreground) calc(l + 0.079) c h);
+  --ui-primary: oklch(from var(--ui-root-primary) l c h);
   --ui-primary-foreground: oklch(from var(--ui-root) calc(l - 0.016) c h);
   --ui-secondary: oklch(
-    from var(--ui-root) calc(l - 0.032) calc(c + 0.007) calc(h - 16.799)
+    from var(--ui-root-primary) calc(l + 0.35) calc(c * 0.1) h
   );
   --ui-secondary-foreground: oklch(
-    from var(--ui-root-foreground) calc(l + 0.079) c h
+    from var(--ui-root-primary) calc(l - 0.2) calc(c * 1.2) h
   );
-  --ui-muted: oklch(
-    from var(--ui-root) calc(l - 0.032) calc(c + 0.007) calc(h - 16.799)
-  );
+  --ui-muted: oklch(from var(--ui-root-primary) calc(l + 0.45) calc(c * 0.2) h);
   --ui-muted-foreground: oklch(
-    from var(--ui-root-foreground) calc(l + 0.425) calc(c + 0.004)
-      calc(h - 7.278)
+    from var(--ui-root-primary) calc(l - 0.1) calc(c * 0.8) h
   );
-  --ui-accent: oklch(
-    from var(--ui-root) calc(l - 0.032) calc(c + 0.007) calc(h - 16.799)
-  );
+  --ui-accent: oklch(from var(--ui-root-primary) calc(l + 0.4) calc(c * 0.4) h);
   --ui-accent-foreground: oklch(
-    from var(--ui-root-foreground) calc(l + 0.079) c h
+    from var(--ui-root-primary) calc(l - 0.2) calc(c * 1.2) h
   );
   --ui-destructive: oklch(0.577 0.245 27.325);
   --ui-destructive-foreground: oklch(0.577 0.245 27.325);
@@ -96,44 +104,30 @@
 
 .dark,
 .oled {
-  --ui-root: oklch(10% 0.05 150);
-  --ui-root-foreground: oklch(95% 0.05 150);
-
-  /* Colors derived from dark root variables */
   --ui-background: oklch(from var(--ui-root) l c h);
   --ui-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-card: oklch(from var(--ui-root) l c h);
   --ui-card-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-popover: oklch(from var(--ui-root) l c h);
   --ui-popover-foreground: oklch(from var(--ui-root-foreground) l c h);
-  --ui-primary: oklch(from var(--ui-root-foreground) l c h);
+  --ui-primary: oklch(from var(--ui-root-primary) l c h);
   --ui-primary-foreground: oklch(from var(--ui-root) calc(l + 0.079) c h);
   --ui-secondary: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
+    from var(--ui-root-primary) calc(l - 0.5) calc(c * 0.3) h
   );
   --ui-secondary-foreground: oklch(from var(--ui-root-foreground) l c h);
-  --ui-muted: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
-  );
+  --ui-muted: oklch(from var(--ui-root-primary) calc(l - 0.25) calc(c * 0.2) h);
   --ui-muted-foreground: oklch(
     from var(--ui-root-foreground) calc(l - 0.28) calc(c + 0.037)
       calc(h - 7.907)
   );
-  --ui-accent: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
-  );
+  --ui-accent: oklch(from var(--ui-root-primary) calc(l - 0.4) calc(c * 0.4) h);
   --ui-accent-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-destructive: oklch(0.396 0.141 25.723);
   --ui-destructive-foreground: oklch(0.637 0.237 25.331);
-  --ui-border: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
-  );
-  --ui-input: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
-  );
-  --ui-ring: oklch(
-    from var(--ui-root) calc(l + 0.317) calc(c + 0.001) calc(h - 7.414)
-  );
+  --ui-border: oklch(from var(--ui-root-primary) calc(l - 0.5) calc(c * 0.1) h);
+  --ui-input: oklch(from var(--ui-root-primary) calc(l - 0.4) calc(c * 0.1) h);
+  --ui-ring: oklch(from var(--ui-root-primary) calc(l - 0.6) calc(c * 0.8) h);
   --ui-chart-1: oklch(0.488 0.243 264.376);
   --ui-chart-2: oklch(0.696 0.17 162.48);
   --ui-chart-3: oklch(0.769 0.188 70.08);
@@ -141,23 +135,18 @@
   --ui-chart-5: oklch(0.645 0.246 16.439);
   --ui-sidebar: oklch(from var(--ui-root) calc(l + 0.079) c h);
   --ui-sidebar-foreground: oklch(from var(--ui-root-foreground) l c h);
-  --ui-sidebar-primary: oklch(0.488 0.243 264.376);
+  --ui-sidebar-primary: oklch(from var(--ui-root-primary) l c h);
   --ui-sidebar-primary-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-sidebar-accent: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
+    from var(--ui-root-primary) calc(l - 0.5) calc(c * 0.2) h
   );
   --ui-sidebar-accent-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-sidebar-border: oklch(
-    from var(--ui-root) calc(l + 0.15) calc(c - 0.001) calc(h - 4.664)
+    from var(--ui-root-primary) calc(l - 0.35) calc(c * 0.1) h
   );
   --ui-sidebar-ring: oklch(
-    from var(--ui-root) calc(l + 0.317) calc(c + 0.001) calc(h - 7.414)
+    from var(--ui-root-primary) calc(l - 0.1) calc(c * 0.8) h
   );
-}
-
-.oled {
-  --ui-root: oklch(0 0 0);
-  --ui-root-foreground: oklch(80% 0 0);
 }
 
 @theme inline {

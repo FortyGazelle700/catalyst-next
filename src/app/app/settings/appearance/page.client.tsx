@@ -130,7 +130,7 @@ export default function AppearanceSettings({
             onClick={() => setTheme("oled")}
             aria-pressed={theme == "oled"}
           >
-            <Moon className="size-6" />
+            <Lamp className="size-6" />
             <span className="text-xl font-bold">OLED</span>
           </Button>
           {theme == "oled" && (

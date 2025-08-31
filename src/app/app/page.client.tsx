@@ -190,7 +190,7 @@ export function MissingCard() {
         <h4 className="text-4xl font-bold">{missingAssignments}</h4>
         <Button
           variant="outline"
-          href="/app/todo?search.status=missing"
+          href="/app/todo?search.completed=no&search.grade=0"
           size="icon"
           className="absolute top-4 right-4 grid"
         >
@@ -198,7 +198,7 @@ export function MissingCard() {
         </Button>
       </div>
       <Link
-        href="/app/todo?search.status=missing"
+        href="/app/todo?search.completed=no&search.grade=0"
         className="bg-secondary pointer-events-none absolute inset-0 grid scale-150 place-items-center opacity-0 transition-all group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100"
       >
         <ArrowRight className="transition-all group-hover:-rotate-45" />

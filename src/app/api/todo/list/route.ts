@@ -17,8 +17,6 @@ const TodoListSchema = z.object({
   ),
 });
 
-type Searchable = { includes: string };
-
 export const POST = auth(async (req) => {
   const { data: body, error } = TodoListSchema.safeParse(await req.json());
 
@@ -35,13 +33,13 @@ export const POST = auth(async (req) => {
     })
   ).canvas.todo.list({
     search: {
-      title: body.search.title as unknown as Searchable,
-      description: body.search.description as unknown as Searchable,
+      title: body.search.title ?? "",
+      description: body.search.description ?? "",
       start: body.search.start ? new Date(body.search.start) : new Date(),
       end: body.search.end ? new Date(body.search.end) : new Date(),
-      completed: body.search.completed,
-      courses: body.search.courses,
-      status: body.search.status,
+      completed: body.search.completed ?? "no",
+      courses: body.search.courses ?? [],
+      status: body.search.status ?? [],
     },
     sort: body.sort,
   });
