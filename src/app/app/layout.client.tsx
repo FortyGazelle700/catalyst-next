@@ -57,7 +57,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { CoursesContext, TimeContext, usePip } from "./layout.providers";
+import {
+  CoursesContext,
+  ScheduleContext,
+  TimeContext,
+  usePip,
+} from "./layout.providers";
 import { Temporal } from "@js-temporal/polyfill";
 import { NumberCounter } from "@/components/catalyst/number-counter";
 import { signOut } from "next-auth/react";
@@ -486,6 +491,7 @@ export function CoursesGroupClient() {
 export function ScheduleWidget() {
   const now = useContext(TimeContext);
   const courses = useContext(CoursesContext);
+  const schedule = useContext(ScheduleContext);
 
   const pip = usePip();
 
@@ -493,7 +499,52 @@ export function ScheduleWidget() {
     return courses?.find((course) => course.time?.activePinned);
   }, [courses]);
 
-  const timeToStart = useMemo(
+  const currentPeriod = useMemo(() => {
+    return schedule?.find((period) => period.time?.activePinned);
+  }, [schedule]);
+
+  const periodTimeToStart = useMemo(
+    () =>
+      Temporal.Instant.from(now.toISOString()).until(
+        Temporal.Instant.from(
+          currentPeriod?.time.start?.toISOString() ?? now.toISOString(),
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" },
+      ),
+    [now, currentPeriod],
+  );
+
+  const periodTimeLeft = useMemo(
+    () =>
+      Temporal.Instant.from(now.toISOString()).until(
+        Temporal.Instant.from(
+          currentPeriod?.time.end?.toISOString() ?? now.toISOString(),
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" },
+      ),
+    [now, currentPeriod],
+  );
+
+  const periodTotalDuration = useMemo(
+    () =>
+      Temporal.Instant.from(
+        currentPeriod?.time.start?.toISOString() ?? now.toISOString(),
+      ).until(
+        Temporal.Instant.from(
+          currentPeriod?.time.end?.toISOString() ?? now.toISOString(),
+        ),
+        { largestUnit: "hour", smallestUnit: "seconds" },
+      ),
+    [now, currentPeriod],
+  );
+
+  const periodHasStarted = useMemo(
+    () => periodTimeToStart.total("milliseconds") <= 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentPeriod, now, periodTimeToStart],
+  );
+
+  const courseTimeToStart = useMemo(
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
@@ -504,7 +555,7 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
-  const timeLeft = useMemo(
+  const courseTimeLeft = useMemo(
     () =>
       Temporal.Instant.from(now.toISOString()).until(
         Temporal.Instant.from(
@@ -515,7 +566,7 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
-  const totalDuration = useMemo(
+  const courseTotalDuration = useMemo(
     () =>
       Temporal.Instant.from(
         currentCourse?.time.start?.toISOString() ?? now.toISOString(),
@@ -528,23 +579,26 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
-  const hasStarted = useMemo(
-    () => timeToStart.total("milliseconds") <= 0,
+  const courseHasStarted = useMemo(
+    () => courseTimeToStart.total("milliseconds") <= 0,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentCourse, now, timeToStart],
+    [currentCourse, now, courseTimeToStart],
   );
 
-  if (!currentCourse) {
+  if (!currentPeriod) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton
             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer pr-3 pl-1"
-            tooltip={`${formatDuration(hasStarted ? timeLeft : timeToStart, {
-              style: "digital",
-              maxUnit: "hour",
-              minUnit: "second",
-            })} - Schedule`}
+            tooltip={`${formatDuration(
+              periodHasStarted ? periodTimeLeft : periodTimeToStart,
+              {
+                style: "digital",
+                maxUnit: "hour",
+                minUnit: "second",
+              },
+            )} - Schedule`}
           >
             <RadialCountdown
               percentage={100}
@@ -628,26 +682,30 @@ export function ScheduleWidget() {
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer pr-3 pl-1"
-          tooltip={`${formatDuration(hasStarted ? timeLeft : timeToStart, {
-            style: "digital",
-            maxUnit: "hour",
-            minUnit: "second",
-          })} - Schedule`}
+          tooltip={`${formatDuration(
+            periodHasStarted ? periodTimeLeft : periodTimeToStart,
+            {
+              style: "digital",
+              maxUnit: "hour",
+              minUnit: "second",
+            },
+          )} - Schedule`}
         >
           <RadialCountdown
             percentage={
-              hasStarted
-                ? (timeLeft.total("milliseconds") /
-                    totalDuration.total("milliseconds")) *
+              periodHasStarted
+                ? (periodTimeLeft.total("milliseconds") /
+                    periodTotalDuration.total("milliseconds")) *
                   100
                 : -(
-                    (timeToStart.total("milliseconds") / (1000 * 60 * 60)) *
+                    (periodTimeToStart.total("milliseconds") /
+                      (1000 * 60 * 60)) *
                     100
                   )
             }
             className={cn(
               "bg-background fill-foreground rounded-full transition-all group-data-[collapsible=icon]:-ml-2",
-              !hasStarted ? "opacity-40" : "opacity-100",
+              !periodHasStarted ? "opacity-40" : "opacity-100",
             )}
           />
           <div className="grid flex-1 text-left text-sm leading-tight">
@@ -655,17 +713,20 @@ export function ScheduleWidget() {
               <span
                 className={cn(
                   "mr-0 overflow-hidden transition-all",
-                  hasStarted ? "w-0" : "mr-[0.3ch] w-[6ch]",
+                  periodHasStarted ? "w-0" : "mr-[0.3ch] w-[6ch]",
                 )}
               >
                 Starts in{" "}
               </span>
-              {formatDuration(hasStarted ? timeLeft : timeToStart, {
-                style: "long",
-                maxUnits: 1,
-                maxUnit: "hour",
-                minUnit: "second",
-              })
+              {formatDuration(
+                periodHasStarted ? periodTimeLeft : periodTimeToStart,
+                {
+                  style: "long",
+                  maxUnits: 1,
+                  maxUnit: "hour",
+                  minUnit: "second",
+                },
+              )
                 .split("")
                 .map((char, idx) =>
                   !new RegExp("\\d").test(char) ? (
@@ -686,7 +747,7 @@ export function ScheduleWidget() {
               <span
                 className={cn(
                   "ml-[0.3ch] overflow-hidden transition-all",
-                  !hasStarted ? "w-0" : "w-[10ch]",
+                  !periodHasStarted ? "w-0" : "w-[10ch]",
                 )}
               >
                 {" "}
@@ -694,8 +755,19 @@ export function ScheduleWidget() {
               </span>
             </span>
             <span className="text-muted-foreground truncate text-xs">
-              in {currentCourse?.classification ?? "No Class"} (
-              {currentCourse?.original_name ?? "No Class"})
+              in{" "}
+              {currentPeriod?.period?.type == "course"
+                ? currentPeriod?.option?.type == "course"
+                  ? (currentPeriod?.option?.data?.classification ?? "No Class")
+                  : "No Class"
+                : currentPeriod?.period?.periodName}{" "}
+              (
+              {currentPeriod?.period?.type == "course"
+                ? currentPeriod?.option?.type == "course"
+                  ? (currentPeriod?.option?.data?.original_name ?? "No Class")
+                  : "No Class"
+                : currentPeriod?.period?.optionName}
+              )
             </span>
           </div>
           <ChevronRight className="ml-auto size-4" />
@@ -771,13 +843,63 @@ export function ScheduleWidget() {
             <span>Grades</span>
           </Link>
         </DropdownMenuItem>
+        {currentCourse?.period?.id != currentPeriod.period.id && (
+          <div className="text-muted-foreground bg-secondary my-1 flex flex-col gap-1 rounded p-2 pl-8 text-xs">
+            <div className="flex items-center overflow-hidden">
+              {formatDuration(
+                periodHasStarted ? periodTimeLeft : periodTimeToStart,
+                {
+                  style: "digital",
+                  maxUnit: "hour",
+                  minUnit: "second",
+                },
+              )
+                .split("")
+                .map((char, idx) =>
+                  !new RegExp("\\d").test(char) ? (
+                    <span
+                      className="min-w-[0.5ch] text-center"
+                      key={`time-char-${char}-${idx}`}
+                    >
+                      {char}
+                    </span>
+                  ) : (
+                    <NumberCounter
+                      key={`time-idx-${idx}`}
+                      value={Number(char)}
+                      height={14}
+                    />
+                  ),
+                )}
+              <span className="ml-[0.3ch]"> remaining</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>
+                {currentPeriod?.time?.start?.toLocaleTimeString(undefined, {
+                  hour: "numeric",
+                  minute: "numeric",
+                })}
+              </span>
+              <span>{currentPeriod?.period?.periodName}</span>
+              <span>
+                {currentPeriod?.time?.end?.toLocaleTimeString(undefined, {
+                  hour: "numeric",
+                  minute: "numeric",
+                })}
+              </span>
+            </div>
+          </div>
+        )}
         <div className="text-muted-foreground bg-secondary my-1 flex flex-col gap-1 rounded p-2 pl-8 text-xs">
           <div className="flex items-center overflow-hidden">
-            {formatDuration(hasStarted ? timeLeft : timeToStart, {
-              style: "digital",
-              maxUnit: "hour",
-              minUnit: "second",
-            })
+            {formatDuration(
+              courseHasStarted ? courseTimeLeft : courseTimeToStart,
+              {
+                style: "digital",
+                maxUnit: "hour",
+                minUnit: "second",
+              },
+            )
               .split("")
               .map((char, idx) =>
                 !new RegExp("\\d").test(char) ? (
@@ -799,13 +921,16 @@ export function ScheduleWidget() {
           </div>
           <div className="flex items-center justify-between">
             <span>
-              {currentCourse?.time?.start?.toLocaleTimeString(undefined, {
+              {currentPeriod?.time?.start?.toLocaleTimeString(undefined, {
                 hour: "numeric",
                 minute: "numeric",
               })}
             </span>
+            {currentCourse?.period?.id != currentPeriod.period.id && (
+              <span>{currentCourse?.period?.periodName}</span>
+            )}
             <span>
-              {currentCourse?.time?.end?.toLocaleTimeString(undefined, {
+              {currentPeriod?.time?.end?.toLocaleTimeString(undefined, {
                 hour: "numeric",
                 minute: "numeric",
               })}

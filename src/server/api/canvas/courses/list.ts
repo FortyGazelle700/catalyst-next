@@ -17,6 +17,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
     const { getClassification } = await import(
       "../../utils/courseClassification"
     );
+    // console.log("REQQQ");
     const courseList = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
@@ -53,6 +54,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
           classification: await getClassification(course.original_name),
         })) ?? [],
       );
+      // console.log("list dat", data);
       return {
         success: true,
         data: data,
@@ -60,6 +62,8 @@ export default async function courseList(ctx: CanvasApiCtx) {
         nextCursor: Number(input?.offset ?? 0) + Number(input?.limit ?? 10),
       };
     };
+
+    // console.log("MAYBE REQQQ");
 
     if (input?.useCache ?? true) {
       return await unstable_cache(

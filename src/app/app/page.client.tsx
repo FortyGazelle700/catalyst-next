@@ -16,7 +16,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { CoursesContext, TimeContext } from "./layout.providers";
+import {
+  CoursesContext,
+  ScheduleContext,
+  TimeContext,
+} from "./layout.providers";
 import { subjectColors, SubjectIcon } from "@/components/catalyst/subjects";
 import { type PlannerItem } from "@/server/api/canvas/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,7 +32,7 @@ export function TimeCard() {
   const now = useContext(TimeContext);
   const [greeting, setGreeting] = useState("Hi there, it is");
 
-  const courses = useContext(CoursesContext);
+  const courses = useContext(ScheduleContext);
   const currentCourse = useMemo(() => {
     return courses?.find((course) => course.time?.activePinned);
   }, [courses]);

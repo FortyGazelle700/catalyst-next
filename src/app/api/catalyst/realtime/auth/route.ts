@@ -21,6 +21,7 @@ export const POST = auth(async (req) => {
     host: process.env.NEXT_PUBLIC_PUSHER_HOST ?? "",
     secret: process.env.PUSHER_APP_KEY_SECRET ?? "",
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
+    useTLS: true,
   });
 
   const ctx = await (
@@ -28,6 +29,15 @@ export const POST = auth(async (req) => {
       session: req.auth,
     })
   ).catalyst.getCtx();
+
+  // console.log({
+  //   appId: process.env.PUSHER_APP_ID ?? "",
+  //   key: process.env.PUSHER_APP_KEY ?? "",
+  //   host: process.env.NEXT_PUBLIC_PUSHER_HOST ?? "",
+  //   secret: process.env.PUSHER_APP_KEY_SECRET ?? "",
+  //   cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
+  //   useTLS: true,
+  // });
 
   return Response.json(
     pusher.authenticateUser(

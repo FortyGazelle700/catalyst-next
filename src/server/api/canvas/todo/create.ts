@@ -12,6 +12,7 @@ export type CompleteInput = {
 
 export default async function editTodoNote(ctx: CanvasApiCtx) {
   return async (input: CompleteInput) => {
+    const { revalidateTag } = await import("next/cache");
     const edit = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
@@ -42,6 +43,8 @@ export default async function editTodoNote(ctx: CanvasApiCtx) {
           errors: data.errors,
         };
       }
+      revalidateTag(`user_${ctx.user.get?.id}:todo:list`);
+      revalidateTag(`user_${ctx.user.get?.id}:todo:mini`);
       return {
         success: true,
         data: data,

@@ -13,7 +13,7 @@ export const GET = auth(async (req) => {
     );
   }
 
-  await (
+  const response = await (
     await api({
       session: req.auth,
     })
@@ -25,14 +25,7 @@ export const GET = auth(async (req) => {
     },
   );
 
-  return Response.json(
-    {
-      success: true,
-      data: null,
-      errors: [],
-    },
-    {
-      status: 200,
-    },
-  );
+  return Response.json(response, {
+    status: 200,
+  });
 });

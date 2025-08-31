@@ -65,7 +65,7 @@ export default function PeriodsPageClient({
   const [saving, setSaving] = useState(false);
   const [tzOffset, setTzOffset] = useState(0);
   const [observeDST, setObserveDST] = useState(observesDST);
-  const [use24HourMode, setUse24HourMode] = useState(false);
+  const [use24HourMode, setUse24HourMode] = useState(true);
 
   useEffect(() => {
     const tzOffset = new Date().getTimezoneOffset() / -60;
@@ -104,6 +104,8 @@ export default function PeriodsPageClient({
                         schoolId: schoolId,
                         id: crypto.randomUUID(),
                         name: `Standard ${length}`,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
                       },
                     ]);
                   }
@@ -238,6 +240,8 @@ export default function PeriodsPageClient({
                   schoolId: schoolId,
                   id: crypto.randomUUID(),
                   name: `Schedule ${prev.length + 1}`,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
                 },
               ])
             }
@@ -380,6 +384,8 @@ function ClassPeriodCreator({
                                   start: "",
                                   end: "",
                                 },
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
                               },
                             ],
                           }

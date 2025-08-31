@@ -104,10 +104,15 @@ export function FeedbackRenderer({ email }: { email: string }) {
         className="fixed right-0 bottom-0 m-4"
         onClick={async () => {
           setSaving(true);
-          await fetch("/api/todo/create", {
+          await fetch("/api/catalyst/feedback/provide", {
             method: "POST",
             body: JSON.stringify({
               title,
+              description,
+              category,
+              importance,
+              email,
+              pathname,
             }),
           });
           setSaving(false);
