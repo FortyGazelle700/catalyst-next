@@ -1,0 +1,435 @@
+.color-theme-default {
+  --ui-root: oklch(100% 0.01 150);
+  --ui-root-foreground: oklch(10% 0.05 150);
+  --ui-root-primary: oklch(60% 0.18 150);
+}
+
+.color-theme-default.dark {
+  --ui-root: oklch(5% 0.05 150);
+  --ui-root-foreground: oklch(100% 0.03 150);
+  --ui-root-primary: oklch(70% 0.3 150);
+}
+
+.color-theme-default.oled {
+  --ui-root: oklch(0% 0.001 150);
+  --ui-root-foreground: oklch(100% 0.03 150);
+  --ui-root-primary: oklch(65% 0.1 150);
+}
+
+/* Neutral */
+.color-theme-neutral {
+  --ui-root: oklch(98% 0.005 0);
+  --ui-root-foreground: oklch(15% 0.01 0);
+  --ui-root-primary: oklch(60% 0.02 0);
+}
+
+.color-theme-neutral.dark {
+  --ui-root: oklch(8% 0.01 0);
+  --ui-root-foreground: oklch(95% 0.005 0);
+  --ui-root-primary: oklch(70% 0.02 0);
+}
+
+.color-theme-neutral.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(98% 0.005 0);
+  --ui-root-primary: oklch(65% 0.01 0);
+}
+
+/* Stone */
+.color-theme-stone {
+  --ui-root: oklch(98% 0.008 40);
+  --ui-root-foreground: oklch(12% 0.02 40);
+  --ui-root-primary: oklch(60% 0.05 40);
+}
+
+.color-theme-stone.dark {
+  --ui-root: oklch(7% 0.015 40);
+  --ui-root-foreground: oklch(96% 0.008 40);
+  --ui-root-primary: oklch(70% 0.04 40);
+}
+
+.color-theme-stone.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(98% 0.01 40);
+  --ui-root-primary: oklch(65% 0.03 40);
+}
+
+/* Zinc */
+.color-theme-zinc {
+  --ui-root: oklch(98% 0.006 260);
+  --ui-root-foreground: oklch(13% 0.015 260);
+  --ui-root-primary: oklch(60% 0.03 260);
+}
+
+.color-theme-zinc.dark {
+  --ui-root: oklch(7% 0.012 260);
+  --ui-root-foreground: oklch(96% 0.006 260);
+  --ui-root-primary: oklch(70% 0.02 260);
+}
+
+.color-theme-zinc.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(98% 0.008 260);
+  --ui-root-primary: oklch(65% 0.02 260);
+}
+
+/* Slate */
+.color-theme-slate {
+  --ui-root: oklch(98% 0.01 220);
+  --ui-root-foreground: oklch(12% 0.025 220);
+  --ui-root-primary: oklch(60% 0.06 220);
+}
+
+.color-theme-slate.dark {
+  --ui-root: oklch(6% 0.02 220);
+  --ui-root-foreground: oklch(96% 0.01 220);
+  --ui-root-primary: oklch(70% 0.05 220);
+}
+
+.color-theme-slate.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(98% 0.012 220);
+  --ui-root-primary: oklch(65% 0.04 220);
+}
+
+/* Gray */
+.color-theme-gray {
+  --ui-root: oklch(98% 0.004 0);
+  --ui-root-foreground: oklch(14% 0.008 0);
+  --ui-root-primary: oklch(60% 0.02 0);
+}
+
+.color-theme-gray.dark {
+  --ui-root: oklch(8% 0.008 0);
+  --ui-root-foreground: oklch(95% 0.004 0);
+  --ui-root-primary: oklch(70% 0.01 0);
+}
+
+.color-theme-gray.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(98% 0.006 0);
+  --ui-root-primary: oklch(65% 0.01 0);
+}
+
+/* Red */
+.color-theme-red {
+  --ui-root: oklch(99% 0.008 30);
+  --ui-root-foreground: oklch(10% 0.04 30);
+  --ui-root-primary: oklch(60% 0.4 30);
+}
+
+.color-theme-red.dark {
+  --ui-root: oklch(4% 0.03 30);
+  --ui-root-foreground: oklch(98% 0.01 30);
+  --ui-root-primary: oklch(70% 0.3 30);
+}
+
+.color-theme-red.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.012 30);
+  --ui-root-primary: oklch(65% 0.25 30);
+}
+
+/* Orange */
+.color-theme-orange {
+  --ui-root: oklch(99% 0.01 50);
+  --ui-root-foreground: oklch(8% 0.035 50);
+  --ui-root-primary: oklch(65% 0.35 50);
+}
+
+.color-theme-orange.dark {
+  --ui-root: oklch(4% 0.025 50);
+  --ui-root-foreground: oklch(98% 0.012 50);
+  --ui-root-primary: oklch(72% 0.28 50);
+}
+
+.color-theme-orange.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.015 50);
+  --ui-root-primary: oklch(68% 0.2 50);
+}
+
+/* Amber */
+.color-theme-amber {
+  --ui-root: oklch(99% 0.012 85);
+  --ui-root-foreground: oklch(7% 0.03 85);
+  --ui-root-primary: oklch(70% 0.3 85);
+}
+
+.color-theme-amber.dark {
+  --ui-root: oklch(3% 0.02 85);
+  --ui-root-foreground: oklch(98% 0.015 85);
+  --ui-root-primary: oklch(75% 0.25 85);
+}
+
+.color-theme-amber.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.018 85);
+  --ui-root-primary: oklch(72% 0.18 85);
+}
+
+/* Yellow */
+.color-theme-yellow {
+  --ui-root: oklch(99% 0.015 100);
+  --ui-root-foreground: oklch(6% 0.025 100);
+  --ui-root-primary: oklch(75% 0.25 100);
+}
+
+.color-theme-yellow.dark {
+  --ui-root: oklch(3% 0.018 100);
+  --ui-root-foreground: oklch(98% 0.018 100);
+  --ui-root-primary: oklch(80% 0.2 100);
+}
+
+.color-theme-yellow.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.02 100);
+  --ui-root-primary: oklch(75% 0.15 100);
+}
+
+/* Lime */
+.color-theme-lime {
+  --ui-root: oklch(99% 0.012 120);
+  --ui-root-foreground: oklch(8% 0.03 120);
+  --ui-root-primary: oklch(70% 0.3 120);
+}
+
+.color-theme-lime.dark {
+  --ui-root: oklch(4% 0.022 120);
+  --ui-root-foreground: oklch(98% 0.015 120);
+  --ui-root-primary: oklch(75% 0.25 120);
+}
+
+.color-theme-lime.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.018 120);
+  --ui-root-primary: oklch(72% 0.18 120);
+}
+
+/* Green */
+.color-theme-green {
+  --ui-root: oklch(99% 0.01 145);
+  --ui-root-foreground: oklch(9% 0.035 145);
+  --ui-root-primary: oklch(65% 0.35 145);
+}
+
+.color-theme-green.dark {
+  --ui-root: oklch(4% 0.025 145);
+  --ui-root-foreground: oklch(98% 0.012 145);
+  --ui-root-primary: oklch(70% 0.28 145);
+}
+
+.color-theme-green.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.015 145);
+  --ui-root-primary: oklch(68% 0.2 145);
+}
+
+/* Emerald */
+.color-theme-emerald {
+  --ui-root: oklch(99% 0.008 160);
+  --ui-root-foreground: oklch(10% 0.032 160);
+  --ui-root-primary: oklch(65% 0.32 160);
+}
+
+.color-theme-emerald.dark {
+  --ui-root: oklch(5% 0.022 160);
+  --ui-root-foreground: oklch(98% 0.01 160);
+  --ui-root-primary: oklch(70% 0.25 160);
+}
+
+.color-theme-emerald.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.012 160);
+  --ui-root-primary: oklch(68% 0.18 160);
+}
+
+/* Teal */
+.color-theme-teal {
+  --ui-root: oklch(99% 0.006 180);
+  --ui-root-foreground: oklch(11% 0.03 180);
+  --ui-root-primary: oklch(60% 0.3 180);
+}
+
+.color-theme-teal.dark {
+  --ui-root: oklch(5% 0.02 180);
+  --ui-root-foreground: oklch(98% 0.008 180);
+  --ui-root-primary: oklch(68% 0.25 180);
+}
+
+.color-theme-teal.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.01 180);
+  --ui-root-primary: oklch(65% 0.18 180);
+}
+
+/* Cyan */
+.color-theme-cyan {
+  --ui-root: oklch(99% 0.005 195);
+  --ui-root-foreground: oklch(12% 0.028 195);
+  --ui-root-primary: oklch(65% 0.28 195);
+}
+
+.color-theme-cyan.dark {
+  --ui-root: oklch(5% 0.018 195);
+  --ui-root-foreground: oklch(98% 0.006 195);
+  --ui-root-primary: oklch(70% 0.22 195);
+}
+
+.color-theme-cyan.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.008 195);
+  --ui-root-primary: oklch(68% 0.16 195);
+}
+
+/* Sky */
+.color-theme-sky {
+  --ui-root: oklch(99% 0.004 210);
+  --ui-root-foreground: oklch(13% 0.025 210);
+  --ui-root-primary: oklch(50% 0.1 210);
+}
+
+.color-theme-sky.dark {
+  --ui-root: oklch(6% 0.015 210);
+  --ui-root-foreground: oklch(98% 0.005 210);
+  --ui-root-primary: oklch(70% 0.2 210);
+}
+
+.color-theme-sky.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.006 210);
+  --ui-root-primary: oklch(68% 0.15 210);
+}
+
+/* Blue */
+.color-theme-blue {
+  --ui-root: oklch(99% 0.003 230);
+  --ui-root-foreground: oklch(14% 0.03 230);
+  --ui-root-primary: oklch(60% 0.3 230);
+}
+
+.color-theme-blue.dark {
+  --ui-root: oklch(6% 0.02 230);
+  --ui-root-foreground: oklch(98% 0.004 230);
+  --ui-root-primary: oklch(68% 0.25 230);
+}
+
+.color-theme-blue.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.005 230);
+  --ui-root-primary: oklch(65% 0.18 230);
+}
+
+/* Indigo */
+.color-theme-indigo {
+  --ui-root: oklch(99% 0.002 250);
+  --ui-root-foreground: oklch(15% 0.032 250);
+  --ui-root-primary: oklch(58% 0.32 250);
+}
+
+.color-theme-indigo.dark {
+  --ui-root: oklch(6% 0.022 250);
+  --ui-root-foreground: oklch(98% 0.003 250);
+  --ui-root-primary: oklch(66% 0.26 250);
+}
+
+.color-theme-indigo.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.004 250);
+  --ui-root-primary: oklch(63% 0.2 250);
+}
+
+/* Violet */
+.color-theme-violet {
+  --ui-root: oklch(99% 0.003 270);
+  --ui-root-foreground: oklch(14% 0.035 270);
+  --ui-root-primary: oklch(60% 0.35 270);
+}
+
+.color-theme-violet.dark {
+  --ui-root: oklch(5% 0.025 270);
+  --ui-root-foreground: oklch(98% 0.004 270);
+  --ui-root-primary: oklch(68% 0.28 270);
+}
+
+.color-theme-violet.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.005 270);
+  --ui-root-primary: oklch(65% 0.22 270);
+}
+
+/* Purple */
+.color-theme-purple {
+  --ui-root: oklch(99% 0.002 290);
+  --ui-root-foreground: oklch(15% 0.032 290);
+  --ui-root-primary: oklch(58% 0.32 290);
+}
+
+.color-theme-purple.dark {
+  --ui-root: oklch(6% 0.022 290);
+  --ui-root-foreground: oklch(98% 0.003 290);
+  --ui-root-primary: oklch(66% 0.26 290);
+}
+
+.color-theme-purple.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.004 290);
+  --ui-root-primary: oklch(63% 0.2 290);
+}
+
+/* Fuchsia */
+.color-theme-fuchsia {
+  --ui-root: oklch(99% 0.004 320);
+  --ui-root-foreground: oklch(13% 0.038 320);
+  --ui-root-primary: oklch(62% 0.38 320);
+}
+
+.color-theme-fuchsia.dark {
+  --ui-root: oklch(5% 0.028 320);
+  --ui-root-foreground: oklch(98% 0.005 320);
+  --ui-root-primary: oklch(70% 0.3 320);
+}
+
+.color-theme-fuchsia.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.006 320);
+  --ui-root-primary: oklch(67% 0.24 320);
+}
+
+/* Pink */
+.color-theme-pink {
+  --ui-root: oklch(99% 0.005 340);
+  --ui-root-foreground: oklch(12% 0.035 340);
+  --ui-root-primary: oklch(65% 0.35 340);
+}
+
+.color-theme-pink.dark {
+  --ui-root: oklch(5% 0.025 340);
+  --ui-root-foreground: oklch(98% 0.006 340);
+  --ui-root-primary: oklch(72% 0.28 340);
+}
+
+.color-theme-pink.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.008 340);
+  --ui-root-primary: oklch(68% 0.22 340);
+}
+
+/* Rose */
+.color-theme-rose {
+  --ui-root: oklch(99% 0.006 10);
+  --ui-root-foreground: oklch(11% 0.036 10);
+  --ui-root-primary: oklch(62% 0.36 10);
+}
+
+.color-theme-rose.dark {
+  --ui-root: oklch(5% 0.026 10);
+  --ui-root-foreground: oklch(98% 0.007 10);
+  --ui-root-primary: oklch(70% 0.28 10);
+}
+
+.color-theme-rose.oled {
+  --ui-root: oklch(0% 0.001 0);
+  --ui-root-foreground: oklch(99% 0.009 10);
+  --ui-root-primary: oklch(67% 0.22 10);
+}

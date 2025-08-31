@@ -56,21 +56,15 @@
   --ui-muted-foreground: oklch(
     from var(--ui-root-primary) calc(l - 0.1) calc(c * 0.8) h
   );
-  --ui-accent: oklch(from var(--ui-root-primary) calc(l + 0.4) calc(c * 0.4) h);
+  --ui-accent: oklch(from var(--ui-root-primary) calc(l + 0.4) calc(c * 0.1) h);
   --ui-accent-foreground: oklch(
     from var(--ui-root-primary) calc(l - 0.2) calc(c * 1.2) h
   );
   --ui-destructive: oklch(0.577 0.245 27.325);
   --ui-destructive-foreground: oklch(0.577 0.245 27.325);
-  --ui-border: oklch(
-    from var(--ui-root) calc(l - 0.071) calc(c + 0.013) calc(h - 9.187)
-  );
-  --ui-input: oklch(
-    from var(--ui-root) calc(l - 0.071) calc(c + 0.013) calc(h - 9.187)
-  );
-  --ui-ring: oklch(
-    from var(--ui-root) calc(l - 0.131) calc(c + 0.022) calc(h - 11.801)
-  );
+  --ui-border: oklch(from var(--ui-root) calc(l - 0.071) calc(c + 0.013) h);
+  --ui-input: oklch(from var(--ui-root) calc(l - 0.071) calc(c + 0.013) h);
+  --ui-ring: oklch(from var(--ui-root) calc(l - 0.131) calc(c + 0.022) h);
   --ui-chart-1: oklch(0.646 0.222 41.116);
   --ui-chart-2: oklch(0.6 0.118 184.704);
   --ui-chart-3: oklch(0.398 0.07 227.392);
@@ -78,27 +72,25 @@
   --ui-chart-5: oklch(0.769 0.188 70.08);
   --radius: 1.5rem;
   --radius-xs: 0.5rem;
-  --ui-sidebar: oklch(
-    from var(--ui-root) calc(l - 0.016) calc(c + 0.003) calc(h - 16.837)
-  );
+  --ui-sidebar: oklch(from var(--ui-root) calc(l - 0.016) calc(c + 0.003) h);
   --ui-sidebar-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-sidebar-primary: oklch(
     from var(--ui-root-foreground) calc(l + 0.079) c h
   );
   --ui-sidebar-primary-foreground: oklch(
-    from var(--ui-root) calc(l - 0.016) calc(c + 0.003) calc(h - 16.837)
+    from var(--ui-root) calc(l - 0.016) calc(c + 0.003) h
   );
   --ui-sidebar-accent: oklch(
-    from var(--ui-root) calc(l - 0.032) calc(c + 0.007) calc(h - 16.799)
+    from var(--ui-root) calc(l - 0.032) calc(c + 0.007) h
   );
   --ui-sidebar-accent-foreground: oklch(
     from var(--ui-root-foreground) calc(l + 0.079) c h
   );
   --ui-sidebar-border: oklch(
-    from var(--ui-root) calc(l - 0.071) calc(c + 0.013) calc(h - 9.187)
+    from var(--ui-root) calc(l - 0.071) calc(c + 0.013) h
   );
   --ui-sidebar-ring: oklch(
-    from var(--ui-root) calc(l - 0.131) calc(c + 0.022) calc(h - 11.801)
+    from var(--ui-root) calc(l - 0.131) calc(c + 0.022) h
   );
 }
 
@@ -118,8 +110,7 @@
   --ui-secondary-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-muted: oklch(from var(--ui-root-primary) calc(l - 0.25) calc(c * 0.2) h);
   --ui-muted-foreground: oklch(
-    from var(--ui-root-foreground) calc(l - 0.28) calc(c + 0.037)
-      calc(h - 7.907)
+    from var(--ui-root-foreground) calc(l - 0.28) calc(c + 0.037) h
   );
   --ui-accent: oklch(from var(--ui-root-primary) calc(l - 0.4) calc(c * 0.4) h);
   --ui-accent-foreground: oklch(from var(--ui-root-foreground) l c h);
@@ -149,6 +140,13 @@
   );
 }
 
+@source inline('{bg,color}-{blue,green,lime,yellow,amber,red,grey}-{500}');
+@source inline('{bg,color}-{blue,green,lime,yellow,amber,red,grey}-{500}');
+@source inline('{bg}-{neutral,stone,zinc,slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-100');
+@source inline('hover:{bg}-{neutral,stone,zinc,slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-200');
+@source inline('{color}-{neutral,stone,zinc,slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-500');
+@source inline('dark:{bg}-{neutral,stone,zinc,slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-900');
+@source inline('dark:hover:{bg}-{neutral,stone,zinc,slate,gray,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-800');
 @theme inline {
   --color-background: var(--ui-background);
   --color-foreground: var(--ui-foreground);
@@ -187,16 +185,6 @@
   --color-sidebar-border: var(--ui-sidebar-border);
   --color-sidebar-ring: var(--ui-sidebar-ring);
 
-  --safe-00: var(--ui-color-blue-500);
-  --safe-01: var(--ui-color-green-500);
-  --safe-02: var(--ui-color-lime-500);
-  --safe-03: var(--ui-color-yellow-500);
-  --safe-04: var(--ui-color-amber-500);
-  --safe-05: var(--ui-color-red-500);
-  --safe-06: var(--ui-color-grey-500);
-  --safe-07: var(--ui-animate-accordion-up);
-  --safe-08: var(--ui-animate-accordion-down);
-  --safe-09: var(--ui-duration);
   --duration: 0.2s;
 
   --animate-shiny-text: shiny-text 8s infinite;

@@ -92,11 +92,15 @@ async function makeScheduleChanges(offset: number) {
 
 async function makeScheduledScheduleDaysHappen() {
   const db = global.db;
+  const tz = "America/New_York";
 
   await db
     .delete(scheduleDates)
     .where(
-      lt(scheduleDates.date, new Date(Temporal.Now.plainDateISO().toString())),
+      lt(
+        scheduleDates.date,
+        new Date(Temporal.Now.zonedDateTimeISO(tz).toPlainDate().toString()),
+      ),
     );
 
   const schoolsToUpdate = await db.select().from(schools);
@@ -110,9 +114,8 @@ async function makeScheduledScheduleDaysHappen() {
     for (const item of schedule) {
       if (item?.scheduleId == "") continue;
 
-      const templateDate = Temporal.PlainDate.from(
-        Temporal.Now.plainDateISO(),
-      ).add({ days: 3 + item.repeat });
+      const today = Temporal.Now.zonedDateTimeISO(tz).toPlainDate();
+      const templateDate = today.add({ days: 3 + item.repeat });
       const date = new Date(templateDate.toString());
       date.setUTCHours(0, 0, 0, 0);
 

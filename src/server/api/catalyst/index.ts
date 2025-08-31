@@ -5,6 +5,10 @@ import { type ApiCtx } from "@/server/api";
 export async function catalyst(ctx: ApiCtx) {
   return {
     realtime: await import("./realtime").then((mod) => mod.default(ctx)),
+    pro: {
+      pricing: await (await import("./pro/pricing")).default(ctx),
+      pay: await (await import("./pro/pay")).default(ctx),
+    },
     schools: {
       members: await (await import("./schools/members")).default(ctx),
       find: await (await import("./schools/find")).default(ctx),
@@ -68,6 +72,7 @@ export async function catalyst(ctx: ApiCtx) {
           await import("./account/settings/set-periods")
         ).default(ctx),
       },
+      isPro: await (await import("./account/is-pro")).default(ctx),
     },
     support: {
       feedback: {

@@ -32,6 +32,7 @@ export default function DestructionSettings({
   setLink: Dispatch<SetStateAction<string>>;
   settings: ApiCtx["user"]["settings"];
   setSettings: Dispatch<SetStateAction<ApiCtx["user"]["settings"]>>;
+  isPro: boolean;
 }) {
   const [deleting, setDeleting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);

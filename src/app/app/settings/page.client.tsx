@@ -67,6 +67,7 @@ export default function SettingsClientRenderer({
   modal?: boolean;
 }) {
   const [settings, setSettings] = useState<ApiCtx["user"]["settings"]>({});
+  const [isPro, setIsPro] = useState(false);
   const [defaultSettings, setDefaultSettings] = useState<
     ApiCtx["user"]["settings"]
   >({});
@@ -101,6 +102,16 @@ export default function SettingsClientRenderer({
       setSettings(res.data ?? {});
       setDefaultSettings(res.data ?? {});
     })().catch(console.error);
+
+    (async () => {
+      const req = await fetch("/api/catalyst/account/isPro");
+      const res = (await req.json()) as {
+        data: boolean;
+        errors: { message: string }[];
+        success: boolean;
+      };
+      setIsPro(res.data ?? false);
+    })().catch(console.error);
   }, []);
 
   const SettingPageRenderer = useMemo(() => {
@@ -113,6 +124,7 @@ export default function SettingsClientRenderer({
             settings: ApiCtx["user"]["settings"];
             setSettings: (settings: ApiCtx["user"]["settings"]) => void;
             defaultSettings: ApiCtx["user"]["settings"];
+            isPro: boolean;
           }>;
         };
         try {
@@ -165,6 +177,7 @@ export default function SettingsClientRenderer({
               settings={settings}
               setSettings={setSettings}
               defaultSettings={defaultSettings}
+              isPro={isPro}
             />
           ) : (
             <div className="flex w-full flex-col gap-4">
@@ -188,6 +201,7 @@ export default function SettingsClientRenderer({
           setSettings={setSettings}
           defaultSettings={defaultSettings}
           setDefaultSettings={setDefaultSettings}
+          isPro={isPro}
         />
       </div>
     </div>
@@ -201,6 +215,7 @@ function ModuleSidebar({
   setSettings,
   defaultSettings,
   setDefaultSettings,
+  isPro,
 }: {
   link: string;
   setLink: (link: string) => void;
@@ -208,6 +223,7 @@ function ModuleSidebar({
   setSettings: (settings: Record<string, string>) => void;
   defaultSettings: Record<string, string>;
   setDefaultSettings: (settings: Record<string, string>) => void;
+  isPro: boolean;
 }) {
   const hasSettingsChanged = useMemo(
     () =>
@@ -322,7 +338,7 @@ function ModuleSidebar({
             >
               <div className="animate-gradient-shift absolute inset-0 -z-10 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-size-[500%_100%] opacity-25 transition-opacity group-hover:!opacity-40 group-data-[active='true']:opacity-60" />
               <div className="bg-sidebar absolute inset-0.75 -z-10 rounded-full transition-all group-hover:inset-5 group-data-[active='true']:inset-5" />
-              <Gem /> Upgrade to Pro
+              <Gem /> {isPro ? "Pro Status" : "Upgrade to Pro"}
             </Button>
             <Button
               variant="ghost"

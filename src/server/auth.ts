@@ -7,6 +7,7 @@ import {
   users,
   verificationTokens,
   ipData,
+  proUsers,
 } from "./db/schema";
 import postgres from "postgres";
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
@@ -50,6 +51,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         $client: postgres.Sql<Record<string, never>>;
       };
 
+      const isPro =
+        (
+          await db
+            .select()
+            .from(proUsers)
+            .where(eq(proUsers.userId, user.id))
+            .limit(1)
+        ).length > 0;
+
       ipInfo = await unstable_cache(async () => {
         if (ipInfo != undefined) return ipInfo;
         const dbReq = await db
@@ -85,6 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             });
         }
         global.ipRequests.set(ip, ipInfo!);
+        return ipInfo;
       }, [`ip_log_${ip}`])();
 
       const row = (
@@ -138,10 +149,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (
-        (row.userAgent ?? ua) != ua // ||
-        // (((row.country ?? ipInfo?.country) != ipInfo?.country ||
-        //   (row.region ?? ipInfo?.regionName) != ipInfo?.regionName) &&
-        //   row.ip != ip)
+        (row.userAgent ?? ua) != ua ||
+        (((row.country ?? ipInfo?.country) != ipInfo?.country ||
+          (row.region ?? ipInfo?.regionName) != ipInfo?.regionName) &&
+          row.ip != ip)
       ) {
         console.warn("Session data mismatch detected", {
           sessionToken: session.sessionToken,
@@ -182,6 +193,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         user: {
           ...session.user,
           id: user?.id ?? "",
+          isPro,
         },
       };
     },

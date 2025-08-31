@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Providers } from "../components/util/providers";
 
 import "./globals.css";
+import "./pro.globals.css";
 import { auth } from "@/server/auth";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: {
@@ -58,8 +60,14 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
+  const cks = await cookies();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`color-theme-${cks.get("color-theme")?.value ?? "default"}`}
+      suppressHydrationWarning
+    >
       <body className="bg-sidebar !pt-[env(safe-area-inset-top)] !pr-[env(safe-area-inset-right)] !pb-[env(safe-area-inset-bottom)] !pl-[env(safe-area-inset-left)] antialiased">
         <Providers user={session?.user}>{children}</Providers>
       </body>

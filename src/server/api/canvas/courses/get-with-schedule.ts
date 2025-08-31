@@ -23,7 +23,7 @@ export type SchedulePeriodWithCourse = {
       }
     | {
         type: "single_select";
-        data: InferSelectModel<typeof periods>;
+        data: boolean;
       };
 };
 
@@ -149,10 +149,10 @@ export default async function currentScheduleWithCourses(ctx: CanvasApiCtx) {
 
       // Build the schedule by combining period times with courses
       const scheduleWithCourses: SchedulePeriodWithCourse[] = periodTimesList
-        .filter(
-          (pt, idx) =>
-            idx == periodTimesList.findIndex((p) => p.optionId == pt.optionId),
-        )
+        // .filter(
+        //   (pt, idx) =>
+        //     idx == periodTimesList.findIndex((p) => p.optionId == pt.optionId),
+        // )
         .map((periodTime) => {
           const period = schoolPeriods.find(
             (p) => p.optionId == periodTime.optionId,
@@ -168,34 +168,25 @@ export default async function currentScheduleWithCourses(ctx: CanvasApiCtx) {
 
           let option: SchedulePeriodWithCourse["option"] = undefined;
 
-          if (periodAssignment) {
-            // Check if it's a course (numeric value) or single select option
-            const assignmentValue = periodAssignment.value;
-            const numericValue = Number(assignmentValue);
+          const assignmentValue = periodAssignment?.value;
+          const numericValue = Number(assignmentValue);
 
-            // console.log("data", coursesResult.data);
-
-            if (period.type == "course") {
-              const course = coursesResult.data?.find(
-                (c) => c.id == numericValue,
-              );
-              option = {
-                type: "course",
-                data: course,
-              };
-            } else if (period.type == "single") {
-              option = {
-                type: "single_select",
-                data: schoolPeriods.find(
-                  (p) => p.optionId == periodTime.optionId,
-                ) ?? {
-                  ...period,
-                },
-              };
-            }
+          if (period.type == "course") {
+            const course = coursesResult.data?.find(
+              (c) => c.id == numericValue,
+            );
+            option = {
+              type: "course",
+              data: course,
+            };
+          } else if (period.type == "single") {
+            option = {
+              type: "single_select",
+              data: !!periodValues.find(
+                (pv) => pv.value == periodTime.optionId,
+              ),
+            };
           }
-
-          // console.log("opt", option);
 
           return {
             period,
@@ -227,25 +218,22 @@ export default async function currentScheduleWithCourses(ctx: CanvasApiCtx) {
       };
     };
 
-    // if ((input?.useCache) ?? true) {
-    //   const dateKey = input.date
-    //     ? input.date.toISOString().split("T")[0]
-    //     : "today";
-    //   return await unstable_cache(
-    //     getCurrentScheduleWithCourses,
-    //     [
-    //       `user_${ctx.user.get?.id}:schedule:current_with_courses`,
-    //       `user_${ctx.user.get?.id}:schedule:current_with_courses@date=${dateKey}`,
-    //     ],
-    //     {
-    //       revalidate: 300, // 5 minutes cache
-    //       tags: [
-    //         `user_${ctx.user.get?.id}:schedule:current_with_courses`,
-    //         `user_${ctx.user.get?.id}:course:list_with_data`,
-    //       ],
-    //     },
-    //   )();
-    // }
+    if (input?.useCache ?? true) {
+      const dateKey = input.date
+        ? input.date.toISOString().split("T")[0]
+        : "today";
+      return await unstable_cache(
+        getCurrentScheduleWithCourses,
+        [ctx.user.get?.id ?? "", dateKey ?? "", String(new Date().getDate())],
+        {
+          revalidate: 300, // 5 minutes cache
+          tags: [
+            `user_${ctx.user.get?.id}:schedule:current_with_courses`,
+            `user_${ctx.user.get?.id}:course:list_with_data`,
+          ],
+        },
+      )();
+    }
 
     return await getCurrentScheduleWithCourses();
   };

@@ -30,6 +30,7 @@ export default function GeneralSettings({
   setLink: (link: string) => void;
   settings: ApiCtx["user"]["settings"];
   setSettings: (settings: ApiCtx["user"]["settings"]) => void;
+  isPro: boolean;
 }) {
   const [sessions, setSessions] = useState<SessionResult[]>([]);
   const [loading, setLoading] = useState(true);

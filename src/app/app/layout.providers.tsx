@@ -58,6 +58,9 @@ type PipItem = {
   canOpen: () => boolean;
 };
 export const PipContext = createContext<Record<string, PipItem> | null>(null);
+export const ColorThemeContext = createContext<
+  [string, Dispatch<SetStateAction<string>>] | [null, null]
+>([null, null]);
 
 function TimeProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(new Date());
@@ -333,6 +336,10 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
     let closestPeriod: ScheduleContextValue[0] | undefined;
 
     for (const period of newSchedule) {
+      if (period.option?.type == "course" && !period.option?.data?.id) continue;
+      if (period.option?.type == "single_select" && !period.option?.data)
+        continue;
+
       const timeToStart =
         (period.time?.start?.getTime() ?? 0) - new Date().getTime();
       const timeToEnd =
@@ -349,7 +356,7 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
 
     if (closestPeriod && closestTime < 1000 * 60 * 60 * 2) {
       newSchedule = newSchedule.map((period) => {
-        if (period.period.id == closestPeriod.period.id) {
+        if (period.period.id == closestPeriod!.period.id) {
           return {
             ...period,
             time: {
@@ -360,6 +367,38 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
         }
         return period;
       });
+    }
+
+    if (!newSchedule.find((period) => period.time.activePinned)) {
+      for (const period of newSchedule) {
+        const timeToStart =
+          (period.time?.start?.getTime() ?? 0) - new Date().getTime();
+        const timeToEnd =
+          (period.time?.end?.getTime() ?? 0) - new Date().getTime();
+        if (timeToStart > 0 && timeToStart < closestTime) {
+          closestTime = timeToStart;
+          closestPeriod = period;
+        }
+        if (timeToEnd > 0 && timeToEnd < closestTime) {
+          closestTime = timeToEnd;
+          closestPeriod = period;
+        }
+      }
+
+      if (closestPeriod && closestTime < 1000 * 60 * 60 * 2) {
+        newSchedule = newSchedule.map((period) => {
+          if (period.period.id == closestPeriod!.period.id) {
+            return {
+              ...period,
+              time: {
+                ...period.time,
+                activePinned: true,
+              },
+            };
+          }
+          return period;
+        });
+      }
     }
 
     if (
@@ -504,7 +543,7 @@ export function PipProvider({ children }: { children: React.ReactNode }) {
             iframe.style.width = "100vw";
             iframe.style.height = "100vh";
             iframe.style.border = "none";
-            iframe.src = `/pip/${key}`;
+            iframe.src = `/pip?window=${key}`;
             win.document.body.append(iframe);
             win.addEventListener("message", (e) => {
               const evt = e.data as {
@@ -563,12 +602,69 @@ export function usePip() {
   return context;
 }
 
+export function useColorTheme() {
+  const context = useContext(ColorThemeContext);
+  if (!context) {
+    console.warn("useColorTheme is still loading");
+  }
+  return context;
+}
+
+export function ColorThemeProvider({
+  children,
+  colorTheme,
+  isPro,
+}: {
+  children: React.ReactNode;
+  colorTheme: string;
+  isPro: boolean;
+}) {
+  const [theme, setTheme] = useState<string>(colorTheme ?? "default");
+
+  useEffect(() => {
+    const annoyingInterval = setInterval(() => {
+      setCookie("color-theme", isPro ? theme : "default", 365);
+      if (isPro) {
+        for (const cls of Array.from(document.documentElement.classList)) {
+          if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
+            continue;
+          document.documentElement.classList.remove(cls);
+        }
+        document.documentElement.classList.add(`color-theme-${theme}`);
+      } else {
+        for (const cls of Array.from(document.documentElement.classList)) {
+          if (!cls.startsWith("color-theme-") || cls == `color-theme-default`)
+            continue;
+          document.documentElement.classList.remove(cls);
+        }
+        document.documentElement.classList.add(`color-theme-default`);
+
+        if (theme != "default") {
+          setTheme("default");
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(annoyingInterval);
+  }, [theme, setTheme, isPro]);
+
+  return (
+    <ColorThemeContext.Provider value={[theme, setTheme]}>
+      {children}
+    </ColorThemeContext.Provider>
+  );
+}
+
 export function AppLayoutProviders({
   children,
   courses,
+  colorTheme,
+  isPro,
 }: {
   children: React.ReactNode;
   courses: CourseListWithPeriodDataOutput;
+  colorTheme: string;
+  isPro: boolean;
 }) {
   if (typeof window != "undefined") {
     window.globalDebug ??= {};
@@ -577,16 +673,28 @@ export function AppLayoutProviders({
   return (
     <SessionVerificationProvider>
       <CommandMenuProvider>
-        <TimeProvider>
-          <CourseProvider courses={courses}>
-            <ScheduleProvider>
-              <PubSubProvider>
-                <PipProvider>{children}</PipProvider>
-              </PubSubProvider>
-            </ScheduleProvider>
-          </CourseProvider>
-        </TimeProvider>
+        <ColorThemeProvider colorTheme={colorTheme} isPro={isPro}>
+          <TimeProvider>
+            <CourseProvider courses={courses}>
+              <ScheduleProvider>
+                <PubSubProvider>
+                  <PipProvider>{children}</PipProvider>
+                </PubSubProvider>
+              </ScheduleProvider>
+            </CourseProvider>
+          </TimeProvider>
+        </ColorThemeProvider>
       </CommandMenuProvider>
     </SessionVerificationProvider>
   );
+}
+
+function setCookie(name: string, value: string, days: number) {
+  const expires = (() => {
+    if (!days) return "";
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    return "; expires=" + date.toUTCString();
+  })();
+  document.cookie = `${name}=${encodeURIComponent(value)}${expires}; path=/`;
 }

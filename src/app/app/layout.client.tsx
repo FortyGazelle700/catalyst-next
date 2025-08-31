@@ -566,7 +566,7 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
-  const courseTotalDuration = useMemo(
+  const _courseTotalDuration = useMemo(
     () =>
       Temporal.Instant.from(
         currentCourse?.time.start?.toISOString() ?? now.toISOString(),
@@ -808,7 +808,7 @@ export function ScheduleWidget() {
                 >
                   <SubjectIcon
                     subject={currentCourse?.classification ?? ""}
-                    className="text-primary size-4"
+                    className="text-foreground size-4"
                   />
                 </div>
                 <h3 className="h4">{currentCourse?.classification}</h3>
@@ -1022,10 +1022,10 @@ export function AppSidebarClient({
             <SidebarMenuButton asChild>
               <Link
                 href="/app"
-                className="group-[[data-state='collapsed']]:!bg-sidebar group h-10 pl-3 [&:hover>*[data-icon]]:bg-green-400"
+                className="group-[[data-state='collapsed']]:!bg-sidebar group [&:hover>*[data-icon]]:bg-primary/60 h-10 pl-3"
               >
                 <div
-                  className="flex aspect-square size-6 items-center justify-center rounded-lg bg-green-500 text-black transition-all group-[[data-state='collapsed']]:-ml-1"
+                  className="bg-primary/80 text-foreground flex aspect-square size-6 items-center justify-center rounded-lg transition-all group-[[data-state='collapsed']]:-ml-1"
                   data-icon
                 >
                   <FlaskConical className="size-4" />

@@ -185,6 +185,41 @@ export const BreadcrumbBits = {
       </BreadcrumbRender>
     </BreadcrumbItem>
   ),
+  Social: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/social">
+        Social
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  SocialCanvas: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/social/chats/canvas">
+        Canvas
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  SocialCanvasMessage: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/social/chats/canvas/[id]">
+        Message
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  Upgrade: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/settings?page=/upgrade">
+        Upgrade
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  UpgradeSuccess: ({ asLink = true }: { asLink?: boolean }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender asLink={asLink} href="/app/settings?page=/upgrade">
+        Success
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
   Courses: ({ asLink = true }: { asLink?: boolean }) => (
     <BreadcrumbItem>
       <BreadcrumbRender asLink={asLink} href="/app/courses">
@@ -594,6 +629,64 @@ export function Breadcrumbs({
                       schoolId={params.id ?? ""}
                       asLink={false}
                     />
+                  </>
+                );
+              case "/app/social":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Social />
+                  </>
+                );
+              case "/app/social/chats":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Social />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SocialCanvas asLink={false} />
+                  </>
+                );
+              case "/app/social/chats/canvas":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Social />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SocialCanvas asLink={false} />
+                  </>
+                );
+              case "/app/social/chats/canvas/[id]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Social />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SocialCanvas asLink={false} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SocialCanvasMessage asLink={false} />
+                  </>
+                );
+              case "/app/upgrade/confirm":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Upgrade asLink={false} />
+                  </>
+                );
+              case "/app/upgrade/success":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Upgrade asLink={true} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.UpgradeSuccess asLink={false} />
                   </>
                 );
               case "/app/courses":

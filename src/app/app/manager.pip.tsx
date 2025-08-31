@@ -250,7 +250,7 @@ export const pipManager = {
                       >
                         <SubjectIcon
                           subject={currentCourse?.classification ?? ""}
-                          className="text-primary size-4"
+                          className="text-foreground size-4"
                         />
                       </div>
                       <h3 className="h4">{currentCourse?.classification}</h3>
