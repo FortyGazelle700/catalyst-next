@@ -9,7 +9,6 @@ export default async function provideFeedback(ctx: ApiCtx) {
     title: string;
     description: string;
     pathname: string;
-    date: Date;
   }) => {
     const { feedback } = await import("@/server/db/schema");
 
@@ -20,7 +19,7 @@ export default async function provideFeedback(ctx: ApiCtx) {
       description: input.description,
       pathname: input.pathname,
       userId: ctx.user.get?.id ?? "<unknown>",
-      date: input.date.toISOString(),
+      date: new Date(),
     });
     return {
       success: true,

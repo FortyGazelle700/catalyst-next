@@ -30,6 +30,8 @@ export default async function ScheduleDatesPage({
       schoolId: id,
       scheduleId: "",
       repeat: datesSchedule.length,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   }
 

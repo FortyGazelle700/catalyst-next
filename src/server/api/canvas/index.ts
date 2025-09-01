@@ -23,6 +23,9 @@ export async function canvas($ctx: ApiCtx) {
       listWithPeriodData: await (
         await import("./courses/list-with-period-data")
       ).default(ctx),
+      getWithSchedule: await (
+        await import("./courses/get-with-schedule")
+      ).default(ctx),
       syllabus: await (await import("./courses/syllabus")).default(ctx),
       frontPage: await (await import("./courses/front-page")).default(ctx),
       people: await (await import("./courses/people")).default(ctx),

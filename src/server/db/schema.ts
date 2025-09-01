@@ -34,6 +34,14 @@ export const users = pgTable("user", {
   }).default(sql`CURRENT_TIMESTAMP`),
   realtimeSecret: varchar("realtime_secret", { length: 256 }),
   image: varchar("image", { length: 255 }),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const proUsers = pgTable("pro_user", {
@@ -47,6 +55,14 @@ export const proUsers = pgTable("pro_user", {
   expires: timestamp("expires", {
     mode: "date",
   }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -73,6 +89,14 @@ export const accounts = pgTable(
     scope: varchar("scope", { length: 255 }),
     id_token: text("id_token"),
     session_state: varchar("session_state", { length: 255 }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (account) => ({
     compoundKey: primaryKey({
@@ -165,6 +189,14 @@ export const settings = pgTable(
     userId: varchar("user_id", { length: 255 }).notNull(),
     key: varchar("key", { length: 255 }).notNull(),
     value: text("value"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (setting) => ({
     userIdIdx: index("setting_user_id_idx").on(setting.userId),
@@ -202,6 +234,14 @@ export const schools = pgTable(
     isPublic: boolean("is_public"),
     observeDST: boolean("observe_dst").default(false),
     timezone: varchar("timezone", { length: 64 }).default("America/New_York"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (school) => ({
     nameIdx: index("school_name_idx").on(school.name),
@@ -221,6 +261,14 @@ export const schoolPermissions = pgTable(
       .references(() => schools.id, { onDelete: "cascade" }),
     userId: varchar("user_id", { length: 255 }).notNull(),
     role: varchar("role", { length: 32 }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (schoolPermission) => ({
     schoolIdIdx: index("school_permission_school_id_idx").on(
@@ -252,6 +300,14 @@ export const periods = pgTable(
     type: periodType("period_type"),
     periodOrder: integer("period_order"),
     optionOrder: integer("option_order"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (period) => ({
     periodIdIdx: index("period_period_id_idx").on(period.periodId),
@@ -267,6 +323,14 @@ export const schedules = pgTable("schedule", {
     .$defaultFn(() => crypto.randomUUID()),
   schoolId: varchar("school_id", { length: 255 }),
   name: varchar("name", { length: 32 }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const periodTimes = pgTable(
@@ -282,6 +346,14 @@ export const periodTimes = pgTable(
     scheduleId: varchar("schedule_id", { length: 255 }).notNull(),
     start: varchar("start").notNull(),
     end: varchar("end").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (periodTime) => ({
     optionIdIdx: index("period_time_option_id_idx").on(periodTime.optionId),
@@ -318,6 +390,14 @@ export const scheduleValues = pgTable(
     userId: varchar("user_id", { length: 255 }).notNull(),
     periodId: varchar("period_id", { length: 255 }).notNull(),
     value: varchar("value", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (scheduleValue) => ({
     userIdIdx: index("schedule_value_user_id_idx").on(scheduleValue.userId),
@@ -339,6 +419,14 @@ export const scheduleDates = pgTable(
     date: timestamp("date", {
       mode: "date",
     }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (scheduleDate) => ({
     schoolIdIdx: index("schedule_date_school_id_idx").on(scheduleDate.schoolId),
@@ -355,6 +443,14 @@ export const scheduleDatesSchedule = pgTable(
     schoolId: varchar("school_id", { length: 255 }).notNull(),
     scheduleId: varchar("schedule_id", { length: 255 }).notNull(),
     repeat: integer("repeat").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (scheduleDate) => ({
     schoolIdIdx: index("schedule_date_schedules_school_id_idx").on(
@@ -384,6 +480,14 @@ export const notifications = pgTable(
     data: jsonb("data"),
     dismissed: boolean("dismissed").notNull().default(false),
     sentAt: timestamp("sent_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (notification) => ({
     userIdIdx: index("notification_user_id_idx").on(notification.userId),
@@ -393,6 +497,14 @@ export const notifications = pgTable(
 export const ipData = pgTable("cache_ip_data", {
   ip: varchar("ip", { length: 512 }).notNull().primaryKey(),
   data: jsonb("data"),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const courseClassification = pgTable("cache_course_classification", {
@@ -402,6 +514,14 @@ export const courseClassification = pgTable("cache_course_classification", {
     .$defaultFn(() => crypto.randomUUID()),
   key: varchar("key", { length: 255 }).notNull(),
   value: varchar("value"),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const userRelationships = pgTable(
@@ -415,6 +535,14 @@ export const userRelationships = pgTable(
     relatedUserId: varchar("related_user_id", { length: 255 }).notNull(),
     defaultChatId: varchar("default_chat_id", { length: 255 }),
     state: userRelationState("relation_state").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (userRelationship) => ({
     userIdIdx: index("user_relationship_user_id_idx").on(
@@ -437,6 +565,14 @@ export const chats = pgTable(
     members: jsonb("members")
       .notNull()
       .$type<{ data: Array<{ userId: string }> }>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (chat) => ({
     nameIdx: index("chat_name_idx").on(chat.name),
@@ -462,6 +598,14 @@ export const chatMessages = pgTable(
       .notNull()
       .$type<Array<{ userId: string; reaction: string }>>()
       .default([]),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (chatMessage) => ({
     chatIdIdx: index("chat_message_chat_id_idx").on(chatMessage.chatId),
@@ -480,5 +624,13 @@ export const feedback = pgTable("feedback", {
   title: varchar("title", { length: 255 }).notNull(),
   description: varchar("description", { length: 255 }).notNull(),
   pathname: varchar("pathname", { length: 255 }).notNull(),
-  date: timestamp("date", { mode: "string" }).notNull(),
+  date: timestamp("date", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });

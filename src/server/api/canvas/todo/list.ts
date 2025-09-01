@@ -5,12 +5,8 @@ import type { Assignment, CanvasErrors, Course, PlannerItem } from "../types";
 
 export type TodoListInput = {
   search: {
-    title: {
-      includes: string;
-    };
-    description: {
-      includes: string;
-    };
+    title: string;
+    description: string;
     start: Date;
     end: Date;
     completed: "yes" | "no" | "all";
@@ -64,20 +60,20 @@ export default async function todoList(ctx: CanvasApiCtx) {
         };
       }
       data = data.filter((item) => {
-        if (input.search.title.includes) {
+        if (input.search.title) {
           if (
             !item.plannable.title
               .toLowerCase()
-              .includes(input.search.title.includes.toLowerCase())
+              .includes(input.search.title.toLowerCase())
           ) {
             return false;
           }
         }
-        if (input.search.description.includes) {
+        if (input.search.description) {
           if (
             String(!item.plannable.content_details)
               .toLowerCase()
-              .includes(input.search.description.includes.toLowerCase())
+              .includes(input.search.description.toLowerCase())
           ) {
             return false;
           }

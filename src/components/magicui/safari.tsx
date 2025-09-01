@@ -141,7 +141,7 @@ export function Safari({
           x="1"
           y="52"
           width="1200"
-          height="700"
+          height="800"
           preserveAspectRatio="xMidYMid slice"
           clipPath="url(#roundedBottom)"
         >

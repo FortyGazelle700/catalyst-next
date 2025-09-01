@@ -72,8 +72,18 @@ async function AppLayout({
     [session?.user?.id ?? "", "courses"],
   )();
 
+  const { data: isPro } = await (await api({})).catalyst.account.isPro();
+
+  const { data: settings } = await (
+    await api({ session })
+  ).catalyst.account.settings.list();
+
   return (
-    <AppLayoutProviders courses={courses}>
+    <AppLayoutProviders
+      courses={courses}
+      isPro={isPro}
+      colorTheme={isPro ? (settings.color_theme ?? "default") : "default"}
+    >
       <SidebarProvider
         defaultOpen={sidebarOpen == "true"}
         data-default-open={sidebarOpen == "true"}

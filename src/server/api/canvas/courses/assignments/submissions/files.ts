@@ -3,11 +3,15 @@
 import PostHogClient from "@/server/posthog";
 import type { CanvasApiCtx } from "../../..";
 import type { Submission } from "../../../types";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export type FrontPageInput = {
   courseId: number;
   assignmentId: number;
-  files: File[];
+  files: {
+    url: string;
+    file: File;
+  }[];
 };
 
 export default async function createFileSubmission(ctx: CanvasApiCtx) {
@@ -23,7 +27,6 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
       },
     });
     const submit = async () => {
-      const { del, put } = await import("@vercel/blob");
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
           success: false,
@@ -38,14 +41,10 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
       const fileIds: number[] = [];
       for (const file of input.files) {
         const data = new FormData();
-        const blob = await put(`uploads/${file.name}`, file, {
-          access: "public",
-          token: process.env.BLOB_TOKEN,
-        });
-        data.append("url", blob.url);
-        data.append("name", file.name);
-        data.append("size", file.size.toString());
-        data.append("content_type", file.type);
+        data.append("url", file.url);
+        data.append("name", file.file.name);
+        data.append("size", file.file.size.toString());
+        data.append("content_type", file.file.type);
 
         const res = await fetch(
           new URL(
@@ -86,9 +85,9 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
           | { upload_url: undefined; id: number };
         if (response?.upload_url) {
           const uploadData = new FormData();
-          uploadData.append("target_url", blob.url);
-          uploadData.append("filename", file.name);
-          uploadData.append("content_type", file.type);
+          uploadData.append("target_url", file.url);
+          uploadData.append("filename", file.file.name);
+          uploadData.append("content_type", file.file.type);
           const upload = await fetch(response.upload_url, {
             method: "POST",
             body: uploadData,
@@ -111,9 +110,21 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
           fileIds.push(response?.id ?? 0);
         }
         try {
-          await del(blob.url, {
-            token: process.env.BLOB_TOKEN,
+          const s3 = new S3Client({
+            region: process.env.S3_REGION!,
+            credentials: {
+              accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+            },
+            endpoint: process.env.S3_ENDPOINT,
+            forcePathStyle: true,
           });
+          await s3.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.S3_BUCKET!,
+              Key: file.file.name,
+            }),
+          );
         } catch (err) {
           console.error(err);
         }

@@ -10,6 +10,7 @@ export default async function realtime(ctx: ApiCtx) {
     host: process.env.NEXT_PUBLIC_PUSHER_HOST ?? "",
     secret: process.env.PUSHER_APP_KEY_SECRET ?? "",
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
+    useTLS: true,
   });
 
   function encrypt(plaintext: string) {
@@ -46,7 +47,7 @@ export default async function realtime(ctx: ApiCtx) {
       event: string,
       data: Record<string, unknown> | string,
     ) => {
-      await pusher.sendToUser(userId, event, JSON.stringify(data));
+      await pusher.sendToUser(`${userId}`, event, JSON.stringify(data));
       return { success: true, data: data, errors: [] };
     },
     sendToUserEncrypted: async (
@@ -55,7 +56,7 @@ export default async function realtime(ctx: ApiCtx) {
       plaintext: Record<string, unknown> | string,
     ) => {
       const encrypted = encrypt(JSON.stringify(plaintext));
-      await pusher.sendToUser(userId, event, encrypted);
+      await pusher.sendToUser(`${userId}`, event, encrypted);
       return { success: true, data: encrypted, errors: [] };
     },
   };

@@ -1,7 +1,11 @@
 "use client";
 
 import { useContext, useMemo, useRef } from "react";
-import { CoursesContext, TimeContext } from "./layout.providers";
+import {
+  CoursesContext,
+  ScheduleContext,
+  TimeContext,
+} from "./layout.providers";
 import { Temporal } from "@js-temporal/polyfill";
 import {
   House,
@@ -27,6 +31,7 @@ export const pipManager = {
     Render: () => {
       const now = useContext(TimeContext);
       const courses = useContext(CoursesContext);
+      const schedule = useContext(ScheduleContext);
 
       const container = useRef<HTMLDivElement>(null);
 
@@ -45,6 +50,10 @@ export const pipManager = {
         forceUpdates: true,
       });
 
+      const currentPeriod = useMemo(() => {
+        return schedule?.find((period) => period.time?.activePinned);
+      }, [schedule]);
+
       const currentCourse = useMemo(() => {
         return courses?.find((course) => course.time?.activePinned);
       }, [courses]);
@@ -53,45 +62,45 @@ export const pipManager = {
         () =>
           Temporal.Instant.from(now.toISOString()).until(
             Temporal.Instant.from(
-              currentCourse?.time.start?.toISOString() ?? now.toISOString(),
+              currentPeriod?.time.start?.toISOString() ?? now.toISOString(),
             ),
             { largestUnit: "hour", smallestUnit: "seconds" },
           ),
-        [now, currentCourse],
+        [now, currentPeriod],
       );
 
       const timeLeft = useMemo(
         () =>
           Temporal.Instant.from(now.toISOString()).until(
             Temporal.Instant.from(
-              currentCourse?.time.end?.toISOString() ?? now.toISOString(),
+              currentPeriod?.time.end?.toISOString() ?? now.toISOString(),
             ),
             { largestUnit: "hour", smallestUnit: "seconds" },
           ),
-        [now, currentCourse],
+        [now, currentPeriod],
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const totalDuration = useMemo(
         () =>
           Temporal.Instant.from(
-            currentCourse?.time.start?.toISOString() ?? now.toISOString(),
+            currentPeriod?.time.start?.toISOString() ?? now.toISOString(),
           ).until(
             Temporal.Instant.from(
-              currentCourse?.time.end?.toISOString() ?? now.toISOString(),
+              currentPeriod?.time.end?.toISOString() ?? now.toISOString(),
             ),
             { largestUnit: "hour", smallestUnit: "seconds" },
           ),
-        [now, currentCourse],
+        [now, currentPeriod],
       );
 
       const hasStarted = useMemo(
         () => timeToStart.total("milliseconds") <= 0,
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [timeToStart, currentCourse, now],
+        [timeToStart, currentPeriod, now],
       );
 
-      if (!currentCourse) {
+      if (!currentPeriod) {
         return (
           <div
             className="@container-size flex h-full w-full flex-1 flex-col items-center justify-center gap-1 p-2"
@@ -128,8 +137,24 @@ export const pipManager = {
                 "[@container_(height<=6rem)]:flex-row [@container_(height<=8rem)]:justify-between",
               )}
             >
-              {!hasStarted && <div>Starts in</div>}
-              {hasStarted && <div>Time remaining:</div>}
+              {!hasStarted && (
+                <div>
+                  <span className="hidden @sm:inline">
+                    {currentPeriod?.period?.periodName}{" "}
+                  </span>
+                  Starts<span className="hidden @xs:inline"> in</span>:
+                </div>
+              )}
+              {hasStarted && (
+                <div>
+                  <span className="hidden @xs:inline">Time </span>remaining
+                  <span className="hidden @sm:inline">
+                    {" "}
+                    in {currentPeriod?.period?.periodName}
+                  </span>
+                  :
+                </div>
+              )}
               <div
                 className={cn(
                   "flex items-stretch justify-center overflow-hidden text-7xl font-bold",
@@ -169,13 +194,13 @@ export const pipManager = {
                 )}
               >
                 <span>
-                  {currentCourse?.time?.start?.toLocaleTimeString(undefined, {
+                  {currentPeriod?.time?.start?.toLocaleTimeString(undefined, {
                     hour: "numeric",
                     minute: "numeric",
                   })}
                 </span>
                 <span>
-                  {currentCourse?.time?.end?.toLocaleTimeString(undefined, {
+                  {currentPeriod?.time?.end?.toLocaleTimeString(undefined, {
                     hour: "numeric",
                     minute: "numeric",
                   })}
@@ -225,7 +250,7 @@ export const pipManager = {
                       >
                         <SubjectIcon
                           subject={currentCourse?.classification ?? ""}
-                          className="text-primary size-4"
+                          className="text-foreground size-4"
                         />
                       </div>
                       <h3 className="h4">{currentCourse?.classification}</h3>

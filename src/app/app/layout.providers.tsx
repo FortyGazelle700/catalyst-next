@@ -14,8 +14,23 @@ import { CommandMenuProvider } from "./command-menu";
 import { useRouter, usePathname } from "next/navigation";
 import Pusher from "pusher-js";
 import { pipManager } from "./manager.pip";
+import type {
+  CurrentScheduleWithCoursesOutput,
+  SchedulePeriodWithCourse,
+} from "@/server/api/canvas/courses/get-with-schedule";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
+  time: {
+    start?: Date;
+    end?: Date;
+    startTime: string;
+    endTime: string;
+    active: boolean;
+    activePinned: boolean;
+  };
+})[];
+
+type ScheduleContextValue = (Omit<SchedulePeriodWithCourse, "time"> & {
   time: {
     start?: Date;
     end?: Date;
@@ -33,6 +48,7 @@ export const CoursesRefreshContext = createContext<
 >(() => {
   /**/
 });
+export const ScheduleContext = createContext<ScheduleContextValue>([]);
 export const PubSubContext = createContext<Pusher | null>(null);
 type PipItem = {
   open: () => Promise<void>;
@@ -42,6 +58,9 @@ type PipItem = {
   canOpen: () => boolean;
 };
 export const PipContext = createContext<Record<string, PipItem> | null>(null);
+export const ColorThemeContext = createContext<
+  [string, Dispatch<SetStateAction<string>>] | [null, null]
+>([null, null]);
 
 function TimeProvider({ children }: { children: React.ReactNode }) {
   const [now, setNow] = useState(new Date());
@@ -118,7 +137,7 @@ function CourseProvider({
   }, [ssrCourses, forceRefresh]);
 
   useEffect(() => {
-    const newCourses = originalCourses.map((originalCourse) => {
+    let newCourses = originalCourses.map((originalCourse) => {
       const course = originalCourse as unknown as CoursesContextValue[0];
       if (!course.time) {
         course.time = {
@@ -162,30 +181,44 @@ function CourseProvider({
       course.time.start = start;
       course.time.end = end;
       course.time.active = isActive;
-      course.time.activePinned = course.time.active;
+      course.time.activePinned = false;
 
       return course;
     }) as CoursesContextValue;
-    const currentCourse = newCourses.find((course) => course.time?.active);
 
-    if (!currentCourse) {
-      const nextCourse = newCourses
-        .filter(
-          (course) =>
-            (course.time?.start?.getTime() ?? 0) > now.getTime() &&
-            now.getTime() < (course.time?.end?.getTime() ?? 0),
-        )
-        .sort((a, b) => +a.time.start! - +b.time.start!)[0];
+    let closestTime = Infinity;
+    let closestPeriod: CoursesContextValue[0] | undefined;
 
-      const oneHour = 1000 * 60 * 60;
-      if (
-        nextCourse &&
-        now.getTime() >= nextCourse.time.start!.getTime() - oneHour &&
-        now.getTime() < nextCourse.time.start!.getTime()
-      ) {
-        nextCourse.time.activePinned = true;
+    for (const period of newCourses) {
+      const timeToStart =
+        (period.time?.start?.getTime() ?? 0) - new Date().getTime();
+      const timeToEnd =
+        (period.time?.end?.getTime() ?? 0) - new Date().getTime();
+      if (timeToStart > 0 && timeToStart < closestTime) {
+        closestTime = timeToStart;
+        closestPeriod = period;
+      }
+      if (timeToEnd > 0 && timeToEnd < closestTime) {
+        closestTime = timeToEnd;
+        closestPeriod = period;
       }
     }
+
+    if (closestPeriod && closestTime < 1000 * 60 * 60 * 2) {
+      newCourses = newCourses.map((period) => {
+        if (period.id == closestPeriod.id) {
+          return {
+            ...period,
+            time: {
+              ...period.time,
+              activePinned: true,
+            },
+          };
+        }
+        return period;
+      });
+    }
+
     if (
       courses.length == 0 ||
       now.getSeconds() == 0 ||
@@ -205,6 +238,188 @@ function CourseProvider({
       <CoursesContext.Provider value={courses}>
         {children}
       </CoursesContext.Provider>
+    </CoursesRefreshContext.Provider>
+  );
+}
+
+function ScheduleProvider({ children }: { children: React.ReactNode }) {
+  const now = useContext(TimeContext);
+  const [originalSchedule, setOriginalSchedule] = useState<
+    SchedulePeriodWithCourse[]
+  >([]);
+  const [schedule, setSchedule] = useState<ScheduleContextValue>([]);
+  const [forceRefresh, setForce] = useState(Math.random());
+  const lastFetch = useRef(new Date());
+  const unfocused = useRef(false);
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      const req = await fetch("/api/courses/get-with-schedule");
+      const { data } = (await req.json()) as {
+        success: boolean;
+        data: CurrentScheduleWithCoursesOutput;
+        errors?: { message: string }[];
+      };
+      setOriginalSchedule(data?.periods ?? []);
+      lastFetch.current = new Date();
+    };
+    fetchSchedule().catch(console.error);
+    const interval = setInterval(() => {
+      fetchSchedule().catch(console.error);
+    }, 60 * 1000);
+    window.addEventListener("focus", () => {
+      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
+        fetchSchedule().catch(console.error);
+      }
+    });
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", () => {
+        unfocused.current = false;
+      });
+    };
+  }, [forceRefresh]);
+
+  useEffect(() => {
+    let newSchedule = originalSchedule.map((originalPeriod) => {
+      const period = {
+        ...originalPeriod,
+      } as unknown as ScheduleContextValue[0];
+      if (!period.time) {
+        period.time = {
+          start: undefined,
+          end: undefined,
+          startTime: "",
+          endTime: "",
+          active: false,
+          activePinned: false,
+        };
+        return period;
+      }
+      const start = new Date(
+        `${now.toISOString().split("T")[0]}T${period.time?.startTime}Z`,
+      );
+      const end = new Date(
+        `${now.toISOString().split("T")[0]}T${period.time?.endTime}Z`,
+      );
+
+      if (now < end) {
+        start.setDate(start.getDate() - 1);
+        end.setDate(end.getDate() - 1);
+      }
+
+      if (start < now) start.setDate(start.getDate() + 1);
+      if (end < start) end.setDate(end.getDate() + 1);
+
+      if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
+        period.time.start = undefined;
+        period.time.end = undefined;
+        period.time.active = false;
+        period.time.activePinned = false;
+        return period;
+      }
+
+      const isActive =
+        period.time?.start && period.time?.end
+          ? start?.getTime() <= now.getTime() && now.getTime() < end?.getTime()
+          : false;
+
+      period.time.start = start;
+      period.time.end = end;
+      period.time.active = isActive;
+      period.time.activePinned = false;
+
+      return period;
+    }) as ScheduleContextValue;
+
+    let closestTime = Infinity;
+    let closestPeriod: ScheduleContextValue[0] | undefined;
+
+    for (const period of newSchedule) {
+      if (period.option?.type == "course" && !period.option?.data?.id) continue;
+      if (period.option?.type == "single_select" && !period.option?.data)
+        continue;
+
+      const timeToStart =
+        (period.time?.start?.getTime() ?? 0) - new Date().getTime();
+      const timeToEnd =
+        (period.time?.end?.getTime() ?? 0) - new Date().getTime();
+      if (timeToStart > 0 && timeToStart < closestTime) {
+        closestTime = timeToStart;
+        closestPeriod = period;
+      }
+      if (timeToEnd > 0 && timeToEnd < closestTime) {
+        closestTime = timeToEnd;
+        closestPeriod = period;
+      }
+    }
+
+    if (closestPeriod && closestTime < 1000 * 60 * 60 * 2) {
+      newSchedule = newSchedule.map((period) => {
+        if (period.period.id == closestPeriod!.period.id) {
+          return {
+            ...period,
+            time: {
+              ...period.time,
+              activePinned: true,
+            },
+          };
+        }
+        return period;
+      });
+    }
+
+    if (!newSchedule.find((period) => period.time.activePinned)) {
+      for (const period of newSchedule) {
+        const timeToStart =
+          (period.time?.start?.getTime() ?? 0) - new Date().getTime();
+        const timeToEnd =
+          (period.time?.end?.getTime() ?? 0) - new Date().getTime();
+        if (timeToStart > 0 && timeToStart < closestTime) {
+          closestTime = timeToStart;
+          closestPeriod = period;
+        }
+        if (timeToEnd > 0 && timeToEnd < closestTime) {
+          closestTime = timeToEnd;
+          closestPeriod = period;
+        }
+      }
+
+      if (closestPeriod && closestTime < 1000 * 60 * 60 * 2) {
+        newSchedule = newSchedule.map((period) => {
+          if (period.period.id == closestPeriod!.period.id) {
+            return {
+              ...period,
+              time: {
+                ...period.time,
+                activePinned: true,
+              },
+            };
+          }
+          return period;
+        });
+      }
+    }
+
+    if (
+      schedule.length == 0 ||
+      now.getSeconds() == 0 ||
+      unfocused.current == true
+    ) {
+      unfocused.current = false;
+      window.globalDebug.schedule = newSchedule;
+      setSchedule(newSchedule);
+    }
+    window.addEventListener("blur", () => {
+      unfocused.current = true;
+    });
+  }, [now, originalSchedule, schedule.length]);
+
+  return (
+    <CoursesRefreshContext.Provider value={setForce}>
+      <ScheduleContext.Provider value={schedule}>
+        {children}
+      </ScheduleContext.Provider>
     </CoursesRefreshContext.Provider>
   );
 }
@@ -328,7 +543,7 @@ export function PipProvider({ children }: { children: React.ReactNode }) {
             iframe.style.width = "100vw";
             iframe.style.height = "100vh";
             iframe.style.border = "none";
-            iframe.src = `/pip/${key}`;
+            iframe.src = `/pip?window=${key}`;
             win.document.body.append(iframe);
             win.addEventListener("message", (e) => {
               const evt = e.data as {
@@ -387,12 +602,69 @@ export function usePip() {
   return context;
 }
 
+export function useColorTheme() {
+  const context = useContext(ColorThemeContext);
+  if (!context) {
+    console.warn("useColorTheme is still loading");
+  }
+  return context;
+}
+
+export function ColorThemeProvider({
+  children,
+  colorTheme,
+  isPro,
+}: {
+  children: React.ReactNode;
+  colorTheme: string;
+  isPro: boolean;
+}) {
+  const [theme, setTheme] = useState<string>(colorTheme ?? "default");
+
+  useEffect(() => {
+    const annoyingInterval = setInterval(() => {
+      setCookie("color-theme", isPro ? theme : "default", 365);
+      if (isPro) {
+        for (const cls of Array.from(document.documentElement.classList)) {
+          if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
+            continue;
+          document.documentElement.classList.remove(cls);
+        }
+        document.documentElement.classList.add(`color-theme-${theme}`);
+      } else {
+        for (const cls of Array.from(document.documentElement.classList)) {
+          if (!cls.startsWith("color-theme-") || cls == `color-theme-default`)
+            continue;
+          document.documentElement.classList.remove(cls);
+        }
+        document.documentElement.classList.add(`color-theme-default`);
+
+        if (theme != "default") {
+          setTheme("default");
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(annoyingInterval);
+  }, [theme, setTheme, isPro]);
+
+  return (
+    <ColorThemeContext.Provider value={[theme, setTheme]}>
+      {children}
+    </ColorThemeContext.Provider>
+  );
+}
+
 export function AppLayoutProviders({
   children,
   courses,
+  colorTheme,
+  isPro,
 }: {
   children: React.ReactNode;
   courses: CourseListWithPeriodDataOutput;
+  colorTheme: string;
+  isPro: boolean;
 }) {
   if (typeof window != "undefined") {
     window.globalDebug ??= {};
@@ -401,14 +673,28 @@ export function AppLayoutProviders({
   return (
     <SessionVerificationProvider>
       <CommandMenuProvider>
-        <TimeProvider>
-          <CourseProvider courses={courses}>
-            <PubSubProvider>
-              <PipProvider>{children}</PipProvider>
-            </PubSubProvider>
-          </CourseProvider>
-        </TimeProvider>
+        <ColorThemeProvider colorTheme={colorTheme} isPro={isPro}>
+          <TimeProvider>
+            <CourseProvider courses={courses}>
+              <ScheduleProvider>
+                <PubSubProvider>
+                  <PipProvider>{children}</PipProvider>
+                </PubSubProvider>
+              </ScheduleProvider>
+            </CourseProvider>
+          </TimeProvider>
+        </ColorThemeProvider>
       </CommandMenuProvider>
     </SessionVerificationProvider>
   );
+}
+
+function setCookie(name: string, value: string, days: number) {
+  const expires = (() => {
+    if (!days) return "";
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    return "; expires=" + date.toUTCString();
+  })();
+  document.cookie = `${name}=${encodeURIComponent(value)}${expires}; path=/`;
 }

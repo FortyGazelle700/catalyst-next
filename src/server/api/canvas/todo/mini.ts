@@ -87,12 +87,14 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
     return await unstable_cache(
       todoList,
       [
-        `user_${ctx.user.get?.id}:todo:mini`,
-        `user_${ctx.user.get?.id}:todo:mini@${[
+        ctx.user.get?.id ?? "<null>",
+        [
           ...Object.entries(input)
             .map(([k, v]) => `${k}=${v}`)
             .sort((a, b) => a.localeCompare(b)),
-        ].join(",")}`,
+        ].join(","),
+        String(new Date().getUTCHours()),
+        String(new Date().getUTCDate()),
       ],
       {
         revalidate: 1000 * 60 * 5,

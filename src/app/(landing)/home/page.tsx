@@ -125,7 +125,7 @@ function HeaderSection() {
             </Button>
           </ElementAnimate>
         </div>
-        <div className="xs:flex mt-6 hidden h-48 -space-x-8 sm:h-64 lg:h-96">
+        <div className="xs:flex mt-6 hidden h-48 -space-x-16 sm:h-64 lg:h-96">
           <ElementAnimate
             animation="blurInUp"
             delay={1200}
@@ -135,15 +135,29 @@ function HeaderSection() {
             <Safari
               className="h-full w-auto -rotate-2 shadow-xl"
               url="https://catalyst.bluefla.me/app"
-            />
+            >
+              <img
+                src="/dashboard.png"
+                className="h-full w-full object-cover object-left"
+                style={{
+                  imageRendering: "crisp-edges",
+                }}
+              />
+            </Safari>
           </ElementAnimate>
           <ElementAnimate
             animation="blurInUp"
             delay={1400}
             once
-            className="h-full"
+            className="relative bottom-2 h-full scale-105"
           >
-            <IPhone15Pro className="h-full w-auto rotate-3 shadow-xl" src="" />
+            <IPhone15Pro
+              className="h-full w-auto rotate-3 shadow-xl"
+              src="/dashboard-mobile.png"
+              style={{
+                imageRendering: "crisp-edges",
+              }}
+            />
           </ElementAnimate>
         </div>
       </header>

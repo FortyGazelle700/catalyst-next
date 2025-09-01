@@ -98,7 +98,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { upload } from "@vercel/blob/client";
+// import { upload } from "@vercel/blob/client";
 import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
@@ -988,26 +988,20 @@ function FileUploadSubmitButton({
   const submit = useCallback(async () => {
     setFinalOpen(false);
     setSubmissionState("pending");
-    const fileURLS: string[] = await Promise.all(
-      files.map(async (file) => {
-        return (
-          await upload(`uploads/${file.name}`, file, {
-            access: "public",
-            handleUploadUrl: `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files/prepare`,
-          })
-        ).url;
-      }),
-    );
 
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file, file.name);
+    });
+    console.log("client submit files", formData);
     const request = await fetch(
       `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files`,
       {
         method: "POST",
-        body: JSON.stringify({
-          fileURLS,
-        }),
+        body: formData,
       },
     );
+
     if (!request.ok) {
       setSubmissionState("error");
       return;

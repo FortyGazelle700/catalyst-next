@@ -9,7 +9,6 @@ const schema = z.object({
   title: z.string(),
   description: z.string(),
   pathname: z.string(),
-  date: z.string(),
 });
 
 export const POST = auth(async (req, _) => {
@@ -37,7 +36,6 @@ export const POST = auth(async (req, _) => {
     })
   ).catalyst.support.feedback.provide({
     ...result.data,
-    date: new Date(result.data.date),
   });
 
   return Response.json(response, {

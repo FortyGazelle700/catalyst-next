@@ -23,7 +23,7 @@ export function ScreenshotsCarousel() {
         align: "center",
       }}
       plugins={[WheelGesturesPlugin(), AutoplayPlugin()]}
-      className="w-full max-w-96 mx-auto"
+      className="mx-auto w-full max-w-96"
     >
       <CarouselPictures />
     </Carousel>
@@ -38,28 +38,28 @@ function CarouselPictures() {
       title: "Dashboard",
       description:
         "A dashboard to easily manage courses, assignments, and grades.",
-      image: "/1920x1080.svg",
+      image: "/dashboard.png",
     },
     {
       title: "Courses",
       description: "Easily view and find your course",
-      image: "/1920x1080.svg",
+      image: "/courses.png",
     },
     {
       title: "Grades",
       description: "Easily view and preview grades.",
-      image: "/1920x1080.svg",
+      image: "/grades.png",
     },
     {
       title: "Messaging",
       description: "Easily communicate with your teachers and classmates.",
-      image: "/1920x1080.svg",
+      image: "/inbox.png",
     },
     {
       title: "Social",
       description:
         "A social system by Catalyst that allows to communicate with friends and create groups easily.",
-      image: "/1920x1080.svg",
+      image: "/inbox.png",
     },
   ]);
 
@@ -87,7 +87,7 @@ function CarouselPictures() {
                   width={400}
                   height={400}
                   alt={page.title}
-                  className="aspect-video w-full rounded-lg border object-cover bg-black"
+                  className="aspect-2 w-full rounded-lg border bg-black object-cover"
                 />
                 <div>
                   <p className="text-sm font-bold">{page.title}</p>
@@ -97,8 +97,8 @@ function CarouselPictures() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="absolute top-0 bottom-0 -left-4 w-4 bg-gradient-to-r from-background to-transparent" />
-        <div className="absolute top-0 bottom-0 -right-4 w-4 bg-gradient-to-l from-background to-transparent" />
+        <div className="from-background absolute top-0 bottom-0 -left-4 w-4 bg-gradient-to-r to-transparent" />
+        <div className="from-background absolute top-0 -right-4 bottom-0 w-4 bg-gradient-to-l to-transparent" />
       </div>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="flex gap-2">
@@ -111,10 +111,10 @@ function CarouselPictures() {
               key={idx}
               onClick={() => api?.scrollTo(idx)}
               className={cn(
-                "h-2 w-4 rounded-full bg-secondary transition-all",
+                "bg-secondary h-2 w-4 rounded-full transition-all",
                 {
-                  "w-8 bg-primary": idx == page,
-                }
+                  "bg-primary w-8": idx == page,
+                },
               )}
             >
               <span className="sr-only">{`Go to page ${idx + 1}`}</span>

@@ -13,6 +13,7 @@ export default function NotificationSettings({
   setLink: Dispatch<SetStateAction<string>>;
   settings: ApiCtx["user"]["settings"];
   setSettings: Dispatch<SetStateAction<ApiCtx["user"]["settings"]>>;
+  isPro: boolean;
 }) {
   return (
     <div className="mt-4 flex flex-col gap-4">

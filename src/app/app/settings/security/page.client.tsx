@@ -25,6 +25,7 @@ export default function SecuritySettings({
   setLink: Dispatch<string>;
   settings: ApiCtx["user"]["settings"];
   setSettings: Dispatch<ApiCtx["user"]["settings"]>;
+  isPro: boolean;
 }) {
   return (
     <div className="mt-4 flex flex-col gap-4">
