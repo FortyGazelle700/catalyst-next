@@ -3,30 +3,61 @@
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
+import { ArrowRight, Loader } from "lucide-react";
+import { useState } from "react";
+
+export const GoogleLogo = () => {
+  const searchParams = useSearchParams();
+
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <button
+      className="bg-border/30 rounded-full border p-4"
+      onClick={async () => {
+        setLoading(true);
+        await signIn("google", {
+          redirectTo: searchParams.get("redirectTo") ?? "/app",
+        });
+      }}
+      disabled={loading}
+    >
+      <GoogleSVG className="size-6" />
+    </button>
+  );
+};
 
 export const GoogleAuth = () => {
   const searchParams = useSearchParams();
+
+  const [loading, setLoading] = useState(false);
+
   return (
     <Button
-      variant="outline"
-      onClick={() =>
-        signIn("google", {
+      onClick={async () => {
+        setLoading(true);
+        await signIn("google", {
           redirectTo: searchParams.get("redirectTo") ?? "/app",
-        })
-      }
+        });
+      }}
+      className="ml-auto"
+      disabled={loading}
     >
-      <GoogleSVG /> Continue with Google
+      {loading ? (
+        <>
+          Authorizing... <Loader className="animate-spin" />
+        </>
+      ) : (
+        <>
+          Continue
+          <ArrowRight />
+        </>
+      )}
     </Button>
   );
 };
 
-export const MicrosoftAuth = () => (
-  <Button variant="outline" disabled>
-    <MicrosoftSVG /> Continue with Microsoft
-  </Button>
-);
-
-const GoogleSVG = () => (
+const GoogleSVG = ({ className }: { className?: string }) => (
   <>
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -35,6 +66,7 @@ const GoogleSVG = () => (
       width="100"
       height="100"
       viewBox="0 0 48 48"
+      className={className}
     >
       <path
         fill="#fbc02d"
@@ -51,39 +83,6 @@ const GoogleSVG = () => (
       <path
         fill="#1565c0"
         d="M43.611,20.083L43.595,20L42,20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571	c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
-      ></path>
-    </svg>
-  </>
-);
-const MicrosoftSVG = () => (
-  <>
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      x="0px"
-      y="0px"
-      width="100"
-      height="100"
-      viewBox="0 0 48 48"
-    >
-      <path
-        fill="#ff5722"
-        d="M6 6H22V22H6z"
-        transform="rotate(-180 14 14)"
-      ></path>
-      <path
-        fill="#4caf50"
-        d="M26 6H42V22H26z"
-        transform="rotate(-180 34 14)"
-      ></path>
-      <path
-        fill="#ffc107"
-        d="M26 26H42V42H26z"
-        transform="rotate(-180 34 34)"
-      ></path>
-      <path
-        fill="#03a9f4"
-        d="M6 26H22V42H6z"
-        transform="rotate(-180 14 34)"
       ></path>
     </svg>
   </>

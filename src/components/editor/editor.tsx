@@ -66,7 +66,8 @@ import {
   Undo,
   UndoDot,
 } from "lucide-react";
-import React, {
+import type React from "react";
+import {
   Fragment,
   type ReactNode,
   useEffect,
@@ -100,6 +101,7 @@ import {
   ResponsiveModal,
   ResponsiveModalClose,
   ResponsiveModalContent,
+  ResponsiveModalDescription,
   ResponsiveModalHeader,
   ResponsiveModalTitle,
   ResponsiveModalTrigger,
@@ -163,12 +165,12 @@ function FontStyle() {
   const [editorState, setEditorState] = useState(0);
 
   const [currentStyle, setCurrentStyle] = useState(
-    paragraphStyle.current.at(-1)!
+    paragraphStyle.current.at(-1)!,
   );
 
   useEffect(() => {
     let style = paragraphStyle.current.find((style) => style.isActive());
-    if (!style) style = paragraphStyle.current.at(-1)!;
+    style ??= paragraphStyle.current.at(-1)!;
     setCurrentStyle(style);
   }, [editorState]);
 
@@ -183,7 +185,7 @@ function FontStyle() {
       onValueChange={(value) => {
         paragraphStyle.current.find((style) => style.id == value)!.setActive();
         setCurrentStyle(
-          paragraphStyle.current.find((style) => style.id == value)!
+          paragraphStyle.current.find((style) => style.id == value)!,
         );
       }}
       defaultValue={currentStyle.id}
@@ -191,7 +193,7 @@ function FontStyle() {
     >
       <Tooltip>
         <TooltipTrigger asChild>
-          <SelectTrigger className="min-w-[20ch] max-w-[20ch]">
+          <SelectTrigger className="max-w-[20ch] min-w-[20ch]">
             <div className="flex items-center gap-2">
               <currentStyle.icon /> {currentStyle.name}
             </div>
@@ -362,9 +364,9 @@ function KaTeX() {
         <div className="text-sm">
           Catalyst Text Editor supports special formatting of Math Equations
           using KaTeX. To start using KaTeX in your text, wrap your equation in{" "}
-          <code className="code rounded-sm bg-secondary p-1">$</code> symbols.
+          <code className="code bg-secondary rounded-sm p-1">$</code> symbols.
           For example,{" "}
-          <code className="code rounded-sm bg-secondary p-1">
+          <code className="code bg-secondary rounded-sm p-1">
             $x^2 + y^2 = z^2$
           </code>{" "}
           will render as <span className="text-primary">x² + y² = z²</span>. If
@@ -408,7 +410,7 @@ function Markdown() {
         <div className="text-sm">
           Catalyst Text Editor supports Markdown formatting. You can use
           Markdown syntax to format your text. For example,{" "}
-          <code className="code rounded-sm bg-secondary p-1">**bold**</code>{" "}
+          <code className="code bg-secondary rounded-sm p-1">**bold**</code>{" "}
           will render as <strong>bold</strong>. If you want to see all of the
           supported functions visit the{" "}
           <Button
@@ -580,7 +582,7 @@ function MenuBar({
         },
       ],
     ],
-    [DraftMenu, drafts, editor, setDrafts]
+    [DraftMenu, drafts, editor, setDrafts],
   );
 
   const [tools, setTools] = useState(initialTools);
@@ -596,7 +598,7 @@ function MenuBar({
   }, [editorState, initialTools]);
 
   return (
-    <div className="sticky top-0 z-10 mb-2 flex gap-1 overflow-auto bg-background">
+    <div className="bg-background sticky top-0 z-10 mb-2 flex gap-1 overflow-auto">
       {tools.map((toolGroup, idx) => (
         <Fragment key={`tool-group-${idx}`}>
           {idx != 0 && (
@@ -621,7 +623,7 @@ function MenuBar({
                       onPressedChange={tool.action}
                       pressed={tool.isPressed()}
                       className={cn(
-                        tool.isPressed() ? "bg-accent" : "bg-transparent"
+                        tool.isPressed() ? "bg-accent" : "bg-transparent",
                       )}
                     >
                       <tool.Icon className="h-4 w-4" />
@@ -701,7 +703,7 @@ function MenuFooter({
               <span className="hidden @[80ch]:inline">History</span>
             </div>
             <Separator orientation="vertical" className="my-0.5 h-auto" />
-            <div className="flex items-center gap-2">
+            <div className="stack flex items-center gap-2">
               {(() => {
                 switch (draftState) {
                   case "start":
@@ -746,7 +748,7 @@ function MenuFooter({
         {asMarkdown && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="gap-1 text-xs flex items-center">
+              <div className="flex items-center gap-1 text-xs">
                 <Hash className="size-3" />
                 Saved as Markdown
               </div>
@@ -810,6 +812,9 @@ function DraftMenu({
           <ResponsiveModalTitle className="flex gap-2">
             <History className="h-6 w-6" /> History
           </ResponsiveModalTitle>
+          <ResponsiveModalDescription>
+            View and manage your drafts
+          </ResponsiveModalDescription>
         </ResponsiveModalHeader>
         <div className="flex flex-col gap-2 overflow-auto p-4">
           {drafts.map((draft, idx) => {
@@ -822,7 +827,7 @@ function DraftMenu({
                     /**/
                   }}
                   className={cn(
-                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2"
+                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2",
                   )}
                 >
                   <div className="flex justify-between gap-2">
@@ -842,7 +847,7 @@ function DraftMenu({
                     /**/
                   }}
                   className={cn(
-                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2"
+                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2",
                   )}
                 >
                   <div className="flex justify-between gap-2">
@@ -862,7 +867,7 @@ function DraftMenu({
                     /**/
                   }}
                   className={cn(
-                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2"
+                    "pointer-events-none flex h-auto w-full flex-col items-stretch gap-2",
                   )}
                 >
                   <div className="flex justify-between gap-2">
@@ -885,7 +890,7 @@ function DraftMenu({
                       setToDraftId(editor, drafts, setDrafts, draft.id)
                     }
                     className={cn(
-                      "flex h-auto w-full flex-col items-stretch gap-2 p-4"
+                      "flex h-auto w-full flex-col items-stretch gap-2 p-4",
                     )}
                   >
                     <div className="flex justify-between gap-2">
@@ -941,14 +946,18 @@ function EditorHistoryProvider({
   });
 
   useEffect(() => {
-    if (lastValue.current == editor?.getHTML()) return;
-    lastValue.current = editor?.getHTML() ?? "";
+    const currentHTML = editor?.getHTML() ?? "";
+    if (lastValue.current == currentHTML) return;
+
+    lastValue.current = currentHTML;
     if (transactionDebounce.current) clearTimeout(transactionDebounce.current);
+
     if (isFromUndoRedo) {
       isFromUndoRedo = false;
       setDraftState("local");
       return;
     }
+
     if (isNewSession.current) {
       isNewSession.current = false;
       setDraftState("start");
@@ -958,15 +967,17 @@ function EditorHistoryProvider({
             drafts.find((d) => d.type == "draft" && d.isCurrent) as {
               content: string;
             }
-          )?.content ?? ""
+          )?.content ?? "",
         );
         lastValue.current = editor?.getHTML() ?? "";
       }, 1);
       return;
     }
+
     if (draftState != "loading") {
       setDraftState("loading");
     }
+
     transactionDebounce.current = setTimeout(() => {
       const localDrafts = drafts.map((draft) => ({
         ...draft,
@@ -975,7 +986,7 @@ function EditorHistoryProvider({
       localDrafts.push({
         type: "draft",
         id: new Date().toISOString(),
-        content: editor?.getHTML() ?? "",
+        content: currentHTML,
         isCurrent: true,
       });
       setDrafts([...localDrafts]);
@@ -983,15 +994,17 @@ function EditorHistoryProvider({
     }, 500);
 
     return () => {
-      if (transactionDebounce.current)
+      if (transactionDebounce.current) {
         clearTimeout(transactionDebounce.current);
+      }
     };
-  }, [draftState, drafts, editor, editorState, setDraftState, setDrafts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState]);
 
   useEffect(() => {
     localStorage.setItem(
       `editor-${saveId}-draft-events`,
-      JSON.stringify(drafts)
+      JSON.stringify(drafts),
     );
   }, [drafts, saveId]);
 
@@ -1021,7 +1034,7 @@ function setToDraftId(
   drafts: DraftEvent[],
   setDrafts: (_: DraftEvent[]) => void,
   id: string,
-  action: "undo" | "redo" | "revert" = "revert"
+  action: "undo" | "redo" | "revert" = "revert",
 ) {
   if (!editor) return;
   isFromUndoRedo = true;
@@ -1030,7 +1043,7 @@ function setToDraftId(
   editor.commands.setContent((draft as { content: string }).content);
   const localDrafts = [
     ...drafts.map((draft) =>
-      draft.type == "draft" ? { ...draft, isCurrent: draft.id == id } : draft
+      draft.type == "draft" ? { ...draft, isCurrent: draft.id == id } : draft,
     ),
     {
       id: new Date().toISOString(),
@@ -1070,12 +1083,12 @@ function setToDraftId(
 function undo(
   editor: Editor | null,
   drafts: DraftEvent[],
-  setDrafts: (_: DraftEvent[]) => void
+  setDrafts: (_: DraftEvent[]) => void,
 ) {
   if (!editor) return;
   const theReturnStatement = editor.commands.focus();
   const currentDraft = drafts.find(
-    (draft) => draft.type == "draft" && draft.isCurrent
+    (draft) => draft.type == "draft" && draft.isCurrent,
   );
   if (!currentDraft) return theReturnStatement;
   const currentDraftIndex = drafts.indexOf(currentDraft);
@@ -1090,12 +1103,12 @@ function undo(
 function redo(
   editor: Editor | null,
   drafts: DraftEvent[],
-  setDrafts: (_: DraftEvent[]) => void
+  setDrafts: (_: DraftEvent[]) => void,
 ) {
   if (!editor) return;
   const theReturnStatement = editor.commands.focus();
   const currentDraft = drafts.find(
-    (draft) => draft.type == "draft" && draft.isCurrent
+    (draft) => draft.type == "draft" && draft.isCurrent,
   );
   if (!currentDraft) return theReturnStatement;
   const currentDraftIndex = drafts.indexOf(currentDraft);
@@ -1136,11 +1149,11 @@ export function TextEditor({
                 this.editor,
                 JSON.parse(
                   typeof window !== "undefined"
-                    ? localStorage.getItem(`editor-${saveId}-draft-events`) ??
-                        "[]"
-                    : "[]"
+                    ? (localStorage.getItem(`editor-${saveId}-draft-events`) ??
+                        "[]")
+                    : "[]",
                 ) as DraftEvent[],
-                setDrafts
+                setDrafts,
               ))(),
           "Mod-y": () =>
             (() =>
@@ -1148,11 +1161,11 @@ export function TextEditor({
                 this.editor,
                 JSON.parse(
                   typeof window !== "undefined"
-                    ? localStorage.getItem(`editor-${saveId}-draft-events`) ??
-                        "[]"
-                    : "[]"
+                    ? (localStorage.getItem(`editor-${saveId}-draft-events`) ??
+                        "[]")
+                    : "[]",
                 ) as DraftEvent[],
-                setDrafts
+                setDrafts,
               ))(),
           "Mod-Shift-z": () =>
             (() =>
@@ -1160,11 +1173,11 @@ export function TextEditor({
                 this.editor,
                 JSON.parse(
                   typeof window !== "undefined"
-                    ? localStorage.getItem(`editor-${saveId}-draft-events`) ??
-                        "[]"
-                    : "[]"
+                    ? (localStorage.getItem(`editor-${saveId}-draft-events`) ??
+                        "[]")
+                    : "[]",
                 ) as DraftEvent[],
-                setDrafts
+                setDrafts,
               ))(),
         } as unknown as Record<string, KeyboardShortcutCommand>;
       },
@@ -1207,9 +1220,9 @@ export function TextEditor({
   const [drafts, setDrafts] = useState<DraftEvent[]>(
     JSON.parse(
       typeof window !== "undefined"
-        ? localStorage.getItem(`editor-${saveId}-draft-events`) ?? "[]"
-        : "[]"
-    ) as DraftEvent[]
+        ? (localStorage.getItem(`editor-${saveId}-draft-events`) ?? "[]")
+        : "[]",
+    ) as DraftEvent[],
   );
   const [draftState, setDraftState] = useState<DraftState>("start");
   const [open, setOpen] = useState(false);
@@ -1269,6 +1282,7 @@ export function TextEditor({
         editable={!readOnly}
         extensions={extensions.current}
         content={content}
+        immediatelyRender={false}
         onTransaction={({ editor }) => {
           setContent?.(editor.getHTML());
           setMarkdown?.(turndown.current.turndown(editor.getHTML()));
@@ -1279,7 +1293,7 @@ export function TextEditor({
             class: cn(
               "border dark:border-0 text-left rounded-md p-4 outline-0 overflow-auto render-fancy render-white-content",
               disabled ? "opacity-50 bg-blue-500 pointer-events-none" : "",
-              className
+              className,
             ),
           },
         }}

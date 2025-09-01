@@ -29,8 +29,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "./src/instrumentation.js",
+    "./*.config.mjs",
     ".next/types/**/*.ts",
     "**/*.d.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "public"]
 }

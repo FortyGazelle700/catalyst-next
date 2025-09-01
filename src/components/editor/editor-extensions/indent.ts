@@ -103,28 +103,35 @@ declare module "@tiptap/core" {
   }
 }
 
+interface Options {
+  types: string[];
+  indentLevels: number[];
+  defaultIndentLevel: number;
+}
+
 export const Indent = Extension.create({
   name: "indent",
 
-  defaultOptions: {
-    types: ["heading", "paragraph"],
-    indentLevels: [0, 30, 60, 90, 120, 150, 180, 210],
-    defaultIndentLevel: 0,
+  addOptions() {
+    return {
+      types: ["heading", "paragraph"],
+      indentLevels: [0, 30, 60, 90, 120, 150, 180, 210],
+      defaultIndentLevel: 0,
+    };
   },
-
   addGlobalAttributes() {
     return [
       {
-        types: this.options.types,
+        types: (this.options as Options).types,
         attributes: {
           indent: {
-            default: this.options.defaultIndentLevel,
+            default: (this.options as Options).defaultIndentLevel,
             renderHTML: (attributes) => ({
               style: `margin-left: ${attributes.indent}px !important;`,
             }),
             parseHTML: (element) =>
               parseInt(element.style.marginLeft) ||
-              this.options.defaultIndentLevel,
+              (this.options as Options).defaultIndentLevel,
           },
         },
       },
@@ -140,7 +147,6 @@ export const Indent = Extension.create({
           tr = updateIndentLevel(tr, IndentProps.more);
 
           if (tr.docChanged) {
-            // eslint-disable-next-line no-unused-expressions
             dispatch?.(tr);
             return true;
           }
@@ -157,7 +163,6 @@ export const Indent = Extension.create({
           tr = updateIndentLevel(tr, IndentProps.less);
 
           if (tr.docChanged) {
-            // eslint-disable-next-line no-unused-expressions
             dispatch?.(tr);
             return true;
           }

@@ -103,7 +103,7 @@ export function formatDuration(
     } else {
       result += ` ${value} ${unitAbbreviations[unit as keyof typeof unitAbbreviations][
         style == "digital" ? "short" : style
-        ][value == 1 ? 0 : 1]
+      ][value == 1 ? 0 : 1]
         }`;
     }
     unitsAdded++;
@@ -112,7 +112,7 @@ export function formatDuration(
   if (unitsAdded == 0 && style != "digital") {
     return `0 ${unitAbbreviations[
       ((minUnit ?? "nanosecond") + "s") as keyof typeof unitAbbreviations
-      ][style][1]
+    ][style][1]
       }`;
   }
   return result.replace(" ", "").replace(new RegExp(":$"), "");

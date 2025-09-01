@@ -1,4 +1,4 @@
-import { motion, MotionValue, useSpring, useTransform } from "motion/react";
+import { motion, type MotionValue, useSpring, useTransform } from "motion/react";
 import { useEffect } from "react";
 
 export function NumberCounter({
@@ -8,8 +8,8 @@ export function NumberCounter({
   value: number;
   height: number;
 }) {
-  let valueRoundedToPlace = value;
-  let animatedValue = useSpring(valueRoundedToPlace, {
+  const valueRoundedToPlace = value;
+  const animatedValue = useSpring(valueRoundedToPlace, {
     stiffness: 200,
     mass: 0.1,
     damping: 10,
@@ -42,9 +42,9 @@ function NumberPlace({
   number: number;
   height: number;
 }) {
-  let y = useTransform(mv, (latest) => {
-    let placeValue = latest % 10;
-    let offset = (10 + number - placeValue) % 10;
+  const y = useTransform(mv, (latest) => {
+    const placeValue = latest % 10;
+    const offset = (10 + number - placeValue) % 10;
 
     let memo = offset * height;
 

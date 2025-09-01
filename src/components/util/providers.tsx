@@ -1,12 +1,12 @@
 "use client";
 
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
-import * as React from "react";
+import type * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { TooltipProvider } from "../ui/tooltip";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "./PostHogProvider";
+import { type User } from "next-auth";
 
 export function ThemeProvider({
   children,
@@ -15,19 +15,24 @@ export function ThemeProvider({
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
-export const Providers = ({ children }: PropsWithChildren) => {
+export const Providers = ({
+  children,
+  user,
+}: PropsWithChildren & {
+  user?: User;
+}) => {
   return (
     <>
-      <Analytics />
-      <SpeedInsights />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <TooltipProvider>{children}</TooltipProvider>
-      </ThemeProvider>
+      <PostHogProvider user={user}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
+      </PostHogProvider>
     </>
   );
 };

@@ -52,14 +52,23 @@ export default async function getPage(ctx: CanvasApiCtx) {
       return await unstable_cache(
         page,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:page`,
+          `user_${ctx.user.get?.id}:course:page@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:page`,
+            `user_${ctx.user.get?.id}:course:page@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }

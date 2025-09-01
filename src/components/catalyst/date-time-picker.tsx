@@ -30,10 +30,10 @@ export function DateTimePicker({
   align?: "start" | "center" | "end";
 }) {
   const [dateDate, setDateDate] = useState<Date | undefined>(
-    defaultDate ? new Date(defaultDate) : undefined
+    defaultDate ? new Date(defaultDate) : undefined,
   );
   const [timeDate, setTimeDate] = useState<Date | undefined>(
-    defaultDate ? new Date(defaultDate) : undefined
+    defaultDate ? new Date(defaultDate) : undefined,
   );
   const date = useMemo(() => {
     const d = new Date();
@@ -50,7 +50,7 @@ export function DateTimePicker({
 
   useEffect(() => {
     setDate(date);
-  }, [date]);
+  }, [date, setDate]);
 
   return (
     <ResponsivePopover>
@@ -58,8 +58,8 @@ export function DateTimePicker({
         {custom ? (
           children
         ) : (
-          <Button variant="outline" className="justify-between flex-1">
-            <div className="flex gap-2 items-center">
+          <Button variant="outline" className="flex-1 justify-between">
+            <div className="flex items-center gap-2">
               <Calendar1 /> {date?.toLocaleString() ?? "No Date Set"}{" "}
             </div>
             <Pencil className="ml-4" />
@@ -67,7 +67,7 @@ export function DateTimePicker({
         )}
       </ResponsivePopoverTrigger>
       <ResponsivePopoverContent
-        className="w-[60ch] max-h-96 overflow-hidden justify-stretch @container"
+        className="@container max-h-96 w-[60ch] justify-stretch overflow-hidden"
         side={side}
         align={align}
       >
@@ -78,7 +78,7 @@ export function DateTimePicker({
           </ResponsivePopoverDescription>
         </ResponsivePopoverHeader>
         <div
-          className="flex @xs:flex-row flex-col gap-4 max-h-80 overflow-hidden"
+          className="flex max-h-80 flex-col gap-4 overflow-hidden @xs:flex-row"
           onWheel={(e) => e.stopPropagation()}
         >
           <Calendar

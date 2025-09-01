@@ -1,5 +1,5 @@
-import { Metadata } from "next";
-import { TodoClientPage } from "./client.page";
+import { type Metadata } from "next";
+import { TodoClientPage } from "./page.client";
 
 export const metadata: Metadata = {
   title: "Todo List",

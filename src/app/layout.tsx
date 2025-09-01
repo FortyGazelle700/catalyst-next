@@ -1,7 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Providers } from "../components/util/providers";
 
 import "./globals.css";
+import "./pro.globals.css";
+import { auth } from "@/server/auth";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: {
@@ -21,17 +24,15 @@ export const metadata: Metadata = {
     capable: true,
     startupImage: "/favicon.ico",
   },
-  themeColor: "#0f172b",
-  colorScheme: "dark",
-  metadataBase: new URL("https://catalyst.vercel.app"),
+  metadataBase: new URL("https://catalyst.bluefla.me"),
   openGraph: {
     title: "Catalyst",
     description: "A platform for students to expedite their learning process",
-    url: "https://catalyst.vercel.app",
+    url: "https://catalyst.bluefla.me",
     siteName: "Catalyst",
     images: [
       {
-        url: "https://catalyst.vercel.app/favicon.ico",
+        url: "https://catalyst.bluefla.me/favicon.ico",
         width: 800,
         height: 600,
       },
@@ -43,21 +44,32 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Catalyst",
     description: "A platform for students to expedite their learning process",
-    images: ["https://catalyst.vercel.app/favicon.ico"],
+    images: ["https://catalyst.bluefla.me/favicon.ico"],
     creator: "@catalyst",
     site: "@catalyst",
   },
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  viewportFit: "cover",
+};
+
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
+  const cks = await cookies();
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
-        <Providers>{children}</Providers>
+    <html
+      lang="en"
+      className={`color-theme-${cks.get("color-theme")?.value ?? "default"}`}
+      suppressHydrationWarning
+    >
+      <body className="bg-sidebar !pt-[env(safe-area-inset-top)] !pr-[env(safe-area-inset-right)] !pb-[env(safe-area-inset-bottom)] !pl-[env(safe-area-inset-left)] antialiased">
+        <Providers user={session?.user}>{children}</Providers>
       </body>
     </html>
   );

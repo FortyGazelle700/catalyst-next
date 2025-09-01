@@ -1,54 +1,191 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ExternalLink,
+  Info,
+  Loader,
+  RotateCw,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimationPlayer } from "@/components/catalyst/animation-player";
 
 export default function OnboardingPageClient({
-  tokenIsSaved,
+  tokenIsSaved: defaultTokenIsSaved,
+  canvasUrl,
 }: {
   tokenIsSaved: boolean;
+  canvasUrl: string;
 }) {
   const router = useRouter();
 
+  const [tokenIsSaved, setTokenIsSaved] = useState(defaultTokenIsSaved);
   const [token, setToken] = useState<string>("");
+
+  const [saving, setSaving] = useState(false);
+
+  const [tokenState, setTokenState] = useState<"success" | "error" | "pending">(
+    "pending",
+  );
+
+  useEffect(() => {
+    setTokenState("pending");
+
+    const request = async () => {
+      const req = await fetch("/api/verify-token", {
+        method: "POST",
+        body: JSON.stringify({ token: token }),
+      });
+      if (req.status == 200) {
+        setTokenState("success");
+      } else {
+        setTokenState("error");
+      }
+    };
+
+    const debouncer = setTimeout(() => {
+      request().catch(console.error);
+    }, 1000);
+
+    return () => {
+      clearTimeout(debouncer);
+    };
+  }, [token]);
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        <label className="text-xs text-muted-foreground flex-1">
+      <div className="flex flex-col gap-2">
+        <label className="text-muted-foreground flex-1 text-xs">
           Canvas Token
           <Input
-            value={token}
+            value={
+              tokenIsSaved
+                ? "10968~hatU3zFhYaCCYAE2BaANYnBxKHaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
+                : token
+            }
             onChange={(evt) => {
               setToken(evt.target.value);
             }}
+            placeholder="10968~hatU3zFhYaCCYAE2BaANYnBxKHaZrNNFvLCtyyErfXKytzVxuAAeHCc9NtHD2zxe"
+            disabled={tokenIsSaved}
+            readOnly={tokenIsSaved}
+            className="text-foreground"
           />
+          <div className="mt-1 flex flex-col items-center justify-between gap-2 md:flex-row">
+            {(tokenIsSaved ?? true) ? (
+              <div className="flex items-center gap-1 px-2 text-xs text-yellow-600 dark:text-yellow-500">
+                <Info className="mt-0.5 size-4 shrink-0" />
+                <span>
+                  This is not your actual token, your token is saved, but if you
+                  need to change it, you can reroll it.
+                </span>
+              </div>
+            ) : (
+              <span className="flex items-center gap-1">
+                {(() => {
+                  switch (tokenState) {
+                    case "pending":
+                      return (
+                        <>
+                          <Loader className="size-3 animate-spin" />{" "}
+                          Verifying...
+                        </>
+                      );
+                    case "error":
+                      return (
+                        <>
+                          <X className="size-3" /> Failed
+                        </>
+                      );
+                    case "success":
+                      return (
+                        <>
+                          <Check className="size-3" /> Verified
+                        </>
+                      );
+                  }
+                })()}
+              </span>
+            )}
+            <Button
+              onClick={() => {
+                setTokenIsSaved(false);
+              }}
+              variant="link"
+              className="text-xs"
+              disabled={!tokenIsSaved}
+            >
+              <RotateCw className="size-3" /> Reroll Token
+            </Button>
+          </div>
         </label>
+        <div className="relative">
+          <AnimationPlayer
+            src="/canvas.lottie.json"
+            autoplay
+            loop
+            className="overflow-hidden rounded-md border"
+          />
+          <Button
+            href={canvasUrl}
+            target="_blank"
+            variant="secondary"
+            className="absolute top-2 right-2"
+          >
+            Open Canvas <ExternalLink />
+          </Button>
+        </div>
       </div>
-      <div className="flex justify-end items-center gap-2 mt-4">
+      <div className="mt-4 flex items-center justify-between gap-2">
         <Button
+          variant="outline"
           onClick={async () => {
-            await fetch("/api/catalyst/settings/set-many", {
-              method: "POST",
-              body: JSON.stringify({
-                settings: {
-                  canvas_token: token,
-                },
-              }),
-            });
             router.push(
-              `/app/onboarding/schedule?${new URLSearchParams(
-                window.location.search
-              ).toString()}`
+              `/app/onboarding?${new URLSearchParams(
+                window.location.search,
+              ).toString()}`,
             );
           }}
         >
-          Save and Continue
-          <ArrowRight />
+          <ArrowLeft /> Back
+        </Button>
+        <Button
+          onClick={async () => {
+            setSaving(true);
+            if (!tokenIsSaved) {
+              await fetch("/api/catalyst/account/settings/set-many", {
+                method: "POST",
+                body: JSON.stringify({
+                  settings: {
+                    canvas_token: token,
+                  },
+                }),
+              });
+            }
+            router.push(
+              `/app/onboarding/schedule?${new URLSearchParams(
+                window.location.search,
+              ).toString()}`,
+            );
+          }}
+          disabled={saving || (!tokenIsSaved && !token)}
+        >
+          {saving ? (
+            <>
+              Saving... <Loader className="animate-spin" />
+            </>
+          ) : (
+            <>
+              Save and Continue
+              <ArrowRight />
+            </>
+          )}
         </Button>
       </div>
     </div>

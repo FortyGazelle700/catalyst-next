@@ -1,25 +1,22 @@
 import { cn } from "@/lib/utils";
-import { SVGProps } from "react";
+import { type SVGProps } from "react";
 
 type SafariMode = "default" | "simple";
 
 export interface SafariProps extends SVGProps<SVGSVGElement> {
   url?: string;
-  src?: string;
-  videoSrc?: string;
   width?: number;
   height?: number;
   mode?: SafariMode;
 }
 
 export function Safari({
-  src,
-  videoSrc,
   url,
   width = 1203,
   height = 753,
   mode = "default",
   className,
+  children,
   ...props
 }: SafariProps) {
   return (
@@ -140,36 +137,16 @@ export function Safari({
             </g>
           </>
         ) : null}
-        {src && (
-          <image
-            href={src}
-            width="1200"
-            height="700"
-            x="1"
-            y="52"
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#roundedBottom)"
-          />
-        )}
-        {videoSrc && (
-          <foreignObject
-            x="1"
-            y="52"
-            width="1200"
-            height="700"
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#roundedBottom)"
-          >
-            <video
-              className="size-full overflow-hidden object-cover"
-              src={videoSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
-          </foreignObject>
-        )}
+        <foreignObject
+          x="1"
+          y="52"
+          width="1200"
+          height="800"
+          preserveAspectRatio="xMidYMid slice"
+          clipPath="url(#roundedBottom)"
+        >
+          {children}
+        </foreignObject>
       </g>
       <defs>
         <clipPath id="path0">

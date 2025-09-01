@@ -6,6 +6,8 @@ import type { CanvasErrors, User } from "../types";
 export type PeopleInput = {
   courseId: number;
   useCache?: boolean;
+  limit?: number;
+  cursor?: number;
 };
 
 export default async function getPeople(ctx: CanvasApiCtx) {
@@ -30,13 +32,15 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       );
       url.searchParams.append("include[]", "avatar_url");
       url.searchParams.append("include[]", "enrollments");
-      url.searchParams.append("limit", "100");
+      url.searchParams.append("include[]", "communication_channel");
+      url.searchParams.append("per_page", String(input?.limit ?? 100));
+      url.searchParams.append("page", String(input?.cursor ?? 1));
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
         },
       });
-      const data = await query.json() as User[] | CanvasErrors;
+      const data = (await query.json()) as User[] | CanvasErrors;
       if ("errors" in data) {
         return {
           success: false,
@@ -55,15 +59,24 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       return await unstable_cache(
         people,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:people`,
+          `user_${ctx.user.get?.id}:course:people@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
-        }
+          tags: [
+            `user_${ctx.user.get?.id}:course:people`,
+            `user_${ctx.user.get?.id}:course:people@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
+        },
       )();
     }
     return await people();

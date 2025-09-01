@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import GradesClientPage from "./page.client";
 import { api } from "@/server/api";
 

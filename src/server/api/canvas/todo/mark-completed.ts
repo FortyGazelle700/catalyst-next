@@ -31,7 +31,7 @@ export default async function markTodoItemComplete(ctx: CanvasApiCtx) {
         };
       }
       const plannerItem = plannerItems?.find(
-        (override) => override.plannable_id == String(input.id)
+        (override) => override.plannable_id == String(input.id),
       );
       if (plannerItem?.planner_override == null) {
         const url = new URL("/api/v1/planner/overrides", ctx.user.canvas.url);
@@ -56,7 +56,7 @@ export default async function markTodoItemComplete(ctx: CanvasApiCtx) {
       } else {
         const url = new URL(
           `/api/v1/planner/overrides/${plannerItem.planner_override.id}`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
         const query = await fetch(url, {
           method: "PUT",
@@ -86,8 +86,8 @@ export default async function markTodoItemComplete(ctx: CanvasApiCtx) {
         };
       }
     };
-    revalidateTag("todo");
-    revalidateTag("mini_todo");
+    revalidateTag(`user_${ctx.user.get?.id}:todo:list`);
+    revalidateTag(`user_${ctx.user.get?.id}:todo:mini`);
     return await markComplete();
   };
 }

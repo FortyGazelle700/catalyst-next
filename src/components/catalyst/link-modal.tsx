@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import {
   ResponsiveModal,
@@ -13,6 +13,8 @@ import {
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { ExternalLink, X } from "lucide-react";
 import Link from "next/link";
+import { ErrorBoundary } from "react-error-boundary";
+import Error from "@/app/error";
 
 export function LinkModal({
   link,
@@ -30,14 +32,39 @@ export function LinkModal({
   content: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const firstRender = useRef(true);
 
   const Content = useMemo(() => {
     return content;
-  }, []);
+  }, [content]);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
+    if (open) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("modal", link);
+      window.history.replaceState(null, "", url.toString());
+    } else {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("modal");
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [link, open]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("modal") == link) {
+      setOpen(true);
+    }
+  }, [link]);
 
   return (
     <ResponsiveModal open={open} onOpenChange={(open) => setOpen(open)}>
-      <ResponsiveModalTrigger>
+      <ResponsiveModalTrigger asChild>
         <Link
           href={link}
           onClick={(evt) => {
@@ -57,7 +84,7 @@ export function LinkModal({
             </ResponsiveModalDescription>
           </ResponsiveModalHeader>
         </VisuallyHidden>
-        <div className="flex justify-start gap-2 sticky -top-6 border-b -mx-6 -mt-6 mb-6 p-6 bg-background/50 backdrop-blur z-10 items-center">
+        <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex flex-col items-center justify-start gap-2 border-b p-6 backdrop-blur md:flex-row">
           <Button variant="outline" onClick={() => setOpen(false)}>
             <X /> Close
           </Button>
@@ -66,7 +93,7 @@ export function LinkModal({
           </Button>
           {breadcrumbs}
         </div>
-        {Content}
+        <ErrorBoundary FallbackComponent={Error}>{Content}</ErrorBoundary>
       </ResponsiveModalContent>
     </ResponsiveModal>
   );
