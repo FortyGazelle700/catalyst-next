@@ -993,6 +993,7 @@ function FileUploadSubmitButton({
     files.forEach((file) => {
       formData.append("files", file, file.name);
     });
+    console.log("client submit files", formData);
     const request = await fetch(
       `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files`,
       {
