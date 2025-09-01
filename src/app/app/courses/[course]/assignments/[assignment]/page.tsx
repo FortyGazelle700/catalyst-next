@@ -1,7 +1,7 @@
 import { api } from "@/server/api";
 import { notFound } from "next/navigation";
 import { AssignmentSidebar } from "./page.client";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 
 export async function generateMetadata({
   params: paramList,
@@ -50,7 +50,7 @@ export default async function AssignmentPage({
   }
 
   function replaceCanvasURL(str: string) {
-    const baseURL = `/${
+    const baseURL = `${
       process.env.PUBLISH_URL ?? "http://localhost:3000"
     }/app/`;
     const pattern =
@@ -59,9 +59,9 @@ export default async function AssignmentPage({
   }
 
   return (
-    <div className="flex w-full h-full @container">
-      <div className="flex w-full h-full items-stretch @4xl:flex-row flex-col-reverse overflow-auto @4xl:overflow-hidden">
-        <div className="flex-1 @4xl:overflow-auto p-4 overflow-x-auto min-h-max">
+    <div className="@container flex h-full w-full" data-container="assignment">
+      <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
+        <div className="min-h-max flex-1 overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto">
           <h1 className="h1 mb-2">{assignment.name}</h1>
           <div
             className="render-fancy"

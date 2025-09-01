@@ -27,6 +27,7 @@ export function Combobox({
   groups,
   className,
   onSelect,
+  onInputChange,
   defaultValue,
   value,
   setValue,
@@ -39,6 +40,7 @@ export function Combobox({
   emptyRender?: React.ReactNode;
   className?: string;
   onSelect?: (value: string) => void;
+  onInputChange?: (value: string) => void;
   defaultValue?: string;
   value?: string;
   setValue?: (value: string) => void;
@@ -56,7 +58,7 @@ export function Combobox({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [open, setOpen] = React.useState(false);
   const [localValue, setLocalValue] = React.useState(
-    defaultValue ?? value ?? undefined
+    defaultValue ?? value ?? undefined,
   );
 
   React.useEffect(() => {
@@ -76,23 +78,31 @@ export function Combobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn("w-20 justify-between overflow-hidden", className)}
+            className={cn(
+              "dark:bg-input/30 w-20 justify-between overflow-hidden",
+              className,
+            )}
           >
             {localValue
-              ? groups
+              ? (groups
                   .flatMap((group) => group.values)
-                  .find((v) => v.id === localValue)?.selectionRender ??
+                  .find((v) => v.id == localValue)?.selectionRender ??
                 groups
                   .flatMap((group) => group.values)
-                  .find((v) => v.id === localValue)?.render
-              : placeholders?.emptyValue ?? "Select..."}
+                  .find((v) => v.id == localValue)?.render ??
+                placeholders?.emptyValue ??
+                "Select...")
+              : (placeholders?.emptyValue ?? "Select...")}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DrawerTrigger>
         <DrawerContent>
           <DrawerTitle className="sr-only">Command Menu</DrawerTitle>
           <Command>
-            <CommandInput placeholder={placeholders?.search ?? "Search..."} />
+            <CommandInput
+              placeholder={placeholders?.search ?? "Search..."}
+              onInput={(evt) => onInputChange?.(evt.currentTarget.value)}
+            />
             <CommandList>
               <CommandEmpty>
                 {emptyRender ?? <>No results found.</>}
@@ -110,7 +120,7 @@ export function Combobox({
                       className={cn(
                         "flex w-full justify-between px-4 py-2",
                         option.id == localValue &&
-                          "text-primary-background bg-primary-foreground"
+                          "text-primary-background bg-primary-foreground",
                       )}
                     >
                       {option.render}
@@ -133,16 +143,21 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-20 justify-between overflow-hidden", className)}
+          className={cn(
+            "dark:bg-input/30 w-20 justify-between overflow-hidden",
+            className,
+          )}
         >
           {localValue
-            ? groups
+            ? (groups
                 .flatMap((group) => group.values)
-                .find((v) => v.id === localValue)?.selectionRender ??
+                .find((v) => v.id == localValue)?.selectionRender ??
               groups
                 .flatMap((group) => group.values)
-                .find((v) => v.id === localValue)?.render
-            : placeholders?.emptyValue ?? "Select..."}
+                .find((v) => v.id == localValue)?.render ??
+              placeholders?.emptyValue ??
+              "Select...")
+            : (placeholders?.emptyValue ?? "Select...")}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -164,7 +179,7 @@ export function Combobox({
                     className={cn(
                       "flex w-full justify-between px-4 py-2",
                       option.id == localValue &&
-                        "text-primary-background bg-primary-foreground"
+                        "text-primary-background bg-primary-foreground",
                     )}
                   >
                     {option.render}

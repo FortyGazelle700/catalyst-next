@@ -1,6 +1,6 @@
 "use client";
 
-import { PlannerNote } from "@/server/api/canvas/types";
+import { type PlannerNote } from "@/server/api/canvas/types";
 import { Temporal } from "@js-temporal/polyfill";
 import { CalendarCheck, Dot, Pencil, Timer } from "lucide-react";
 import { useContext } from "react";

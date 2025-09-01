@@ -1,11 +1,11 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { SetStateForOpenDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader } from "lucide-react";
-import { TextEditor } from "@/components/editor/editor";
+import { TextEditor } from "@/components/editor/editor.dynamic";
 import { usePathname } from "next/navigation";
 import {
   Select,
@@ -27,12 +27,12 @@ export function FeedbackRenderer({ email }: { email: string }) {
   return (
     <>
       <h1 className="h1">Feedback</h1>
-      <div className="pt-4 pb-12 flex flex-col gap-6">
-        <div className="p-2 rounded-sm flex flex-col gap-2 border pl-4">
-          <span className="font-bold text-xs text-muted-foreground">
+      <div className="flex flex-col gap-6 pt-4 pb-12">
+        <div className="flex flex-col gap-2 rounded-sm border p-2 pl-4">
+          <span className="text-muted-foreground text-xs font-bold">
             Classification Information
           </span>
-          <label className="flex gap-2 items-center">
+          <label className="flex items-center gap-2">
             <span className="w-full md:w-36">Category</span>
             <Select onValueChange={(val) => setCategory(val)} value={category}>
               <SelectTrigger className="flex-1">
@@ -45,7 +45,7 @@ export function FeedbackRenderer({ email }: { email: string }) {
               </SelectContent>
             </Select>
           </label>
-          <label className="flex gap-2 items-center">
+          <label className="flex items-center gap-2">
             <span className="w-full md:w-36">Importance</span>
             <Select
               onValueChange={(val) => setImportance(val)}
@@ -63,11 +63,11 @@ export function FeedbackRenderer({ email }: { email: string }) {
             </Select>
           </label>
         </div>
-        <div className="p-2 rounded-sm flex flex-col gap-2 border pl-4">
-          <span className="font-bold text-xs text-muted-foreground">
+        <div className="flex flex-col gap-2 rounded-sm border p-2 pl-4">
+          <span className="text-muted-foreground text-xs font-bold">
             Detailed Information
           </span>
-          <label className="flex gap-1 items-center md:flex-row flex-col">
+          <label className="flex flex-col items-center gap-1 md:flex-row">
             <span className="w-full md:w-36">Title</span>
             <Input
               className="flex-1"
@@ -75,7 +75,7 @@ export function FeedbackRenderer({ email }: { email: string }) {
               onChange={(evt) => setTitle(evt.target.value)}
             />
           </label>
-          <div className="flex gap-1 items-center md:flex-row flex-col">
+          <div className="flex flex-col items-center gap-1 md:flex-row">
             <span className="w-full md:w-36">Description</span>
             <div className="flex-1">
               <TextEditor
@@ -86,28 +86,33 @@ export function FeedbackRenderer({ email }: { email: string }) {
             </div>
           </div>
         </div>
-        <div className="p-2 rounded-sm flex flex-col gap-2 border pl-4">
-          <span className="font-bold text-xs text-muted-foreground">
+        <div className="flex flex-col gap-2 rounded-sm border p-2 pl-4">
+          <span className="text-muted-foreground text-xs font-bold">
             Other Imported Information
           </span>
-          <label className="flex gap-1 items-center md:flex-row flex-col">
+          <label className="flex flex-col items-center gap-1 md:flex-row">
             <span className="w-full md:w-36">Path</span>
             <Input className="flex-1" value={pathname} disabled />
           </label>
-          <label className="flex gap-1 items-center md:flex-row flex-col">
+          <label className="flex flex-col items-center gap-1 md:flex-row">
             <span className="w-full md:w-36">Email</span>
             <Input className="flex-1" value={email} disabled />
           </label>
         </div>
       </div>
       <Button
-        className="fixed bottom-0 right-0 m-4"
+        className="fixed right-0 bottom-0 m-4"
         onClick={async () => {
           setSaving(true);
-          await fetch("/api/todo/create", {
+          await fetch("/api/catalyst/feedback/provide", {
             method: "POST",
             body: JSON.stringify({
               title,
+              description,
+              category,
+              importance,
+              email,
+              pathname,
             }),
           });
           setSaving(false);

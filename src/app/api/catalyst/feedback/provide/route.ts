@@ -1,18 +1,18 @@
 import { z } from "zod";
 
+import { auth } from "@/server/auth";
 import { api } from "@/server/api";
 
-export const POST = async (req: Request) => {
-  const body = await req.json();
+const schema = z.object({
+  category: z.string(),
+  importance: z.string(),
+  title: z.string(),
+  description: z.string(),
+  pathname: z.string(),
+});
 
-  const schema = z.object({
-    category: z.string(),
-    importance: z.string(),
-    title: z.string(),
-    description: z.string(),
-    pathname: z.string(),
-    date: z.string(),
-  });
+export const POST = auth(async (req, _) => {
+  const body = (await req.json()) as z.infer<typeof schema>;
 
   const result = schema.safeParse(body);
   if (!result.success) {
@@ -26,18 +26,19 @@ export const POST = async (req: Request) => {
       },
       {
         status: 400,
-      }
+      },
     );
   }
 
   const response = await (
-    await api({})
+    await api({
+      session: req.auth,
+    })
   ).catalyst.support.feedback.provide({
     ...result.data,
-    date: new Date(result.data.date),
   });
 
   return Response.json(response, {
     status: response.success ? 200 : 400,
   });
-};
+});

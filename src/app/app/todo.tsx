@@ -1,8 +1,14 @@
 "use client";
 
-import { Dispatch, SetStateAction, useContext, useMemo, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { CoursesContext, TimeContext } from "./layout.providers";
-import { PlannerItem } from "@/server/api/canvas/types";
+import { type PlannerItem } from "@/server/api/canvas/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Temporal } from "@js-temporal/polyfill";
@@ -28,9 +34,9 @@ import {
 } from "lucide-react";
 import { Breadcrumbs } from "./breadcrumbs";
 import CreateTodoItemModalPage from "./todo/[id]/edit/page.modal";
-import TodoItemModalPage from "./todo/[id]/modal.page";
+import TodoItemModalPage from "./todo/[id]/page.modal";
 import { AssignmentDialogPage } from "./courses/[course]/assignments/[assignment]/page.modal";
-import SubmisisonDialogPage from "./courses/[course]/assignments/[assignment]/submission.modal";
+import SubmissionDialogPage from "./courses/[course]/assignments/[assignment]/submission.modal";
 
 export function TodoItem({
   todoItem,
@@ -45,28 +51,28 @@ export function TodoItem({
 
   const course = courses.find(
     (course) =>
-      course.id == (todoItem.course_id ?? todoItem.plannable.course_id)
+      course.id == (todoItem.course_id ?? todoItem.plannable.course_id),
   );
 
   const dueDate = useMemo(
     () => new Date(todoItem.plannable_date ?? todoItem.plannable.due_at ?? ""),
-    [todoItem]
+    [todoItem],
   );
 
   const pastDue = useMemo(
     () => now.getTime() > dueDate.getTime(),
-    [dueDate, now]
+    [dueDate, now],
   );
 
   return (
     <div
       key={todoItem.plannable_id}
-      className="flex @3xl:flex-row flex-col gap-2 h-72 @3xl:h-36 border rounded-md p-2 has-[&[data-state='checked']]:scale-[97%] hover:!scale-100 hover:!opacity-90 has-[&[data-state='checked']]:opacity-50 transition-all"
+      className="flex h-72 flex-col gap-2 rounded-md border p-2 transition-all hover:!scale-100 hover:!opacity-90 has-[&[data-state='checked']]:scale-[97%] has-[&[data-state='checked']]:opacity-50 @3xl:h-36 @3xl:flex-row"
     >
-      <div className="flex flex-col gap-2 flex-1">
-        <label className="flex items-center gap-2 cursor-pointer group">
+      <div className="flex flex-1 flex-col gap-2">
+        <label className="group flex cursor-pointer items-center gap-2">
           <Checkbox
-            className="size-8 rounded-full cursor-pointer"
+            className="size-8 cursor-pointer rounded-full"
             checked={
               !!(
                 todoItem.planner_override?.marked_complete ??
@@ -89,8 +95,8 @@ export function TodoItem({
                             marked_complete: checked,
                           },
                         } as PlannerItem)
-                      : (item as PlannerItem)
-                  )
+                      : item,
+                  ),
                 );
               };
               setRequests(requests + 1);
@@ -108,68 +114,68 @@ export function TodoItem({
                     }).catch(console.error);
                     markAsChecked();
                   }
-                })();
+                })().catch(console.error);
               }, 2000);
             }}
           />
-          <h3 className="h3 !mt-0 relative overflow-hidden max-w-[calc(100%-4rem)]">
-            <div className="group-has-[&[data-state='checked']]:group-hover:w-[calc(100%-calc(var(--spacing)*2))] group-has-[&[data-state='checked']]:w-full w-0 bg-primary h-0.5 transition-all absolute top-1/2 -translate-y-1/2 rounded-full group-hover:w-2" />
-            <div className="group-has-[&[data-state='checked']]:opacity-50 group-hover:opacity-90 transition-all group-has-[&[data-state='checked']]:scale-90 group-hover:scale-95 group-has-[&[data-state='checked']]:group-hover:opacity-60 group-has-[&[data-state='checked']]:group-hover:scale-95 overflow-hidden truncate max-w-full">
+          <h3 className="h3 relative !mt-0 max-w-[calc(100%-4rem)] overflow-hidden">
+            <div className="bg-primary absolute top-1/2 h-0.5 w-0 -translate-y-1/2 rounded-full transition-all group-hover:w-2 group-has-[&[data-state='checked']]:w-full group-has-[&[data-state='checked']]:group-hover:w-[calc(100%-calc(var(--spacing)*2))]" />
+            <div className="max-w-full truncate overflow-hidden transition-all group-hover:scale-95 group-hover:opacity-90 group-has-[&[data-state='checked']]:scale-90 group-has-[&[data-state='checked']]:opacity-50 group-has-[&[data-state='checked']]:group-hover:scale-95 group-has-[&[data-state='checked']]:group-hover:opacity-60">
               {todoItem.plannable.title}
             </div>
           </h3>
         </label>
-        <div className="flex @3xl:flex-row flex-col gap-2">
+        <div className="flex flex-col gap-2 @3xl:flex-row">
           <Button
             variant="outline"
             href={`/app/courses/${todoItem.course_id}`}
-            className="flex gap-2 rounded-md p-2 text-xs group"
+            className="group flex gap-2 rounded-md p-2 text-xs"
           >
             <SubjectIcon
               subject={course?.classification ?? ""}
               className="size-4"
             />
-            <span className="overflow-hidden truncate max-w-[30ch]">
+            <span className="max-w-[30ch] truncate overflow-hidden">
               {course?.classification} ({course?.original_name})
             </span>
-            <ArrowRight className="size-4 group-hover:-rotate-45 transition-all" />
+            <ArrowRight className="size-4 transition-all group-hover:-rotate-45" />
           </Button>
           {todoItem.html_url && (
             <Button
               variant="outline"
               href={`/app${todoItem.html_url?.split("/submissions")[0]}`}
-              className="flex gap-2 rounded-md p-2 text-xs group"
+              className="group flex gap-2 rounded-md p-2 text-xs"
             >
               <Notebook className="size-4" />
-              <span className="overflow-hidden truncate max-w-[30ch]">
+              <span className="max-w-[30ch] truncate overflow-hidden">
                 {todoItem.plannable.title}
               </span>
-              <ArrowRight className="size-4 group-hover:-rotate-45 transition-all" />
+              <ArrowRight className="size-4 transition-all group-hover:-rotate-45" />
             </Button>
           )}
           {todoItem.plannable_type == "planner_note" && (
             <Button
               variant="outline"
               href={`/app/todo/${todoItem.plannable_id}`}
-              className="flex gap-2 rounded-md p-2 text-xs group"
+              className="group flex gap-2 rounded-md p-2 text-xs"
             >
               <StickyNote className="size-4" />
-              <span className="overflow-hidden truncate max-w-[30ch]">
+              <span className="max-w-[30ch] truncate overflow-hidden">
                 {todoItem.plannable.title}
               </span>
-              <ArrowRight className="size-4 group-hover:-rotate-45 transition-all" />
+              <ArrowRight className="size-4 transition-all group-hover:-rotate-45" />
             </Button>
           )}
         </div>
-        <div className="flex gap-2 px-4 mt-2 @3xl:flex-row flex-col">
-          <div className="flex gap-2 items-center text-xs">
+        <div className="mt-2 flex flex-col gap-2 px-4 @3xl:flex-row">
+          <div className="flex items-center gap-2 text-xs">
             <Calendar className="size-4" />
             <span>
               Due on{" "}
               {Temporal.Instant.from(
                 new Date(
-                  todoItem.plannable_date ?? todoItem.plannable.due_at ?? ""
-                ).toISOString()
+                  todoItem.plannable_date ?? todoItem.plannable.due_at ?? "",
+                ).toISOString(),
               ).toLocaleString(undefined, {
                 weekday: "long",
                 month: "short",
@@ -178,16 +184,16 @@ export function TodoItem({
               at{" "}
               {Temporal.Instant.from(
                 new Date(
-                  todoItem.plannable_date ?? todoItem.plannable.due_at ?? ""
-                ).toISOString()
+                  todoItem.plannable_date ?? todoItem.plannable.due_at ?? "",
+                ).toISOString(),
               ).toLocaleString(undefined, {
                 hour: "numeric",
                 minute: "numeric",
               })}
             </span>
           </div>
-          <Dot className="size-4 stroke-muted-foreground @3xl:block hidden" />
-          <div className="flex gap-2 items-center text-xs">
+          <Dot className="stroke-muted-foreground hidden size-4 @3xl:block" />
+          <div className="flex items-center gap-2 text-xs">
             <Timer className="size-3" />
             <span className="text-xs">
               Due {pastDue ? "" : "in "}
@@ -195,8 +201,10 @@ export function TodoItem({
                 Temporal.Instant.from(Temporal.Instant.from(now.toISOString()))
                   .until(
                     new Date(
-                      todoItem.plannable_date ?? todoItem.plannable.due_at ?? ""
-                    ).toISOString()
+                      todoItem.plannable_date ??
+                        todoItem.plannable.due_at ??
+                        "",
+                    ).toISOString(),
                   )
                   .abs(),
                 {
@@ -204,13 +212,13 @@ export function TodoItem({
                   maxUnit: "day",
                   maxUnits: 2,
                   style: "medium",
-                }
+                },
               )}{" "}
               {pastDue ? " ago" : ""}
             </span>
           </div>
-          <Dot className="size-4 stroke-muted-foreground @3xl:block hidden" />
-          <div className="flex gap-2 items-center text-xs">
+          <Dot className="stroke-muted-foreground hidden size-4 @3xl:block" />
+          <div className="flex items-center gap-2 text-xs">
             <PrettyState
               className="size-4"
               state={
@@ -219,8 +227,8 @@ export function TodoItem({
               }
             />
           </div>
-          <Dot className="size-4 stroke-muted-foreground @3xl:block hidden" />
-          <div className="flex gap-2 items-center text-xs">
+          <Dot className="stroke-muted-foreground hidden size-4 @3xl:block" />
+          <div className="flex items-center gap-2 text-xs">
             <SubmissionTypeWithIcon
               submission={
                 todoItem.plannable?.content_details?.submission_types?.at(0) ??
@@ -231,8 +239,8 @@ export function TodoItem({
           </div>
         </div>
       </div>
-      <div className="flex flex-row @3xl:flex-col items-end justify-end flex-shrink-0">
-        <div className="flex items-start justify-start @3xl:justify-end flex-1 gap-2">
+      <div className="flex shrink-0 flex-row items-end justify-end @3xl:flex-col">
+        <div className="flex flex-1 items-start justify-start gap-2 @3xl:justify-end">
           {todoItem.plannable_type == "planner_note" ? (
             <>
               <LinkModal
@@ -325,7 +333,7 @@ export function TodoItem({
                   />
                 }
                 content={
-                  <SubmisisonDialogPage
+                  <SubmissionDialogPage
                     course={todoItem.plannable?.content_details?.course_id}
                     assignment={todoItem.plannable?.content_details?.id}
                   />
@@ -371,16 +379,16 @@ export function TodoItem({
             </>
           )}
         </div>
-        <div className="flex flex-row @3xl:flex-col items-center @3xl:items-end justify-end">
-          <div className="text-xl font-bold text-muted-foreground inline-flex gap-2 items-center pr-4">
+        <div className="flex flex-row items-center justify-end @3xl:flex-col @3xl:items-end">
+          <div className="text-muted-foreground inline-flex items-center gap-2 pr-4 text-xl font-bold">
             {todoItem.plannable.content_details?.points_possible ? (
               <>
                 {todoItem.plannable.content_details.submission?.score !=
                 undefined ? (
                   Number(
                     Number(
-                      todoItem.plannable.content_details.submission?.score
-                    )?.toFixed(2)
+                      todoItem.plannable.content_details.submission?.score,
+                    )?.toFixed(2),
                   )
                 ) : (
                   <Minus />
@@ -391,7 +399,7 @@ export function TodoItem({
               ""
             )}
           </div>
-          <div className="text-4xl font-bold inline-flex gap-1 items-center">
+          <div className="inline-flex items-center gap-1 text-4xl font-bold">
             {todoItem.plannable.content_details?.points_possible ? (
               `${todoItem.plannable.content_details?.points_possible} pts`
             ) : (

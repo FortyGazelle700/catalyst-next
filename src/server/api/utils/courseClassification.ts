@@ -12,11 +12,10 @@ const sql =
     ssl: "require",
   });
 
-if (!global.db) global.db = drizzle(sql as unknown as postgres.Sql<{}>);
+global.db ??= drizzle(sql as unknown as postgres.Sql<Record<string, unknown>>);
 
 export const getClassification = async (courseName: string) => {
-  if (globalThis.courseClassifications == undefined)
-    globalThis.courseClassifications = new Map<string, string>();
+  globalThis.courseClassifications ??= new Map<string, string>();
   const { revalidateTag, unstable_cache } = await import("next/cache");
 
   if (globalThis.courseClassifications.has(courseName)) {
@@ -37,7 +36,7 @@ export const getClassification = async (courseName: string) => {
     [`course_classify_${courseName}`],
     {
       revalidate: 60 * 60 * 24 * 30,
-    }
+    },
   )();
 };
 
@@ -46,7 +45,7 @@ const generateClassification = async (courseName: string) => {
   const { eq } = await import("drizzle-orm");
 
   const db = globalThis.db as PostgresJsDatabase<Record<string, never>> & {
-    $client: postgres.Sql<{}>;
+    $client: postgres.Sql<Record<string, never>>;
   };
 
   const dbValue = await db
@@ -55,7 +54,7 @@ const generateClassification = async (courseName: string) => {
     .where(eq(courseClassification.key, courseName));
 
   if (dbValue.length > 0) {
-    return dbValue[0]!.value as string;
+    return dbValue[0]!.value!;
   }
 
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
@@ -326,12 +325,13 @@ const generateClassification = async (courseName: string) => {
         generationConfig,
       })
       .catch((err) => {
+        console.error(err);
         return {
           response: { text: () => "Not Available" },
         };
       });
   } catch (err) {
-    // oops
+    console.error(err);
     return "Not Available";
   }
 

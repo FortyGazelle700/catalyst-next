@@ -17,6 +17,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
     const { getClassification } = await import(
       "../../utils/courseClassification"
     );
+    // console.log("REQQQ");
     const courseList = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
@@ -30,9 +31,9 @@ export default async function courseList(ctx: CanvasApiCtx) {
         };
       }
       const url = new URL("/api/v1/courses", ctx.user.canvas.url);
-      input?.enrollmentState
-        ? url.searchParams.set("enrollment_state", input.enrollmentState)
-        : null;
+      if (input?.enrollmentState) {
+        url.searchParams.set("enrollment_state", input.enrollmentState);
+      }
       url.searchParams.set("page", String(input?.offset ?? 1));
       url.searchParams.set("include[]", "total_scores");
       url.searchParams.set("per_page", String(input?.limit ?? 100));
@@ -46,13 +47,14 @@ export default async function courseList(ctx: CanvasApiCtx) {
         ...course,
         original_name: course.original_name ?? course.name,
       }));
-      // generate classification data
+
       data = await Promise.all(
         data?.map(async (course) => ({
           ...course,
           classification: await getClassification(course.original_name),
-        })) ?? []
+        })) ?? [],
       );
+      // console.log("list dat", data);
       return {
         success: true,
         data: data,
@@ -61,18 +63,30 @@ export default async function courseList(ctx: CanvasApiCtx) {
       };
     };
 
+    // console.log("MAYBE REQQQ");
+
     if (input?.useCache ?? true) {
       return await unstable_cache(
         courseList,
         [
-          `canvas_courses_${ctx.user.get?.id ?? ""}`,
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:list`,
+          `user_${ctx.user.get?.id}:course:list@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
-        }
+          tags: [
+            `user_${ctx.user.get?.id}:course:list`,
+            `user_${ctx.user.get?.id}:course:list@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
+        },
       )();
     }
     return await courseList();

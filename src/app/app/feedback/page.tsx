@@ -1,10 +1,10 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { FeedbackRenderer } from "./client.page";
 import { api } from "@/server/api";
 
-const metadata: Metadata = {
-  title: "Create Todo Item",
-  description: "Create a new todo item",
+export const metadata: Metadata = {
+  title: "Feedback",
+  description: "Provide your feedback",
 };
 
 export default async function FeedbackPage() {

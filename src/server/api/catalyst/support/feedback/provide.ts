@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiCtx } from "../../..";
+import { type ApiCtx } from "@/server/api";
 
 export default async function provideFeedback(ctx: ApiCtx) {
   return async (input: {
@@ -9,7 +9,6 @@ export default async function provideFeedback(ctx: ApiCtx) {
     title: string;
     description: string;
     pathname: string;
-    date: Date;
   }) => {
     const { feedback } = await import("@/server/db/schema");
 
@@ -19,8 +18,8 @@ export default async function provideFeedback(ctx: ApiCtx) {
       title: input.title,
       description: input.description,
       pathname: input.pathname,
-      userId: ctx.user.get?.id!,
-      date: input.date.toISOString(),
+      userId: ctx.user.get?.id ?? "<unknown>",
+      date: new Date(),
     });
     return {
       success: true,

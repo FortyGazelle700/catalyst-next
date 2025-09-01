@@ -4,9 +4,14 @@ export default function OnboardingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="p-8 flex flex-col gap-2 mx-auto w-[80ch] max-w-[80ch] rounded-md border mt-8">
-      <h1 className="h1">Onboarding</h1>
-      <div className="flex flex-col gap-2">{children}</div>
+    <div className="bg-background h-screen min-h-screen w-full overflow-auto py-8">
+      <div className="mx-auto flex w-[min(80ch,calc(100%-theme(spacing.8)))] flex-col items-center gap-2 rounded-md border p-8">
+        <h1 className="h1">Welcome to Catalyst</h1>
+        <p className="text-muted-foreground text-center">
+          Let{"'"}s get your profile set up to personalize your experience
+        </p>
+        <div className="flex w-full flex-col">{children}</div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -19,9 +20,8 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTable;
 
-export const users = createTable("user", {
+export const users = pgTable("user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -34,9 +34,17 @@ export const users = createTable("user", {
   }).default(sql`CURRENT_TIMESTAMP`),
   realtimeSecret: varchar("realtime_secret", { length: 256 }),
   image: varchar("image", { length: 255 }),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const proUsers = createTable("pro_user", {
+export const proUsers = pgTable("pro_user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -47,13 +55,21 @@ export const proUsers = createTable("pro_user", {
   expires: timestamp("expires", {
     mode: "date",
   }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));
 
-export const accounts = createTable(
+export const accounts = pgTable(
   "account",
   {
     userId: varchar("user_id", { length: 255 })
@@ -73,20 +89,28 @@ export const accounts = createTable(
     scope: varchar("scope", { length: 255 }),
     id_token: text("id_token"),
     session_state: varchar("session_state", { length: 255 }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (account) => ({
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
-export const sessions = createTable(
+export const sessions = pgTable(
   "session",
   {
     sessionToken: varchar("session_token", { length: 255 })
@@ -95,21 +119,34 @@ export const sessions = createTable(
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    lastAccessed: timestamp("last_accessed", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
     expires: timestamp("expires", {
       mode: "date",
       withTimezone: true,
     }).notNull(),
+    ip: varchar("ip", { length: 45 }),
+    userAgent: varchar("user_agent", { length: 256 }),
+    country: varchar("country", { length: 64 }),
+    region: varchar("region", { length: 64 }),
+    city: varchar("city", { length: 64 }),
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-export const verificationTokens = createTable(
+export const verificationTokens = pgTable(
   "verification_token",
   {
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -121,30 +158,28 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
 
 ////////////////////////////////////////
 
-export const settingState = varenum("setting_state", ["draft", "saved"]);
-export const userRelationState = varenum("relation_state", [
+export const userRelationState = varenum("relation_state_enum", [
   "requested",
   "friends",
   "denied",
   "blocked",
 ]);
-export const periodType = varenum("period_type", [
+export const periodType = varenum("period_type_enum", [
   "single",
   "course",
   "filler",
 ]);
-export const permissionRole = varenum("permission_role", [
+export const permissionRole = varenum("permission_role_enum", [
   "owner",
-  "manager",
-  "viewer",
+  "admin",
 ]);
 
-export const settings = createTable(
+export const settings = pgTable(
   "setting",
   {
     id: varchar("id", { length: 255 })
@@ -154,15 +189,22 @@ export const settings = createTable(
     userId: varchar("user_id", { length: 255 }).notNull(),
     key: varchar("key", { length: 255 }).notNull(),
     value: text("value"),
-    draftState: settingState("setting_state"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (setting) => ({
     userIdIdx: index("setting_user_id_idx").on(setting.userId),
     keyIdx: index("setting_key_idx").on(setting.key),
-    compoundKey: primaryKey({
-      columns: [setting.userId, setting.key],
-    }),
-  })
+    // compoundKey: primaryKey({
+    //   columns: [setting.userId, setting.key],
+    // }),
+  }),
 );
 
 export const settingsToUserRelation = relations(settings, ({ one }) => ({
@@ -173,7 +215,7 @@ export const userToSettingsRelation = relations(users, ({ many }) => ({
   settings: many(settings),
 }));
 
-export const schools = createTable(
+export const schools = pgTable(
   "school",
   {
     id: varchar("id", { length: 255 })
@@ -185,17 +227,29 @@ export const schools = createTable(
     address: text("address"),
     city: varchar("city", { length: 32 }),
     state: varchar("state", { length: 2 }),
-    draftState: settingState("setting_state"),
+    zip: varchar("zip", { length: 10 }),
+    lat: doublePrecision("lat"),
+    long: doublePrecision("long"),
     canvasURL: varchar("canvas_url", { length: 255 }),
     isPublic: boolean("is_public"),
+    observeDST: boolean("observe_dst").default(false),
+    timezone: varchar("timezone", { length: 64 }).default("America/New_York"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (school) => ({
     nameIdx: index("school_name_idx").on(school.name),
     districtIdx: index("school_district_idx").on(school.district),
-  })
+  }),
 );
 
-export const schoolPermissions = createTable(
+export const schoolPermissions = pgTable(
   "school_permission",
   {
     id: varchar("id", { length: 255 })
@@ -207,18 +261,26 @@ export const schoolPermissions = createTable(
       .references(() => schools.id, { onDelete: "cascade" }),
     userId: varchar("user_id", { length: 255 }).notNull(),
     role: varchar("role", { length: 32 }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (schoolPermission) => ({
     schoolIdIdx: index("school_permission_school_id_idx").on(
-      schoolPermission.schoolId
+      schoolPermission.schoolId,
     ),
     userIdIdx: index("school_permission_user_id_idx").on(
-      schoolPermission.userId
+      schoolPermission.userId,
     ),
-  })
+  }),
 );
 
-export const periods = createTable(
+export const periods = pgTable(
   "period",
   {
     id: varchar("id", { length: 255 })
@@ -238,26 +300,40 @@ export const periods = createTable(
     type: periodType("period_type"),
     periodOrder: integer("period_order"),
     optionOrder: integer("option_order"),
-    draftState: settingState("setting_state"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (period) => ({
     periodIdIdx: index("period_period_id_idx").on(period.periodId),
     optionIdIdx: index("period_option_id_idx").on(period.optionId),
     schoolIdIdx: index("period_school_id_idx").on(period.schoolId),
-  })
+  }),
 );
 
-export const schedules = createTable("schedule", {
+export const schedules = pgTable("schedule", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   schoolId: varchar("school_id", { length: 255 }),
   name: varchar("name", { length: 32 }).notNull(),
-  draftState: settingState("setting_state"),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const periodTimes = createTable(
+export const periodTimes = pgTable(
   "period_time",
   {
     id: varchar("id", { length: 255 })
@@ -270,13 +346,21 @@ export const periodTimes = createTable(
     scheduleId: varchar("schedule_id", { length: 255 }).notNull(),
     start: varchar("start").notNull(),
     end: varchar("end").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (periodTime) => ({
     optionIdIdx: index("period_time_option_id_idx").on(periodTime.optionId),
     scheduleIdIdx: index("period_time_schedule_id_idx").on(
-      periodTime.scheduleId
+      periodTime.scheduleId,
     ),
-  })
+  }),
 );
 
 export const periodTimeToScheduleRelation = relations(
@@ -286,7 +370,7 @@ export const periodTimeToScheduleRelation = relations(
       fields: [periodTimes.scheduleId],
       references: [schedules.id],
     }),
-  })
+  }),
 );
 
 export const periodTimeToPeriodRelation = relations(periodTimes, ({ one }) => ({
@@ -296,7 +380,7 @@ export const periodTimeToPeriodRelation = relations(periodTimes, ({ one }) => ({
   }),
 }));
 
-export const scheduleValues = createTable(
+export const scheduleValues = pgTable(
   "schedule_value",
   {
     id: varchar("id", { length: 255 })
@@ -306,16 +390,24 @@ export const scheduleValues = createTable(
     userId: varchar("user_id", { length: 255 }).notNull(),
     periodId: varchar("period_id", { length: 255 }).notNull(),
     value: varchar("value", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (scheduleValue) => ({
     userIdIdx: index("schedule_value_user_id_idx").on(scheduleValue.userId),
     periodIdIdx: index("schedule_value_period_id_idx").on(
-      scheduleValue.periodId
+      scheduleValue.periodId,
     ),
-  })
+  }),
 );
 
-export const scheduleDates = createTable(
+export const scheduleDates = pgTable(
   "schedule_date",
   {
     id: varchar("id", { length: 255 })
@@ -327,11 +419,44 @@ export const scheduleDates = createTable(
     date: timestamp("date", {
       mode: "date",
     }).notNull(),
-    draftState: settingState("setting_state"),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (scheduleDate) => ({
     schoolIdIdx: index("schedule_date_school_id_idx").on(scheduleDate.schoolId),
-  })
+  }),
+);
+
+export const scheduleDatesSchedule = pgTable(
+  "schedule_date_schedules",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    schoolId: varchar("school_id", { length: 255 }).notNull(),
+    scheduleId: varchar("schedule_id", { length: 255 }).notNull(),
+    repeat: integer("repeat").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+  },
+  (scheduleDate) => ({
+    schoolIdIdx: index("schedule_date_schedules_school_id_idx").on(
+      scheduleDate.schoolId,
+    ),
+  }),
 );
 
 export const scheduleDateToScheduleRelation = relations(
@@ -341,10 +466,10 @@ export const scheduleDateToScheduleRelation = relations(
       fields: [scheduleDates.scheduleId],
       references: [schedules.id],
     }),
-  })
+  }),
 );
 
-export const notifications = createTable(
+export const notifications = pgTable(
   "notification",
   {
     id: varchar("id", { length: 255 })
@@ -355,22 +480,51 @@ export const notifications = createTable(
     data: jsonb("data"),
     dismissed: boolean("dismissed").notNull().default(false),
     sentAt: timestamp("sent_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (notification) => ({
     userIdIdx: index("notification_user_id_idx").on(notification.userId),
-  })
+  }),
 );
 
-export const courseClassification = createTable("course_classification", {
+export const ipData = pgTable("cache_ip_data", {
+  ip: varchar("ip", { length: 512 }).notNull().primaryKey(),
+  data: jsonb("data"),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const courseClassification = pgTable("cache_course_classification", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   key: varchar("key", { length: 255 }).notNull(),
   value: varchar("value"),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const userRelationships = createTable(
+export const userRelationships = pgTable(
   "user_relationship",
   {
     id: varchar("id", { length: 255 })
@@ -381,18 +535,26 @@ export const userRelationships = createTable(
     relatedUserId: varchar("related_user_id", { length: 255 }).notNull(),
     defaultChatId: varchar("default_chat_id", { length: 255 }),
     state: userRelationState("relation_state").notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (userRelationship) => ({
     userIdIdx: index("user_relationship_user_id_idx").on(
-      userRelationship.userId
+      userRelationship.userId,
     ),
     relatedUserIdIdx: index("user_relationship_related_user_id_idx").on(
-      userRelationship.relatedUserId
+      userRelationship.relatedUserId,
     ),
-  })
+  }),
 );
 
-export const chats = createTable(
+export const chats = pgTable(
   "chat",
   {
     id: varchar("id", { length: 255 })
@@ -403,13 +565,21 @@ export const chats = createTable(
     members: jsonb("members")
       .notNull()
       .$type<{ data: Array<{ userId: string }> }>(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (chat) => ({
     nameIdx: index("chat_name_idx").on(chat.name),
-  })
+  }),
 );
 
-export const chatMessages = createTable(
+export const chatMessages = pgTable(
   "chat_message",
   {
     id: varchar("id", { length: 255 })
@@ -428,14 +598,22 @@ export const chatMessages = createTable(
       .notNull()
       .$type<Array<{ userId: string; reaction: string }>>()
       .default([]),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (chatMessage) => ({
     chatIdIdx: index("chat_message_chat_id_idx").on(chatMessage.chatId),
     userIdIdx: index("chat_message_user_id_idx").on(chatMessage.userId),
-  })
+  }),
 );
 
-export const feedback = createTable("feedback", {
+export const feedback = pgTable("feedback", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -446,5 +624,13 @@ export const feedback = createTable("feedback", {
   title: varchar("title", { length: 255 }).notNull(),
   description: varchar("description", { length: 255 }).notNull(),
   pathname: varchar("pathname", { length: 255 }).notNull(),
-  date: timestamp("date", { mode: "string" }).notNull(),
+  date: timestamp("date", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
 });

@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 import { CoursesContext } from "@/app/app/layout.providers";
 import { cn } from "@/lib/utils";
 import { SubjectIcon } from "./subjects";
-import { Sub } from "@radix-ui/react-dropdown-menu";
 
 export function CoursePicker({
   course,
@@ -19,7 +18,7 @@ export function CoursePicker({
   const courses = useContext(CoursesContext);
   const selectedCourse = useMemo(
     () => courses.find((c) => c.id === course),
-    [course, courses]
+    [course, courses],
   );
 
   return (
@@ -37,7 +36,7 @@ export function CoursePicker({
             (a.period?.periodOrder ?? Infinity) >
             (b.period?.periodOrder ?? Infinity)
               ? 1
-              : -1
+              : -1,
           )
           .map((c) => (
             <SelectItem value={String(c.id)} key={c.id}>
@@ -48,7 +47,7 @@ export function CoursePicker({
                 />
                 <div className="flex flex-col gap-2">
                   <div className="font-bold">{c.classification}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     {c.period?.periodName ?? "No Period"} - {c.name}
                   </div>
                 </div>

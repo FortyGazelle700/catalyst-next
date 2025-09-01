@@ -12,6 +12,7 @@ import {
   SquareArrowOutUpRight,
   SquareCheck,
   Upload,
+  MoreHorizontal,
 } from "lucide-react";
 
 export function PrettyState({
@@ -38,6 +39,12 @@ export function PrettyState({
       return (
         <>
           <CircleX className={cn(className)} /> Not Submitted
+        </>
+      );
+    case "not_graded":
+      return (
+        <>
+          <MoreHorizontal className={cn(className)} /> Not Graded
         </>
       );
     case "":

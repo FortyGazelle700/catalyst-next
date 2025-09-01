@@ -1,19 +1,17 @@
 "use server";
 
-import { after } from "next/server";
-
 import { canvas } from "./canvas";
-import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { auth } from "../auth";
-import { Session } from "next-auth";
+import { type Session } from "next-auth";
 import { proUsers, settings, users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { catalyst } from "./catalyst";
 
 export type ApiCtx = {
   db: PostgresJsDatabase<Record<string, never>> & {
-    $client: postgres.Sql<{}>;
+    $client: postgres.Sql<Record<string, unknown>>;
   };
   session: Session | null;
   user: {
@@ -32,14 +30,16 @@ export type ApiCtx = {
   };
 };
 
-export async function api({ session }: { session?: Session | null }) {
-  const ctx = await genCtx({ session });
+export async function api(props: { session?: Session | null }) {
+  const ctx = await genCtx(props);
 
   return {
     canvas: await canvas(ctx),
     catalyst: await catalyst(ctx),
   };
 }
+
+export type Api = typeof api;
 
 async function genCtx({
   session,
@@ -53,11 +53,13 @@ async function genCtx({
       ssl: "require",
     });
 
-  if (!global.db) global.db = drizzle(sql as unknown as postgres.Sql<{}>);
+  global.db ??= drizzle(
+    sql as unknown as postgres.Sql<Record<string, unknown>>,
+  );
   const db = global.db as PostgresJsDatabase<Record<string, never>> & {
-    $client: postgres.Sql<{}>;
+    $client: postgres.Sql<Record<string, unknown>>;
   };
-  session = (session != undefined ? session : await auth()) ?? null;
+  session = session ?? (await auth()) ?? null;
 
   if (!session?.user?.id) {
     return {
@@ -105,10 +107,13 @@ async function genCtx({
     session,
     user: {
       get: user,
-      settings: userSettings.reduce((acc, setting) => {
-        acc[setting.key] = setting.value ?? "";
-        return acc;
-      }, {} as Record<string, string>),
+      settings: userSettings.reduce(
+        (acc, setting) => {
+          acc[setting.key] = setting.value ?? "";
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
       isPro,
     },
   };

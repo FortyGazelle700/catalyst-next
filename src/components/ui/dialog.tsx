@@ -7,8 +7,8 @@ import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   createContext,
-  Dispatch,
-  SetStateAction,
+  type Dispatch,
+  type SetStateAction,
   useContext,
   useState,
 } from "react";

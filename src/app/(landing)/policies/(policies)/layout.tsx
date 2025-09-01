@@ -8,9 +8,9 @@ export default function PoliciesLayout({
 }) {
   return (
     <>
-      <div className="flex-1 grid place-items-center">
-        <div className="border rounded-lg p-8 w-[min(120ch,100vw)] gap-2 flex flex-col">
-          <div className="flex gap-2 items-center justify-start">
+      <div className="grid flex-1 place-items-center">
+        <div className="flex w-[min(120ch,calc(100vw-8rem))] flex-col gap-2 rounded-lg border p-8">
+          <div className="flex items-center justify-start gap-2">
             <Button variant="outline" href="/policies">
               <ArrowLeft /> Policies
             </Button>

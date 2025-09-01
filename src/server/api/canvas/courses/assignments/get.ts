@@ -13,10 +13,10 @@ export type FrontPageInput = {
   useCache?: boolean;
 };
 
-export default async function getPage(ctx: CanvasApiCtx) {
+export default async function getAssignment(ctx: CanvasApiCtx) {
   return async (input: FrontPageInput) => {
     const { unstable_cache } = await import("next/cache");
-    const page = async () => {
+    const assignment = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
           success: false,
@@ -74,19 +74,28 @@ export default async function getPage(ctx: CanvasApiCtx) {
 
     if (input?.useCache ?? true) {
       return await unstable_cache(
-        page,
+        assignment,
         [
-          "canvas",
-          "courses",
-          ...Object.entries(input)
-            .map(([k, v]) => `${k}=${v}`)
-            .sort((a, b) => a.localeCompare(b)),
+          `user_${ctx.user.get?.id}:course:assignment`,
+          `user_${ctx.user.get?.id}:course:assignment@${[
+            ...Object.entries(input)
+              .map(([k, v]) => `${k}=${v}`)
+              .sort((a, b) => a.localeCompare(b)),
+          ].join(",")}`,
         ],
         {
           revalidate: 60,
+          tags: [
+            `user_${ctx.user.get?.id}:course:assignment`,
+            `user_${ctx.user.get?.id}:course:assignment@${[
+              ...Object.entries(input)
+                .map(([k, v]) => `${k}=${v}`)
+                .sort((a, b) => a.localeCompare(b)),
+            ].join(",")}`,
+          ],
         }
       )();
     }
-    return await page();
+    return await assignment();
   };
 }

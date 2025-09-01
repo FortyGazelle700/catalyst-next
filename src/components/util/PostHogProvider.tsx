@@ -4,7 +4,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { User } from "next-auth";
+import type { User } from "next-auth";
 
 export function PostHogProvider({
   children,
@@ -27,7 +27,7 @@ export function PostHogProvider({
         email: user?.email,
       });
     }
-  }, []);
+  }, [user?.email, user?.id, user?.name]);
 
   return (
     <PHProvider client={posthog}>
