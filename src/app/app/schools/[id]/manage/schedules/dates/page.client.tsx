@@ -184,6 +184,8 @@ export default function ScheduleDatesPage({
           selected={selectedDate}
           onSelect={(d) => d && setSelectedDate(d)}
           className="mx-auto w-max"
+          fromMonth={new Date(new Date().setMonth(new Date().getMonth() - 1))}
+          toMonth={new Date(new Date().setMonth(new Date().getMonth() + 1))}
           disabled={(date) => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -320,7 +322,7 @@ export default function ScheduleDatesPage({
           </div>
           <div className="flex items-center gap-2">
             <div className="bg-secondary size-2 rounded-full" />
-            <span className="mr-2">Finalized / Overrides</span>
+            <span className="mr-2">Finalized / Overrode</span>
           </div>
         </div>
         <div className="flex flex-col gap-2 p-4 pt-0">

@@ -21,13 +21,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       />
     ),
     code: (props) => <code className="code" {...props} />,
-    hr: (props) => <hr className="border-t border-border my-4" {...props} />,
+    hr: (props) => <hr className="border-border my-4 border-t" {...props} />,
     blockquote: (props) => (
       <blockquote className="text-muted-foreground" {...props} />
     ),
     table: (props) => <table className="table" {...props} />,
     thead: (props) => <thead className="text-body" {...props} />,
     tbody: (props) => <tbody className="text-body" {...props} />,
-    img: (props) => <img className="rounded-lg" {...props} />,
+    // eslint-disable-next-line @next/next/no-img-element
+    img: (props) => <img className="rounded-lg" alt="" {...props} />,
   };
 }

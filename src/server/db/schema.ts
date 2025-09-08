@@ -633,4 +633,5 @@ export const feedback = pgTable("feedback", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
+  markedComplete: boolean("marked_complete").notNull().default(false),
 });

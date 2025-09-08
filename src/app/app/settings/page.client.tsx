@@ -128,14 +128,16 @@ export default function SettingsClientRenderer({
           }>;
         };
         try {
-          const module = (await import(
+          const moduleList = (await import(
             `./${link.replace("/", "")}/page.client`
           )) as Module;
-          return module.default;
+          return moduleList.default;
         } catch (error) {
           console.warn("Failed to load settings page:", error);
-          const module = (await import(`./not-found/page.client`)) as Module;
-          return module.default;
+          const moduleList = (await import(
+            `./not-found/page.client`
+          )) as Module;
+          return moduleList.default;
         }
       },
       {

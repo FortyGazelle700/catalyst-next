@@ -21,7 +21,7 @@ import {
   Save,
   MoreHorizontal,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export interface Period {
   id: string;
@@ -111,7 +111,7 @@ export default function PeriodsPageClient({
     [standardPeriods, customPeriods, lunchPeriod, specialPeriods, otherPeriods],
   );
 
-  useState(() => {
+  useEffect(() => {
     const saved = localStorage.getItem("onboardingPeriods");
     if (saved) {
       try {
@@ -131,7 +131,7 @@ export default function PeriodsPageClient({
         console.error("Failed to parse onboarding periods from localStorage");
       }
     }
-  });
+  }, []);
 
   useMemo(() => {
     localStorage.setItem(
@@ -441,6 +441,7 @@ export default function PeriodsPageClient({
                     setTimeout(() => {
                       p.update({
                         ...p,
+                        type: value as Period["type"],
                         options: [],
                       });
                     }, 10);

@@ -4,9 +4,9 @@ import { z } from "zod";
 
 const TodoSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   due_at: z.string(),
-  course_id: z.number(),
+  course_id: z.number().optional(),
 });
 
 export const POST = auth(async (req) => {
