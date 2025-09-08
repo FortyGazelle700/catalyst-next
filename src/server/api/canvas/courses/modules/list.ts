@@ -33,7 +33,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
       const modules = async () => {
         const url = new URL(
           `/api/v1/courses/${input.courseId}/modules`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
         url.searchParams.append("include[]", "items");
         url.searchParams.append("include[]", "content_details");
@@ -68,7 +68,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                 if (item.type == "Assignment") {
                   const assignmentURL = new URL(
                     `/api/v1/courses/${input.courseId}/assignments/${item.content_id}`,
-                    ctx.user.canvas.url
+                    ctx.user.canvas.url,
                   );
                   assignmentURL.searchParams.append("include[]", "submission");
                   const assignmentQuery = await fetch(assignmentURL, {
@@ -87,7 +87,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       `${
                         process.env.PUBLISH_URL ?? "http://localhost:3000"
-                      }/app/`
+                      }/app/`,
                     ),
                     content_details: {
                       ...item.content_details,
@@ -96,14 +96,14 @@ export default async function getModules(ctx: CanvasApiCtx) {
                         new URL(ctx.user.canvas.url).origin,
                         `${
                           process.env.PUBLISH_URL ?? "http://localhost:3000"
-                        }/app/`
+                        }/app/`,
                       ),
                     },
                   };
                 } else if (item.type == "File") {
                   const fileURL = new URL(
                     `/api/v1/courses/${input.courseId}/files/${item.content_id}`,
-                    ctx.user.canvas.url
+                    ctx.user.canvas.url,
                   );
                   const fileQuery = await fetch(fileURL, {
                     headers: {
@@ -120,7 +120,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       `${
                         process.env.PUBLISH_URL ?? "http://localhost:3000"
-                      }/app/`
+                      }/app/`,
                     ),
                     content_details: {
                       ...item.content_details,
@@ -130,7 +130,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                 } else if (item.type == "Discussion") {
                   const assignmentURL = new URL(
                     `/api/v1/courses/${input.courseId}/discussion_topics/${item.content_id}`,
-                    ctx.user.canvas.url
+                    ctx.user.canvas.url,
                   );
                   assignmentURL.searchParams.append("include[]", "submission");
                   const assignmentQuery = await fetch(assignmentURL, {
@@ -146,7 +146,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       `${
                         process.env.PUBLISH_URL ?? "http://localhost:3000"
-                      }/app/`
+                      }/app/`,
                     ),
                     content_details: {
                       ...item.content_details,
@@ -155,7 +155,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                         new URL(ctx.user.canvas.url).origin,
                         `${
                           process.env.PUBLISH_URL ?? "http://localhost:3000"
-                        }/app/`
+                        }/app/`,
                       ),
                     },
                   };
@@ -165,12 +165,12 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   content_details: item.content_details as ContentDetails,
                   html_url: item.html_url?.replace(
                     new URL(ctx.user.canvas.url).origin,
-                    `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
+                    `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`,
                   ),
                 };
-              }) ?? []
+              }) ?? [],
             ),
-          }))
+          })),
         )) as Module[];
 
         return {
@@ -183,7 +183,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
       const assignments = async () => {
         const url = new URL(
           `/api/v1/courses/${input.courseId}/assignments`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
         url.searchParams.append("per_page", "1000");
         url.searchParams.append("include[]", "submission");
@@ -196,17 +196,17 @@ export default async function getModules(ctx: CanvasApiCtx) {
         return (await data.json()) as Assignment[];
       };
 
-      const module = await modules();
+      const moduleList = await modules();
 
-      if (!module.success) {
+      if (!moduleList.success) {
         return {
           success: false,
           data: [],
-          errors: module.errors,
+          errors: moduleList.errors,
         };
       }
 
-      const data = module.data as Module[] | CanvasErrors;
+      const data = moduleList.data as Module[] | CanvasErrors;
       if ("errors" in data) {
         return {
           success: false,
@@ -235,7 +235,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
       (await assignments()).forEach((assignment) => {
         if (
           data?.some((module) =>
-            module.items?.some((item) => item.content_id == assignment.id)
+            module.items?.some((item) => item.content_id == assignment.id),
           )
         )
           return;
@@ -249,7 +249,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
           content_id: assignment.course_id,
           html_url: assignment.html_url.replace(
             new URL(ctx.user.canvas.url).origin,
-            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
+            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`,
           ),
           url: assignment.html_url,
           page_url: assignment.html_url,
@@ -274,11 +274,11 @@ export default async function getModules(ctx: CanvasApiCtx) {
           item.content_details.html_url =
             item.content_details.html_url?.replace(
               new URL(ctx.user.canvas.url).origin,
-              `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
+              `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`,
             );
           item.html_url = item.html_url?.replace(
             new URL(ctx.user.canvas.url).origin,
-            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`
+            `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`,
           );
         });
       });
@@ -311,7 +311,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await moduleList();

@@ -566,6 +566,7 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _courseTotalDuration = useMemo(
     () =>
       Temporal.Instant.from(
