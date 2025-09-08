@@ -437,7 +437,7 @@ export function CoursesGroupClient() {
                           >
                             <SubjectIcon
                               subject={course.classification ?? ""}
-                              className="text-primary size-4"
+                              className="text-foreground size-4"
                             />
                           </div>
                           <h3 className="h4">{course.classification}</h3>

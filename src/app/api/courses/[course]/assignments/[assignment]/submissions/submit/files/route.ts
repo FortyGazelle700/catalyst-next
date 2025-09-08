@@ -37,8 +37,6 @@ export const POST = auth(async (req, ctx) => {
 
   const formData: { files: File[] } = { files: [] };
 
-  console.log("server submit files", formData);
-
   for (const [key, value] of (await req.formData()).entries() as unknown as [
     string,
     FormDataEntryValue,

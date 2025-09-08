@@ -32,7 +32,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 import { type ClipboardEventHandler } from "react";
@@ -51,7 +51,7 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     href?: string;
-    target?: "_blank";
+    target?: "_blank" | "_self" | "_parent" | "_top";
     download?: boolean;
     onCopy?:
       | ClipboardEventHandler<HTMLButtonElement>
@@ -71,8 +71,8 @@ function Button({
     <Comp
       data-slot="button"
       className={cn(
-        href && disabled && "opacity-50 pointer-events-none",
-        buttonVariants({ variant, size, className })
+        href && disabled && "pointer-events-none opacity-50",
+        buttonVariants({ variant, size, className }),
       )}
       {...(href && { href })}
       {...(Comp === "a" && { target })}
