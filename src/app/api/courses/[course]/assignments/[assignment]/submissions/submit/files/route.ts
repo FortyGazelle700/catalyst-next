@@ -14,6 +14,8 @@ const ParamsSchema = z.object({
   assignment: z.string().optional(),
 });
 
+export const runtime = "nodejs";
+
 export const POST = auth(async (req, ctx) => {
   const paramsParseResult = ParamsSchema.safeParse(await ctx.params);
   if (!paramsParseResult.success) {

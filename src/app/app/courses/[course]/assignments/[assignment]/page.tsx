@@ -60,7 +60,7 @@ export default async function AssignmentPage({
 
   return (
     <div className="@container flex h-full w-full" data-container="assignment">
-      <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
+      <div className="flex h-max w-full flex-col-reverse items-stretch overflow-auto @4xl:h-full @4xl:flex-row @4xl:overflow-hidden">
         <div className="min-h-max flex-1 overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto">
           <h1 className="h1 mb-2">{assignment.name}</h1>
           <div
