@@ -113,6 +113,7 @@ function ChatList() {
             >
               <h2 className="flex w-full items-center">
                 <div className="mr-2 size-6 shrink-0 overflow-hidden rounded-full border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.avatar_url} alt={item.subject} />
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col overflow-hidden">

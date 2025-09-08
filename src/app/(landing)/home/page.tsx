@@ -24,6 +24,7 @@ import { VelocityScroll } from "@/components/magicui/scroll-based-velocity";
 import { ScreenshotsCarousel } from "./screenshots";
 import { Testimonials } from "./testimonials";
 import { type Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -136,12 +137,15 @@ function HeaderSection() {
               className="h-full w-auto -rotate-2 shadow-xl"
               url="https://catalyst.bluefla.me/app"
             >
-              <img
+              <Image
                 src="/dashboard.png"
                 className="h-full w-full object-cover object-left"
                 style={{
                   imageRendering: "crisp-edges",
                 }}
+                width={1920}
+                height={1080}
+                alt="Catalyst Dashboard"
               />
             </Safari>
           </ElementAnimate>

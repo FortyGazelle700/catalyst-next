@@ -5,9 +5,9 @@ import type { CanvasErrors, PlannerItem } from "../types";
 
 export type CompleteInput = {
   title: string;
-  description: string;
+  description?: string | undefined;
   due_at: string;
-  course_id: number;
+  course_id?: number | undefined;
 };
 
 export default async function editTodoNote(ctx: CanvasApiCtx) {

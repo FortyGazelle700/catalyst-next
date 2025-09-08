@@ -8,11 +8,14 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
+import { File } from "fetch-blob/file";
 
 const ParamsSchema = z.object({
   course: z.string().optional(),
   assignment: z.string().optional(),
 });
+
+export const runtime = "nodejs";
 
 export const POST = auth(async (req, ctx) => {
   const paramsParseResult = ParamsSchema.safeParse(await ctx.params);
@@ -33,8 +36,6 @@ export const POST = auth(async (req, ctx) => {
   });
 
   const formData: { files: File[] } = { files: [] };
-
-  console.log("server submit files", formData);
 
   for (const [key, value] of (await req.formData()).entries() as unknown as [
     string,
