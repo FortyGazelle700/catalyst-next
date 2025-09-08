@@ -2,6 +2,7 @@ import { api } from "@/server/api";
 import { notFound } from "next/navigation";
 import { AssignmentSidebar } from "./page.client";
 import { type Metadata } from "next";
+import { localeDateString } from "@/components/util/format-date-client";
 
 export async function generateMetadata({
   params: paramList,
@@ -63,6 +64,39 @@ export default async function AssignmentPage({
       <div className="flex h-max w-full flex-col-reverse items-stretch overflow-auto @4xl:h-full @4xl:flex-row @4xl:overflow-hidden">
         <div className="min-h-max flex-1 overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto">
           <h1 className="h1 mb-2">{assignment.name}</h1>
+          {assignment.locked_for_user && (
+            <div className="mb-4 rounded-md bg-yellow-50 p-4 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200">
+              This assignment is currently locked. (
+              {(() => {
+                if (
+                  new Date(assignment.unlock_at ?? "").getTime() >= Date.now()
+                ) {
+                  return `Unlocks at: ${localeDateString(
+                    assignment.unlock_at ?? "",
+                    undefined,
+                    {
+                      dateStyle: "long",
+                      timeStyle: "short",
+                    },
+                  )}`;
+                } else if (
+                  new Date(assignment.lock_at ?? "").getTime() <= Date.now()
+                ) {
+                  return `Locked at: ${localeDateString(
+                    assignment.lock_at ?? "",
+                    undefined,
+                    {
+                      dateStyle: "long",
+                      timeStyle: "short",
+                    },
+                  )}`;
+                } else {
+                  return "No lock information";
+                }
+              })()}
+              )
+            </div>
+          )}
           <div
             className="render-fancy"
             dangerouslySetInnerHTML={{
