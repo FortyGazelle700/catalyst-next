@@ -86,6 +86,7 @@ import {
   FileText,
   ExternalLink,
   AlertCircle,
+  Link2,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import {
@@ -100,6 +101,7 @@ import {
 } from "react";
 // import { upload } from "@vercel/blob/client";
 import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
+import { Input } from "@/components/ui/input";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
@@ -476,6 +478,30 @@ const SubmissionElements = {
       </Popover>
     );
   },
+  url: ({ url, setTextUrl }: { url: string; setTextUrl: Dispatch<string> }) => {
+    return (
+      <div className="flex items-center gap-2">
+        <Input
+          type="url"
+          value={url}
+          onChange={(e) => setTextUrl(e.target.value)}
+          placeholder="https://www.google.com/"
+        />
+        <Button
+          variant="outline"
+          className="size-8"
+          href={url}
+          target="_blank"
+          onClick={(evt) => {
+            evt.preventDefault();
+            window.open(url, "_blank", "width=600,height=400");
+          }}
+        >
+          <ExternalLink className="size-4" />
+        </Button>
+      </div>
+    );
+  },
 };
 
 export function SubmissionArea({ assignment }: { assignment: Assignment }) {
@@ -486,6 +512,7 @@ export function SubmissionArea({ assignment }: { assignment: Assignment }) {
   const [files, setFiles] = useState<File[]>([]);
 
   const [text, setText] = useState("");
+  const [url, setTextUrl] = useState("");
 
   return (
     <>
@@ -599,6 +626,16 @@ export function SubmissionArea({ assignment }: { assignment: Assignment }) {
                         setText={setText}
                       />
                       <TextSubmitButton text={text} assignment={assignment} />
+                    </>
+                  );
+                case "online_url":
+                  return (
+                    <>
+                      <SubmissionElements.url
+                        url={url}
+                        setTextUrl={setTextUrl}
+                      />
+                      <URLSubmitButton url={url} assignment={assignment} />
                     </>
                   );
                 case "external_tool":
@@ -968,6 +1005,293 @@ function TextSubmitButton({
   return textPreviews;
 }
 
+function URLSubmitButton({
+  assignment,
+  url,
+}: {
+  assignment: Assignment;
+  url: string;
+}) {
+  const courses = useContext(CoursesContext);
+  const [open, setOpen] = useState(false);
+  const [submissionState, setSubmissionState] = useState<
+    "not_yet" | "pending" | "error" | "success"
+  >("not_yet");
+
+  const submit = useCallback(async () => {
+    setOpen(false);
+    setSubmissionState("pending");
+    const request = await fetch(
+      `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/url`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          body: url,
+        }),
+      },
+    );
+    if (!request.ok) {
+      setSubmissionState("error");
+      return;
+    }
+    const { success } = (await request.json()) as {
+      success: boolean;
+      data: Submission;
+      errors?: string[];
+    };
+    if (success) {
+      setSubmissionState("success");
+    } else {
+      setSubmissionState("error");
+    }
+  }, [url, assignment]);
+
+  const course = courses.find((course) => course.id == assignment.course_id);
+
+  const handleSubmissionState = useMemo(() => {
+    return (
+      <ResponsiveModal open={submissionState != "not_yet"}>
+        <ResponsiveModalContent>
+          <VisuallyHidden>
+            <ResponsiveModalHeader>
+              <ResponsiveModalTitle>
+                {assignment.name} Submission State
+              </ResponsiveModalTitle>
+              <ResponsiveModalDescription>
+                {assignment.description}
+              </ResponsiveModalDescription>
+            </ResponsiveModalHeader>
+          </VisuallyHidden>
+          <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex items-center justify-start gap-2 border-b p-6 backdrop-blur">
+            <Button
+              variant="outline"
+              disabled={submissionState == "pending"}
+              onClick={() => setSubmissionState("not_yet")}
+            >
+              {submissionState == "pending" ? (
+                <>
+                  <Loader className="animate-spin" /> Processing...
+                </>
+              ) : (
+                <>
+                  <X /> Close
+                </>
+              )}
+            </Button>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="" className="flex items-center gap-1">
+                    {assignment.name}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Submission</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="ml-auto flex items-center gap-2">
+              {
+                <Button
+                  disabled={
+                    submissionState == "pending" || submissionState == "not_yet"
+                  }
+                  onClick={() => {
+                    setSubmissionState("not_yet");
+                  }}
+                >
+                  Close <ArrowRight />
+                </Button>
+              }
+            </div>
+          </div>
+          <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full flex-col items-center justify-center gap-2 overflow-auto px-2 pt-16 pb-24">
+            {(() => {
+              switch (submissionState) {
+                case "not_yet":
+                  return null;
+                case "pending":
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Upload className="size-6" />
+                        <span className="text-xl font-bold">Submitting...</span>
+                      </div>
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                        This may take a second, please be patient.
+                      </div>
+                    </>
+                  );
+                case "error":
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <CircleSlash className="size-6" />
+                        <span className="text-xl font-bold">
+                          Submission Failed
+                        </span>
+                      </div>
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                        There was an error submitting your assignment. Please
+                        try again.
+                      </div>
+                    </>
+                  );
+                case "success":
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="size-6" />
+                        <span className="text-xl font-bold">
+                          Submission Successful
+                        </span>
+                      </div>
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                        Your assignment has been submitted successfully.
+                      </div>
+                    </>
+                  );
+              }
+            })()}
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+    );
+  }, [assignment, submissionState]);
+
+  const textPreviews = useMemo(
+    () => (
+      <>
+        {handleSubmissionState}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full">
+              <ResponsiveModal
+                open={open}
+                onOpenChange={(open) => setOpen(open)}
+              >
+                <ResponsiveModalTrigger asChild>
+                  <Button
+                    className="w-full justify-between"
+                    disabled={url.trim() == ""}
+                  >
+                    Review Submission <ArrowRight />
+                  </Button>
+                </ResponsiveModalTrigger>
+                <ResponsiveModalContent>
+                  <VisuallyHidden>
+                    <ResponsiveModalHeader>
+                      <ResponsiveModalTitle>
+                        {assignment.name} Submission
+                      </ResponsiveModalTitle>
+                      <ResponsiveModalDescription>
+                        {assignment.description}
+                      </ResponsiveModalDescription>
+                    </ResponsiveModalHeader>
+                  </VisuallyHidden>
+                  <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex items-center justify-start gap-2 border-b p-6 backdrop-blur">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setOpen(false);
+                      }}
+                    >
+                      <X /> Close
+                    </Button>
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        <BreadcrumbItem>
+                          <BreadcrumbLink
+                            href=""
+                            className="flex items-center gap-1"
+                          >
+                            {assignment.name}
+                          </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                          <BreadcrumbPage>Submission</BreadcrumbPage>
+                        </BreadcrumbItem>
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="ml-auto flex items-center gap-2">
+                      <Button
+                        onClick={async () => {
+                          await submit();
+                        }}
+                      >
+                        Submit <ArrowRight />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="-m-6 flex max-h-[calc(100vh-24rem)] w-full flex-col items-center justify-center gap-8 overflow-auto px-2 py-16 lg:flex-row">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="flex w-96 flex-col items-start gap-1 rounded-full border px-4 py-2">
+                        <span className="flex items-center gap-2">
+                          <Link2 className="size-4" />
+                          URL
+                        </span>
+                        <span className="text-muted-foreground flex max-w-full flex-1 items-center justify-end text-xs">
+                          <span className="truncate pr-4">{url}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <ArrowRight className="text-muted-foreground shrink-0 rotate-90 lg:rotate-0" />
+                    <div className="flex w-96 flex-col items-start gap-2 rounded-xl border p-4">
+                      <span className="flex items-center gap-1 pt-8">
+                        <Notebook className="size-4" />
+                        {assignment.name}
+                      </span>
+                      <span className="text-muted-foreground flex max-w-full items-center gap-1 overflow-hidden text-xs">
+                        <SubjectIcon
+                          subject={course?.classification ?? ""}
+                          className="size-4"
+                        />
+                        <span className="max-w-full truncate">
+                          {course?.classification} ({course?.original_name})
+                        </span>
+                      </span>
+                      <span className="text-muted-foreground flex max-w-full items-center gap-1 overflow-hidden text-xs">
+                        <Calendar className="size-4" />
+                        <span className="max-w-full truncate">
+                          {assignment.due_at
+                            ? `${new Date(
+                                assignment.due_at,
+                              ).toLocaleString()} ${new Date(assignment.due_at).getTime() > Date.now() ? "in" : "— Due"} ${formatDuration(
+                                Temporal.Instant.from(new Date().toISOString())
+                                  .until(
+                                    new Date(assignment.due_at).toISOString(),
+                                  )
+                                  .abs(),
+                                {
+                                  style: "long",
+                                  minUnit: "second",
+                                  maxUnit: "day",
+                                  maxUnits: 2,
+                                },
+                              )} ${new Date(assignment.due_at).getTime() < Date.now() ? "ago" : ""}`
+                            : "No Due Date"}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </ResponsiveModalContent>
+              </ResponsiveModal>
+            </div>
+          </TooltipTrigger>
+          {url.trim() == "" && (
+            <TooltipContent>You must enter a URL to submit</TooltipContent>
+          )}
+        </Tooltip>
+      </>
+    ),
+    [handleSubmissionState, open, url, assignment, course, submit],
+  );
+
+  return textPreviews;
+}
+
 function FileUploadSubmitButton({
   assignment,
   files,
@@ -993,7 +1317,6 @@ function FileUploadSubmitButton({
     files.forEach((file) => {
       formData.append("files", file, file.name);
     });
-    console.log("client submit files", formData);
     const request = await fetch(
       `/api/courses/${assignment.course_id}/assignments/${assignment.id}/submissions/submit/files`,
       {

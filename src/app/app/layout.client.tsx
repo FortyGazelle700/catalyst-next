@@ -437,7 +437,7 @@ export function CoursesGroupClient() {
                           >
                             <SubjectIcon
                               subject={course.classification ?? ""}
-                              className="text-primary size-4"
+                              className="text-foreground size-4"
                             />
                           </div>
                           <h3 className="h4">{course.classification}</h3>
@@ -566,6 +566,7 @@ export function ScheduleWidget() {
     [now, currentCourse],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _courseTotalDuration = useMemo(
     () =>
       Temporal.Instant.from(

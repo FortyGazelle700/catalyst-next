@@ -40,6 +40,9 @@ export async function canvas($ctx: ApiCtx) {
             text: await (
               await import("./courses/assignments/submissions/text")
             ).default(ctx),
+            url: await (
+              await import("./courses/assignments/submissions/url")
+            ).default(ctx),
           },
         },
       },

@@ -33,7 +33,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session: async ({ session, user }) => {
       const heads = await headers();
       const ip = heads.get("x-ip") ?? "<unknown>";
-      let ipInfo = global.ipRequests.get(ip);
 
       if (!ip) {
         return {
@@ -60,43 +59,50 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .limit(1)
         ).length > 0;
 
-      ipInfo = await unstable_cache(async () => {
-        if (ipInfo != undefined) return ipInfo;
-        const dbReq = await db
-          .select()
-          .from(ipData)
-          .where(eq(ipData.ip, ip))
-          .limit(1);
+      const ipInfo = await unstable_cache(
+        async () => {
+          let info = global.ipRequests.get(ip);
+          if (info != undefined) return info;
+          const dbReq = await db
+            .select()
+            .from(ipData)
+            .where(eq(ipData.ip, ip))
+            .limit(1);
 
-        if (dbReq.length != 0) {
-          ipInfo = dbReq?.at(0) as IpLocationResponse | undefined;
-        } else {
-          const response = await fetch(`http://ip-api.com/json/${ip}`);
-          if (!response.ok) {
-            console.error(
-              "IP Check Failed",
-              response.status,
-              response.statusText,
-              response.json(),
-            );
+          if (dbReq.length != 0) {
+            info = dbReq?.at(0) as IpLocationResponse | undefined;
+          } else {
+            const response = await fetch(`http://ip-api.com/json/${ip}`);
+            if (!response.ok) {
+              console.error(
+                "IP Check Failed",
+                response.status,
+                response.statusText,
+                response.json(),
+              );
+            }
+            info = (await response.json()) as IpLocationResponse;
+            await db
+              .insert(ipData)
+              .values({
+                ip,
+                data: JSON.stringify(info),
+              })
+              .onConflictDoUpdate({
+                target: [ipData.ip],
+                set: {
+                  data: JSON.stringify(info),
+                },
+              });
           }
-          ipInfo = (await response.json()) as IpLocationResponse;
-          await db
-            .insert(ipData)
-            .values({
-              ip,
-              data: JSON.stringify(ipInfo),
-            })
-            .onConflictDoUpdate({
-              target: [ipData.ip],
-              set: {
-                data: JSON.stringify(ipInfo),
-              },
-            });
-        }
-        global.ipRequests.set(ip, ipInfo!);
-        return ipInfo;
-      }, [`ip_log_${ip}`])();
+          global.ipRequests.set(ip, info!);
+          return info;
+        },
+        [`ip_log_${ip}`],
+        {
+          revalidate: 60 * 60 * 24,
+        },
+      )();
 
       const row = (
         await db

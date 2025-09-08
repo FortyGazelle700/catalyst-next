@@ -145,8 +145,6 @@ export default async function currentScheduleWithCourses(ctx: CanvasApiCtx) {
         };
       }
 
-      // console.log("courses a", coursesResult.data);
-
       // Build the schedule by combining period times with courses
       const scheduleWithCourses: SchedulePeriodWithCourse[] = periodTimesList
         // .filter(

@@ -115,7 +115,7 @@ async function makeScheduledScheduleDaysHappen() {
       if (item?.scheduleId == "") continue;
 
       const today = Temporal.Now.zonedDateTimeISO(tz).toPlainDate();
-      const templateDate = today.add({ days: 3 + item.repeat });
+      const templateDate = today.add({ days: 2 + item.repeat });
       const date = new Date(templateDate.toString());
       date.setUTCHours(0, 0, 0, 0);
 

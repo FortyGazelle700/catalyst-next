@@ -371,7 +371,7 @@
 
   .render-fancy {
     /* @apply [&_h1]:h1 [&_h2]:h2 [&_h3]:h3 [&_h4]:h4 [&_blockquote]:quote focus:border-primary/50 [&_:is(ul,li)]:ml-8 [&_a]:underline [&_iframe]:max-w-full [&_mark]:rounded [&_mark]:box-decoration-clone [&_mark]:px-1 [&_mark]:py-0.5 [&_ol_li]:list-decimal [&_span[data-type="emoji"]]:inline-flex [&_span[data-type="emoji"]]:items-center dark:[&_span[data-type="emoji"]]:hue-rotate-180 dark:[&_span[data-type="emoji"]]:invert [&_span[data-type="emoji"]_img]:size-[1em] [&_ul_li]:list-disc; */
-    @apply bg-background text-foreground focus:border-primary/50 rounded dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert;
+    @apply bg-background text-foreground focus:border-primary/50 rounded dark:bg-[oklch(from_var(--ui-background)_calc(1-(l-0.04))_c_h)] dark:text-black dark:hue-rotate-180 dark:invert;
     & h1 {
       @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
     }
@@ -420,7 +420,7 @@
   }
 
   .render-white-content {
-    @apply bg-background text-foreground rounded dark:bg-[#F7FAFF] dark:text-black dark:hue-rotate-180 dark:invert;
+    @apply bg-background text-foreground rounded dark:bg-[oklch(from_var(--ui-background)_calc(1-(l-0.04))_c_h)] dark:text-black dark:hue-rotate-180 dark:invert;
   }
 }
 

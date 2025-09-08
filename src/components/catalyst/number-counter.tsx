@@ -1,4 +1,9 @@
-import { motion, type MotionValue, useSpring, useTransform } from "motion/react";
+import {
+  motion,
+  type MotionValue,
+  useSpring,
+  useTransform,
+} from "motion/react";
 import { useEffect } from "react";
 
 export function NumberCounter({
@@ -23,7 +28,7 @@ export function NumberCounter({
     <span className="overflow-hidden">
       <div
         style={{ height }}
-        className="flex flex-col items-center relative w-[1ch] tabular-nums"
+        className="relative flex w-[1ch] flex-col items-center font-mono tabular-nums"
       >
         {[...Array(10).keys()].map((i) => (
           <NumberPlace key={i} mv={animatedValue} number={i} height={height} />

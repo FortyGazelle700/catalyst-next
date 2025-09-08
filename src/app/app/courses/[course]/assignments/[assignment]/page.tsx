@@ -2,6 +2,8 @@ import { api } from "@/server/api";
 import { notFound } from "next/navigation";
 import { AssignmentSidebar } from "./page.client";
 import { type Metadata } from "next";
+import { LocaleDateTimeString } from "@/components/util/format-date-client";
+import { Info } from "lucide-react";
 
 export async function generateMetadata({
   params: paramList,
@@ -60,9 +62,47 @@ export default async function AssignmentPage({
 
   return (
     <div className="@container flex h-full w-full" data-container="assignment">
-      <div className="flex h-full w-full flex-col-reverse items-stretch overflow-auto @4xl:flex-row @4xl:overflow-hidden">
+      <div className="flex h-max w-full flex-col-reverse items-stretch overflow-auto @4xl:h-full @4xl:flex-row @4xl:overflow-hidden">
         <div className="min-h-max flex-1 overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto">
           <h1 className="h1 mb-2">{assignment.name}</h1>
+          {assignment.locked_for_user && (
+            <div className="mb-4 flex items-center gap-1 rounded-md bg-yellow-50 p-4 text-xs text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200">
+              <Info className="size-3" />
+              This assignment is currently locked. (
+              {(() => {
+                if (
+                  new Date(assignment.unlock_at ?? "").getTime() >= Date.now()
+                ) {
+                  return (
+                    <>
+                      Unlocks{" "}
+                      <LocaleDateTimeString
+                        date={assignment.unlock_at ?? ""}
+                        locale={undefined}
+                        options={{ timeStyle: "short", dateStyle: "medium" }}
+                      />
+                    </>
+                  );
+                } else if (
+                  new Date(assignment.lock_at ?? "").getTime() <= Date.now()
+                ) {
+                  return (
+                    <>
+                      Locked{" "}
+                      <LocaleDateTimeString
+                        date={assignment.lock_at ?? ""}
+                        locale={undefined}
+                        options={{ timeStyle: "short", dateStyle: "medium" }}
+                      />
+                    </>
+                  );
+                } else {
+                  return "No lock information";
+                }
+              })()}
+              )
+            </div>
+          )}
           <div
             className="render-fancy"
             dangerouslySetInnerHTML={{
