@@ -116,7 +116,9 @@
   --ui-accent-foreground: oklch(from var(--ui-root-foreground) l c h);
   --ui-destructive: oklch(0.396 0.141 25.723);
   --ui-destructive-foreground: oklch(0.637 0.237 25.331);
-  --ui-border: oklch(from var(--ui-root-primary) calc(l - 0.5) calc(c * 0.1) h);
+  --ui-border: oklch(
+    from var(--ui-root-primary) calc(l - 0.45) calc(c * 0.1) h
+  );
   --ui-input: oklch(from var(--ui-root-primary) calc(l - 0.4) calc(c * 0.1) h);
   --ui-ring: oklch(from var(--ui-root-primary) calc(l - 0.6) calc(c * 0.8) h);
   --ui-chart-1: oklch(0.488 0.243 264.376);
@@ -417,10 +419,20 @@
     & li {
       @apply mt-2;
     }
+
+    & img,
+    & iframe {
+      @apply dark:hue-rotate-180 dark:invert;
+    }
   }
 
   .render-white-content {
     @apply bg-background text-foreground rounded dark:bg-[oklch(from_var(--ui-background)_calc(1-(l-0.04))_c_h)] dark:text-black dark:hue-rotate-180 dark:invert;
+
+    & iframe,
+    & img {
+      @apply dark:hue-rotate-180 dark:invert;
+    }
   }
 }
 

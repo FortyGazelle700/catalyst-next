@@ -827,3 +827,113 @@ export interface AssignmentGroup {
   assignments: Assignment[];
   rules: GradingRules | null;
 }
+
+interface ContextExternalToolPlacement {
+  enabled: boolean;
+  url?: string;
+  target_link_uri?: string;
+  text?: string;
+  label?: string;
+  labels?: Record<string, string>;
+  message_type?: string;
+  selection_width?: number;
+  selection_height?: number;
+  launch_width?: number;
+  launch_height?: number;
+  icon_url?: string;
+  canvas_icon_class?: string;
+  allow_fullscreen?: boolean;
+  custom_fields?: Record<string, string>;
+  visibility?: string;
+  required_permissions?: string;
+  default?: string;
+  display_type?: string;
+  windowTarget?: string;
+  accept_media_types?: string;
+  use_tray?: boolean;
+  icon_svg_path_64?: string;
+  root_account_only?: boolean;
+  description?: string;
+  require_resource_selection?: boolean;
+  prefer_sis_email?: boolean;
+  oauth_compliant?: boolean;
+  eula?: EulaConfiguration;
+}
+
+interface EulaConfiguration {
+  enabled: boolean;
+  target_link_uri: string;
+  custom_fields: Record<string, string>;
+}
+
+export interface ContextExternalTool {
+  id: number;
+  name: string;
+  description: string;
+  url: string;
+  domain: string;
+  consumer_key: string;
+  created_at: string;
+  updated_at: string;
+  privacy_level: "anonymous" | "name_only" | "public";
+  custom_fields: Record<string, string>;
+  workflow_state: "public" | "private" | "disabled";
+  is_rce_favorite?: boolean;
+  is_top_nav_favorite?: boolean;
+  selection_width: number;
+  selection_height: number;
+  icon_url: string;
+  not_selectable: boolean;
+  version: "1.1" | "1.3";
+  unified_tool_id: string | null;
+  developer_key_id?: number;
+  lti_registration_id?: number;
+  deployment_id: string;
+  allow_membership_service_access?: boolean;
+  prefer_sis_email: boolean;
+  estimated_duration: number | null;
+  account_navigation: ContextExternalToolPlacement | null;
+  analytics_hub: ContextExternalToolPlacement | null;
+  assignment_edit: ContextExternalToolPlacement | null;
+  assignment_group_menu: ContextExternalToolPlacement | null;
+  assignment_index_menu: ContextExternalToolPlacement | null;
+  assignment_menu: ContextExternalToolPlacement | null;
+  assignment_selection: ContextExternalToolPlacement | null;
+  assignment_view: ContextExternalToolPlacement | null;
+  collaboration: ContextExternalToolPlacement | null;
+  conference_selection: ContextExternalToolPlacement | null;
+  course_assignments_menu: ContextExternalToolPlacement | null;
+  course_home_sub_navigation: ContextExternalToolPlacement | null;
+  course_navigation: ContextExternalToolPlacement | null;
+  course_settings_sub_navigation: ContextExternalToolPlacement | null;
+  discussion_topic_index_menu: ContextExternalToolPlacement | null;
+  discussion_topic_menu: ContextExternalToolPlacement | null;
+  editor_button: ContextExternalToolPlacement | null;
+  file_index_menu: ContextExternalToolPlacement | null;
+  file_menu: ContextExternalToolPlacement | null;
+  global_navigation: ContextExternalToolPlacement | null;
+  homework_submission: ContextExternalToolPlacement | null;
+  link_selection: ContextExternalToolPlacement | null;
+  migration_selection: ContextExternalToolPlacement | null;
+  module_group_menu: ContextExternalToolPlacement | null;
+  module_index_menu: ContextExternalToolPlacement | null;
+  module_index_menu_modal: ContextExternalToolPlacement | null;
+  module_menu_modal: ContextExternalToolPlacement | null;
+  module_menu: ContextExternalToolPlacement | null;
+  page_index_menu: ContextExternalToolPlacement | null;
+  page_menu: ContextExternalToolPlacement | null;
+  post_grades: ContextExternalToolPlacement | null;
+  quiz_index_menu: ContextExternalToolPlacement | null;
+  quiz_menu: ContextExternalToolPlacement | null;
+  resource_selection: ContextExternalToolPlacement | null;
+  similarity_detection: ContextExternalToolPlacement | null;
+  student_context_card: ContextExternalToolPlacement | null;
+  submission_type_selection: ContextExternalToolPlacement | null;
+  tool_configuration: ContextExternalToolPlacement | null;
+  top_navigation: ContextExternalToolPlacement | null;
+  user_navigation: ContextExternalToolPlacement | null;
+  wiki_index_menu: ContextExternalToolPlacement | null;
+  wiki_page_menu: ContextExternalToolPlacement | null;
+  ActivityAssetProcessor: ContextExternalToolPlacement | null;
+  ActivityAssetProcessorContribution: ContextExternalToolPlacement | null;
+}

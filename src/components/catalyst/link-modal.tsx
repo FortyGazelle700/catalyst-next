@@ -75,7 +75,7 @@ export function LinkModal({
           {trigger}
         </Link>
       </ResponsiveModalTrigger>
-      <ResponsiveModalContent hiddenClose>
+      <ResponsiveModalContent hiddenClose className="@container">
         <VisuallyHidden>
           <ResponsiveModalHeader>
             <ResponsiveModalTitle>{title}</ResponsiveModalTitle>
@@ -84,14 +84,18 @@ export function LinkModal({
             </ResponsiveModalDescription>
           </ResponsiveModalHeader>
         </VisuallyHidden>
-        <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex flex-col items-center justify-start gap-2 border-b p-6 backdrop-blur md:flex-row">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            <X /> Close
-          </Button>
-          <Button href={link} target="_blank" variant="link">
-            <ExternalLink /> Open in new tab
-          </Button>
-          {breadcrumbs}
+        <div className="bg-background/50 sticky -top-6 z-10 -mx-6 -mt-6 mb-6 flex w-[100cqw] flex-col items-center justify-start gap-6 border-b p-6 backdrop-blur md:flex-row md:gap-2">
+          <div className="flex w-full items-center justify-between gap-2 md:w-auto">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              <X /> Close
+            </Button>
+            <Button href={link} target="_blank" variant="link">
+              <ExternalLink /> Open in new tab
+            </Button>
+          </div>
+          <div className="w-[calc(100vw-theme(spacing.8))] flex-1 overflow-auto">
+            <span>{breadcrumbs}</span>
+          </div>
         </div>
         <ErrorBoundary FallbackComponent={Error}>{Content}</ErrorBoundary>
       </ResponsiveModalContent>

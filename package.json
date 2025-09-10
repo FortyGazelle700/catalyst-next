@@ -94,6 +94,7 @@
     "posthog-js": "^1.261.0",
     "posthog-node": "^4.18.0",
     "pretty-bytes": "^6.1.1",
+    "puppeteer": "^24.19.0",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0",
     "react": "^19.1.1",
