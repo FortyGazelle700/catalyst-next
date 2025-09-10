@@ -26,6 +26,11 @@ export async function canvas($ctx: ApiCtx) {
       getWithSchedule: await (
         await import("./courses/get-with-schedule")
       ).default(ctx),
+      externalTools: {
+        retrieve: await (
+          await import("./courses/external-tools/retrieve")
+        ).default(ctx),
+      },
       syllabus: await (await import("./courses/syllabus")).default(ctx),
       frontPage: await (await import("./courses/front-page")).default(ctx),
       people: await (await import("./courses/people")).default(ctx),
@@ -49,6 +54,7 @@ export async function canvas($ctx: ApiCtx) {
       grades: await (await import("./courses/grades")).default(ctx),
       modules: {
         list: await (await import("./courses/modules/list")).default(ctx),
+        get: await (await import("./courses/modules/get")).default(ctx),
       },
     },
     chats: {
