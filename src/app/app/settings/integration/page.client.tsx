@@ -15,7 +15,6 @@ import {
   Check,
   ChevronsUpDown,
   Circle,
-  ExternalLink,
   Info,
   List,
   ListTree,
@@ -38,11 +37,11 @@ import {
   useState,
 } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AnimationPlayer } from "@/components/catalyst/animation-player";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "motion/react";
 import { CoursesContext, CoursesRefreshContext } from "../../layout.providers";
 import { cn } from "@/lib/utils";
+import { CanvasTutorial } from "@/components/catalyst/canvas-tutorial";
 
 const options = [
   {
@@ -492,24 +491,12 @@ export default function IntegrationSettings({
               transition={{ duration: 0.3 }}
               className="relative"
             >
-              <div>
-                <AnimationPlayer
-                  src="/canvas.lottie.json"
-                  loop
-                  className="overflow-hidden rounded-md border"
-                />
-                <Button
-                  href={
-                    schools.find((school) => school.id == settings.school_id)
-                      ?.canvasURL
-                  }
-                  target="_blank"
-                  variant="secondary"
-                  className="absolute top-2 right-2"
-                >
-                  Open Canvas <ExternalLink />
-                </Button>
-              </div>
+              <CanvasTutorial
+                canvasUrl={
+                  schools.find((school) => school.id == settings.school_id)
+                    ?.canvasURL ?? ""
+                }
+              />
             </motion.div>
           )}
         </AnimatePresence>

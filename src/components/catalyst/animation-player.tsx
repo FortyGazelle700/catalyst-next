@@ -2,7 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { Loader } from "lucide-react";
-import { type RefObject, useRef } from "react";
+import {
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+  useRef,
+} from "react";
 import type { ILottie } from "@lottielab/lottie-player/react";
 import { cn } from "@/lib/utils";
 
@@ -22,11 +28,17 @@ export function AnimationPlayer({
   autoplay = false,
   loop = true,
   className = "",
+  setLottie = undefined,
+  speed = 1,
 }: {
   src: string;
   autoplay?: boolean;
   loop?: boolean;
   className?: string;
+  time?: number;
+  onTimeUpdate?: Dispatch<SetStateAction<number>>;
+  setLottie?: Dispatch<SetStateAction<ILottie | undefined>>;
+  speed?: number;
 }) {
   const lottie = useRef(undefined) as unknown as RefObject<ILottie>;
   const lottieContainer = useRef(undefined) as unknown as
@@ -35,6 +47,12 @@ export function AnimationPlayer({
 
   let removed = 0;
   const MAX_REMOVE = 1000;
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLottie?.(lottie.current);
+    }, 1000);
+  }, [lottie, setLottie]);
 
   const toRemove = setInterval(() => {
     const el = lottieContainer?.current?.querySelector(
@@ -66,6 +84,7 @@ export function AnimationPlayer({
           src={src}
           autoplay={autoplay}
           loop={loop}
+          speed={speed}
           style={{ width: "100%", height: "100%" }}
         />
       </div>

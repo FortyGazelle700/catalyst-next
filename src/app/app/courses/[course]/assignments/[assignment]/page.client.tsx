@@ -407,10 +407,12 @@ const SubmissionElements = {
     saveId,
     text,
     setText,
+    forceMini = false,
   }: {
     saveId: string;
     text: string;
     setText: Dispatch<string>;
+    forceMini?: boolean;
   }) => {
     const [open, setOpen] = useState(false);
 
@@ -440,7 +442,7 @@ const SubmissionElements = {
       ref: containerRef,
     });
 
-    return isMobile ? (
+    return isMobile || forceMini ? (
       <div className="bg-background overflow-hidden rounded-md p-1">
         {textEditor}
       </div>
@@ -504,7 +506,13 @@ const SubmissionElements = {
   },
 };
 
-export function SubmissionArea({ assignment }: { assignment: Assignment }) {
+export function SubmissionArea({
+  assignment,
+  forceMini = false,
+}: {
+  assignment: Assignment;
+  forceMini?: boolean;
+}) {
   const [submissionType, setSubmissionType] = useState<string>(
     assignment.submission_types?.[0] ?? "none",
   );
@@ -624,6 +632,7 @@ export function SubmissionArea({ assignment }: { assignment: Assignment }) {
                         saveId={`${assignment.id}-text`}
                         text={text}
                         setText={setText}
+                        forceMini={forceMini}
                       />
                       <TextSubmitButton text={text} assignment={assignment} />
                     </>

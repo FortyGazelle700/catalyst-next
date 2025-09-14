@@ -1,7 +1,7 @@
 "use client";
 
 import { type PlannerNote } from "@/server/api/canvas/types";
-import { Loader, Save } from "lucide-react";
+import { Loader, Save, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextEditor } from "@/components/editor/editor.dynamic";
@@ -13,14 +13,15 @@ import DOMPurify from "dompurify";
 import { SetStateForOpenDialog } from "@/components/ui/dialog";
 
 export function TodoEditItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
+  const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState(todoItem.title);
   const [description, setDescription] = useState(
-    marked.parse(DOMPurify.sanitize(todoItem.details ?? "")) as string
+    marked.parse(DOMPurify.sanitize(todoItem.details ?? "")) as string,
   );
   const [markdown, setMarkdown] = useState("");
   const [date, setDate] = useState<Date | undefined>(
-    new Date(todoItem.todo_date)
+    new Date(todoItem.todo_date),
   );
   const [course, setCourse] = useState<number | undefined>(todoItem.course_id);
 
@@ -29,8 +30,8 @@ export function TodoEditItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
   return (
     <>
       <h1 className="h1">Edit Todo Item</h1>
-      <div className="pt-4 pb-12 flex flex-col gap-6">
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+      <div className="flex flex-col gap-6 pt-4 pb-12">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Name</span>
           <Input
             className="flex-1"
@@ -38,7 +39,7 @@ export function TodoEditItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
             onChange={(evt) => setTitle(evt.target.value)}
           />
         </label>
-        <div className="flex gap-1 items-start md:flex-row flex-col">
+        <div className="flex flex-col items-start gap-1 md:flex-row">
           <span className="w-full md:w-36">Description</span>
           <div className="flex-1">
             <TextEditor
@@ -49,11 +50,11 @@ export function TodoEditItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
             />
           </div>
         </div>
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Due Date</span>
           <DateTimePicker setDate={setDate} defaultDate={date?.toISOString()} />
         </label>
-        <label className="flex gap-1 items-center md:flex-row flex-col">
+        <label className="flex flex-col items-center gap-1 md:flex-row">
           <span className="w-full md:w-36">Course</span>
           <CoursePicker
             course={course}
@@ -62,34 +63,57 @@ export function TodoEditItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
           />
         </label>
       </div>
-      <Button
-        className="fixed bottom-0 right-0 m-4"
-        onClick={async () => {
-          setSaving(true);
-          await fetch(`/api/todo/edit/${todoItem.id}`, {
-            method: "PUT",
-            body: JSON.stringify({
-              title,
-              description: markdown,
-              due_at: date?.toISOString(),
-              course_id: course,
-            }),
-          });
-          setSaving(false);
-          setDialogOpen(false);
-        }}
-        disabled={saving || !title}
-      >
-        {saving ? (
-          <>
-            <Loader className="animate-spin" /> Saving...
-          </>
-        ) : (
-          <>
-            <Save /> Save
-          </>
-        )}
-      </Button>
+      <div className="fixed right-0 bottom-0 m-4 flex items-center gap-2">
+        <Button
+          variant="destructive"
+          onClick={async () => {
+            setDeleting(true);
+            await fetch(`/api/todo/delete/${todoItem.id}`, {
+              method: "DELETE",
+            });
+            setDeleting(false);
+            setDialogOpen(false);
+          }}
+          disabled={deleting || saving}
+        >
+          {deleting ? (
+            <>
+              <Loader className="animate-spin" /> Deleting...
+            </>
+          ) : (
+            <>
+              <Trash /> Delete
+            </>
+          )}
+        </Button>
+        <Button
+          onClick={async () => {
+            setSaving(true);
+            await fetch(`/api/todo/edit/${todoItem.id}`, {
+              method: "PUT",
+              body: JSON.stringify({
+                title,
+                description: markdown,
+                due_at: date?.toISOString(),
+                course_id: course,
+              }),
+            });
+            setSaving(false);
+            setDialogOpen(false);
+          }}
+          disabled={saving || deleting || !title}
+        >
+          {saving ? (
+            <>
+              <Loader className="animate-spin" /> Saving...
+            </>
+          ) : (
+            <>
+              <Save /> Save
+            </>
+          )}
+        </Button>
+      </div>
     </>
   );
 }

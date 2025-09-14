@@ -55,5 +55,5 @@ export default function SubmissionDialogPage({
     );
   }
 
-  return <SubmissionArea assignment={response?.data} />;
+  return <SubmissionArea assignment={response?.data} forceMini={true} />;
 }
