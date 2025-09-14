@@ -36,6 +36,29 @@ export default async function OnboardingPage() {
           <span>Step 1 / 3</span>
         </div>
       </div>
+      <h2 className="h4">Let{"'"}s get to know who you are!</h2>
+      <p className="text-foreground/70 text-sm">
+        Your email address remains completely private and is only used for
+        essential account functions like password resets and important service
+        updates.
+        <br />
+        <br />
+        We collect school information to seamlessly integrate with Canvas and
+        provide you with personalized schedule data. Don{"'"}t see your school
+        listed? No problem—you can add it yourself, or reach out to our support
+        team for assistance.
+        <br />
+        <br />
+        When connecting with friends, only your first name will be visible to
+        maintain your privacy. Your last name stays confidential and is
+        exclusively used for support communications when you contact us
+        directly.
+        <br />
+        <br />
+        Please note that email addresses cannot be modified as they are securely
+        synced with your Google account for your protection.
+        <br />
+      </p>
       <OnboardingPageClient settings={settings} schools={schools} />
     </div>
   );

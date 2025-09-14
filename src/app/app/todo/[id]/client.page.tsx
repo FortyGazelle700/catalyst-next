@@ -19,13 +19,13 @@ export function TodoItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
   return (
     <>
       <h1 className="h1">{todoItem.title}</h1>
-      <div className="flex gap-2 px-6 py-2 bg-secondary rounded-full -mx-4">
-        <div className="flex gap-1 items-center">
+      <div className="bg-secondary -mx-4 flex gap-2 rounded-full px-6 py-2">
+        <div className="flex items-center gap-1">
           <CalendarCheck className="size-3" />
           <span className="text-xs">
             Due on{" "}
             {Temporal.Instant.from(
-              new Date(todoItem.todo_date ?? "").toISOString()
+              new Date(todoItem.todo_date ?? "").toISOString(),
             ).toLocaleString(undefined, {
               weekday: "long",
               month: "short",
@@ -33,7 +33,7 @@ export function TodoItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
             })}{" "}
             at{" "}
             {Temporal.Instant.from(
-              new Date(todoItem.todo_date ?? "").toISOString()
+              new Date(todoItem.todo_date ?? "").toISOString(),
             ).toLocaleString(undefined, {
               hour: "numeric",
               minute: "numeric",
@@ -41,19 +41,19 @@ export function TodoItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
           </span>
         </div>
         <Dot className="size-3" />
-        <div className="flex gap-1 items-center">
+        <div className="flex items-center gap-1">
           <Timer className="size-3" />
           <span className="text-xs">
             Due in{" "}
             {formatDuration(
               Temporal.Instant.from(
-                Temporal.Instant.from(now.toISOString())
+                Temporal.Instant.from(now.toISOString()),
               ).until(new Date(todoItem.todo_date ?? "").toISOString()),
               {
                 minUnit: "second",
                 maxUnit: "day",
                 maxUnits: 3,
-              }
+              },
             )}
           </span>
         </div>
@@ -62,14 +62,14 @@ export function TodoItemRenderer({ todoItem }: { todoItem: PlannerNote }) {
         className="mt-4"
         dangerouslySetInnerHTML={{
           __html: marked.parse(
-            DOMPurify.sanitize(todoItem.details ?? "No description provided")
+            DOMPurify.sanitize(todoItem.details ?? "No description provided"),
           ) as string,
         }}
       ></p>
       <LinkModal
         link={`/app/todo/${todoItem.id}/edit`}
         trigger={
-          <Button className="fixed bottom-0 right-0 m-4">
+          <Button className="fixed right-0 bottom-0 m-4">
             <Pencil />
             <span>Edit</span>
           </Button>

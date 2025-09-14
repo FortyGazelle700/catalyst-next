@@ -45,7 +45,7 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
       {
         const puppeteer = await import("puppeteer");
         const browser = await puppeteer.launch({
-          headless: "shell", // especially important in Nixpacks
+          headless: "shell",
           args: ["--no-sandbox", "--disable-setuid-sandbox"],
         });
         try {
