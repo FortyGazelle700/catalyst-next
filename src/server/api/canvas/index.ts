@@ -71,6 +71,7 @@ export async function canvas($ctx: ApiCtx) {
       markComplete: await (await import("./todo/mark-completed")).default(ctx),
       getNote: await (await import("./todo/get-note")).default(ctx),
       create: await (await import("./todo/create")).default(ctx),
+      delete: await (await import("./todo/delete")).default(ctx),
       edit: await (await import("./todo/edit")).default(ctx),
       list: await (await import("./todo/list")).default(ctx),
     },

@@ -347,6 +347,13 @@ export function AudioVideoControls({
     const currSrc = src.current;
     const onKeyPress = (evt: KeyboardEvent) => {
       (async () => {
+        let multiplier = 1;
+        if (evt.shiftKey) {
+          multiplier = 5;
+        } else if (evt.ctrlKey) {
+          multiplier = 0.1;
+        }
+
         if (evt.code == "Space") {
           evt.preventDefault();
           setIsPlaying((isPlaying) => !isPlaying);
@@ -371,7 +378,9 @@ export function AudioVideoControls({
         }
         if (evt.code == "ArrowLeft") {
           evt.preventDefault();
-          setCurrentTime(Math.max((currSrc?.currentTime ?? 5) - 5, 0));
+          setCurrentTime(
+            Math.max((currSrc?.currentTime ?? 5) - 5 * multiplier, 0),
+          );
         }
         if (evt.code == "ArrowRight") {
           evt.preventDefault();
@@ -435,6 +444,7 @@ export function AudioVideoControls({
         "@container flex items-center gap-4 rounded-xl border p-2",
         className,
       )}
+      key={`${type}-controls`}
     >
       <div className="flex flex-1 items-center gap-2">
         <div className="w-10">
@@ -450,10 +460,13 @@ export function AudioVideoControls({
           <Slider
             defaultValue={[0]}
             value={[currentTime ?? 0]}
+            step={0.01}
             max={duration}
             onValueChange={(value) => {
               setIsPlaying(false);
-              setCurrentTime(value[0]!);
+              setTimeout(() => {
+                setCurrentTime(value[0]!);
+              });
             }}
           />
           <div className="flex items-center justify-between gap-2 text-xs">

@@ -59,6 +59,7 @@ export const BreadcrumbBits = {
       (async () => {
         const req = await fetch(`/api/todo/get-note/${id}`, {
           cache: "force-cache",
+          next: { revalidate: 24 * 60 * 60 * 1000 },
         });
         const res = (await req.json()) as {
           success: boolean;
@@ -99,6 +100,7 @@ export const BreadcrumbBits = {
         if (schoolId == undefined) return;
         const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`, {
           cache: "force-cache",
+          next: { revalidate: 24 * 60 * 60 * 1000 },
         });
         const res = (await req.json()) as {
           success: boolean;
@@ -117,6 +119,71 @@ export const BreadcrumbBits = {
       <BreadcrumbItem>
         <BreadcrumbRender asLink={asLink} href={`/app/schools/${schoolId}`}>
           {name ?? <Skeleton className="h-4 w-[20ch] rounded-full" />}
+        </BreadcrumbRender>
+      </BreadcrumbItem>
+    );
+  },
+  SchoolSchedules: ({
+    schoolId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    asLink?: boolean;
+  }) => (
+    <BreadcrumbItem>
+      <BreadcrumbRender
+        asLink={asLink}
+        href={`/app/schools/${schoolId}/schedules`}
+      >
+        Schedules
+      </BreadcrumbRender>
+    </BreadcrumbItem>
+  ),
+  SchoolSchedule: ({
+    schoolId,
+    scheduleId,
+    asLink = true,
+  }: {
+    schoolId?: string;
+    scheduleId?: string;
+    asLink?: boolean;
+  }) => {
+    const [name, setName] = useState<string | null>(null);
+
+    useEffect(() => {
+      (async () => {
+        if (schoolId == undefined) return;
+        const req = await fetch(
+          `/api/catalyst/schools/${schoolId}/schedules/${scheduleId}/get`,
+          {
+            cache: "force-cache",
+            next: { revalidate: 24 * 60 * 60 * 1000 },
+          },
+        );
+        const res = (await req.json()) as {
+          success: boolean;
+          data: {
+            id: string;
+            name: string;
+          } | null;
+          errors: { message: string }[];
+        };
+        const data = res?.data;
+        setName(data?.name ?? "Item Not Found");
+      })().catch(console.error);
+    }, [scheduleId, schoolId]);
+
+    return (
+      <BreadcrumbItem>
+        <BreadcrumbRender
+          asLink={asLink}
+          href={`/app/schools/${schoolId}/schedules/${scheduleId}`}
+        >
+          {name ? (
+            `${name} Schedule`
+          ) : (
+            <Skeleton className="h-4 w-[20ch] rounded-full" />
+          )}
         </BreadcrumbRender>
       </BreadcrumbItem>
     );
@@ -280,6 +347,7 @@ export const BreadcrumbBits = {
       (async () => {
         const req = await fetch(`/api/courses/${courseId}/page/${pageId}`, {
           cache: "force-cache",
+          next: { revalidate: 24 * 60 * 60 * 1000 },
         });
         const res = (await req.json()) as {
           success: boolean;
@@ -557,6 +625,41 @@ export function Breadcrumbs({
                     <BreadcrumbSeparator />
                     <BreadcrumbBits.School
                       schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/schedules":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolSchedules
+                      schoolId={params.id ?? ""}
+                      asLink={false}
+                    />
+                  </>
+                );
+              case "/app/schools/[id]/schedules/[schedule]":
+                return (
+                  <>
+                    <BreadcrumbBits.Catalyst />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.Schools />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.School schoolId={params.id ?? ""} />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolSchedules
+                      schoolId={params.id ?? ""}
+                    />
+                    <BreadcrumbSeparator />
+                    <BreadcrumbBits.SchoolSchedule
+                      schoolId={params.id ?? ""}
+                      scheduleId={params.schedule ?? ""}
                       asLink={false}
                     />
                   </>

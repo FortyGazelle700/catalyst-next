@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LocaleDateTimeString } from "@/components/util/format-date-client";
 import { type Assignment, type CanvasErrors } from "@/server/api/canvas/types";
 import { Info } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function AssignmentDialogPage({
   course,
@@ -39,11 +39,11 @@ export function AssignmentDialogPage({
     fetchData().catch(console.error);
   }, [course, assignment]);
 
-  function prettyBody(str?: string) {
+  const prettyBody = useCallback((str?: string) => {
     if (!str) return "";
     str = str.replace(/<script.*?<\/script>/g, "");
     return replaceCanvasURL(str);
-  }
+  }, []);
 
   function replaceCanvasURL(str: string) {
     const baseURL = `${
@@ -53,6 +53,59 @@ export function AssignmentDialogPage({
       /https:\/\/[a-zA-Z0-9.-]+\.instructure\.com\/(?:api\/v1\/)?/g;
     return str.split(pattern).join(baseURL);
   }
+
+  const renderer = useMemo(
+    () => (
+      <>
+        <h1 className="h1">{response.data?.name}</h1>
+        {response.data?.locked_for_user && (
+          <div className="mb-4 flex items-center gap-1 rounded-md bg-yellow-50 p-4 text-xs text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200">
+            <Info className="size-3" />
+            This assignment is currently locked. (
+            {(() => {
+              if (
+                new Date(response.data?.unlock_at ?? "").getTime() >= Date.now()
+              ) {
+                return (
+                  <>
+                    Unlocks{" "}
+                    <LocaleDateTimeString
+                      date={response.data?.unlock_at ?? ""}
+                      locale={undefined}
+                      options={{ timeStyle: "short", dateStyle: "medium" }}
+                    />
+                  </>
+                );
+              } else if (
+                new Date(response.data?.lock_at ?? "").getTime() <= Date.now()
+              ) {
+                return (
+                  <>
+                    Locked{" "}
+                    <LocaleDateTimeString
+                      date={response.data?.lock_at ?? ""}
+                      locale={undefined}
+                      options={{ timeStyle: "short", dateStyle: "medium" }}
+                    />
+                  </>
+                );
+              } else {
+                return "No lock information";
+              }
+            })()}
+            )
+          </div>
+        )}
+        <div
+          className="render-fancy"
+          dangerouslySetInnerHTML={{
+            __html: prettyBody(response.data?.description),
+          }}
+        />
+      </>
+    ),
+    [prettyBody, response],
+  );
 
   if (!response?.data) {
     return (
@@ -71,53 +124,5 @@ export function AssignmentDialogPage({
     );
   }
 
-  return (
-    <>
-      <h1 className="h1">{response.data?.name}</h1>
-      {response.data?.locked_for_user && (
-        <div className="mb-4 flex items-center gap-1 rounded-md bg-yellow-50 p-4 text-xs text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200">
-          <Info className="size-3" />
-          This assignment is currently locked. (
-          {(() => {
-            if (
-              new Date(response.data?.unlock_at ?? "").getTime() >= Date.now()
-            ) {
-              return (
-                <>
-                  Unlocks{" "}
-                  <LocaleDateTimeString
-                    date={response.data?.unlock_at ?? ""}
-                    locale={undefined}
-                    options={{ timeStyle: "short", dateStyle: "medium" }}
-                  />
-                </>
-              );
-            } else if (
-              new Date(response.data?.lock_at ?? "").getTime() <= Date.now()
-            ) {
-              return (
-                <>
-                  Locked{" "}
-                  <LocaleDateTimeString
-                    date={response.data?.lock_at ?? ""}
-                    locale={undefined}
-                    options={{ timeStyle: "short", dateStyle: "medium" }}
-                  />
-                </>
-              );
-            } else {
-              return "No lock information";
-            }
-          })()}
-          )
-        </div>
-      )}
-      <div
-        className="render-fancy"
-        dangerouslySetInnerHTML={{
-          __html: prettyBody(response.data?.description),
-        }}
-      />
-    </>
-  );
+  return renderer;
 }

@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  ExternalLink,
   Info,
   Loader,
   RotateCw,
@@ -14,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AnimationPlayer } from "@/components/catalyst/animation-player";
+import { CanvasTutorial } from "@/components/catalyst/canvas-tutorial";
 
 export default function OnboardingPageClient({
   tokenIsSaved: defaultTokenIsSaved,
@@ -125,22 +124,7 @@ export default function OnboardingPageClient({
             </Button>
           </div>
         </label>
-        <div className="relative">
-          <AnimationPlayer
-            src="/canvas.lottie.json"
-            autoplay
-            loop
-            className="overflow-hidden rounded-md border"
-          />
-          <Button
-            href={canvasUrl}
-            target="_blank"
-            variant="secondary"
-            className="absolute top-2 right-2"
-          >
-            Open Canvas <ExternalLink />
-          </Button>
-        </div>
+        <CanvasTutorial canvasUrl={canvasUrl} />
       </div>
       <div className="mt-4 flex items-center justify-between gap-2">
         <Button
