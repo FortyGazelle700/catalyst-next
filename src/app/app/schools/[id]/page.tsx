@@ -11,6 +11,7 @@ import { api } from "@/server/api";
 import { Circle, ExternalLink, MapIcon, MapPin, Settings } from "lucide-react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import CalendarView from "./page.client";
 
 export const metadata: Metadata = {
   title: "School",
@@ -44,6 +45,18 @@ export default async function SchoolPage({
   const { data: schedules } = await (
     await api({})
   ).catalyst.schools.schedules.list({ id: school.id });
+
+  const { data: dates } = await (
+    await api({})
+  ).catalyst.schools.schedules.dates.list.list({
+    id: school.id,
+  });
+
+  const { data: datesSchedule } = await (
+    await api({})
+  ).catalyst.schools.schedules.dates.schedule.list({
+    id: school.id,
+  });
 
   const canManage = role == "owner" || role == "admin";
 
@@ -217,8 +230,33 @@ export default async function SchoolPage({
               <h3 className="flex w-full items-center justify-between gap-2 font-bold">
                 {schedule.name}
               </h3>
+              <Button
+                variant="link"
+                size="sm"
+                className="text-foreground/50"
+                href={`/app/schools/${school.id}/schedules/${schedule.id}`}
+              >
+                View in Detail
+              </Button>
             </div>
           ))}
+          <div className="mt-4 flex items-center justify-between py-4">
+            <h2 className="h3 mt-0">Schedules Dates</h2>
+            {canManage && (
+              <Button
+                variant="link"
+                href={`/app/schools/${school.id}/manage/schedules/dates`}
+                className="text-muted-foreground px-0"
+              >
+                Manage
+              </Button>
+            )}
+          </div>
+          <CalendarView
+            dates={dates}
+            datesSchedule={datesSchedule}
+            schedules={schedules}
+          />
         </div>
       </div>
     </div>
