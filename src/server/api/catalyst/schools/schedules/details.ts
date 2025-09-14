@@ -14,7 +14,7 @@ export default async function details(ctx: ApiCtx) {
 
     const { data: periods } = await (
       await api({})
-    ).catalyst.schools.periods.list({ id: schoolId });
+    ).catalyst.schools.periods.list({ id: schoolId, ignoreSelection: true });
 
     const periodList = await ctx.db
       .select()

@@ -44,6 +44,18 @@ export default async function SchedulePage() {
           <span>Step 3 / 3</span>
         </div>
       </div>
+      <h2 className="h3">Scheduling Information</h2>
+      <p className="text-foreground/70 text-sm">
+        Please enter your schedule information. Courses are pulled from your
+        Canvas course list—if a course doesn{"'"}t have a Canvas tile, it won
+        {"'"}t appear here.
+        <br />
+        <br />
+        You don{"'"}t need to fill every period, but completing more slots
+        improves your experience. Enter your schedule as accurately as possible
+        (you can always update it later or skip this step for now).
+      </p>
+      <h2 className="h3">Your Schedule Details</h2>
       <ScheduleClientPage
         courses={courses ?? []}
         periods={periods ?? []}

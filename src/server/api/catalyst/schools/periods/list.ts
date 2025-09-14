@@ -1,7 +1,13 @@
 import { type ApiCtx } from "@/server/api";
 
 export default async function list(ctx: ApiCtx) {
-  return async ({ id }: { id?: string }) => {
+  return async ({
+    id,
+    ignoreSelection = false,
+  }: {
+    id?: string;
+    ignoreSelection?: boolean;
+  }) => {
     const { periods } = await import("@/server/db/schema");
     const { eq } = await import("drizzle-orm");
     const schoolPeriods = await ctx.db
@@ -15,7 +21,7 @@ export default async function list(ctx: ApiCtx) {
       .map((period) => {
         let options = undefined;
         if (period.type == "single") {
-          if (usedPeriods.has(period.periodId)) {
+          if (usedPeriods.has(period.periodId) && !ignoreSelection) {
             return undefined;
           }
           usedPeriods.add(period.periodId);
