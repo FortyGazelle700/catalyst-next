@@ -2,15 +2,21 @@
 
 import { type ApiCtx } from "@/server/api";
 import set from "./set";
+import isPro from "../is-pro";
 
 export default async function setMany(ctx: ApiCtx) {
   return async (kv: Record<string, string>) => {
     const { settings: newSettings } = ctx.user;
+    const { data: proUser } = await (await isPro(ctx))();
     const { revalidateTag } = await import("next/cache");
 
     for (const k of Object.keys(kv)) {
       const key = k;
-      const value = kv[key]!;
+      let value = kv[key]!;
+
+      if (key == "submission_alerts" && !proUser) {
+        value = "[]";
+      }
 
       await (
         await set(ctx)

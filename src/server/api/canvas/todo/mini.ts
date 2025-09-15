@@ -5,6 +5,7 @@ import type { Assignment, CanvasErrors, Course, PlannerItem } from "../types";
 
 export type TodoListInput = {
   days?: number;
+  useCache?: boolean;
 };
 
 export default async function miniTodoList(ctx: CanvasApiCtx) {
@@ -83,6 +84,10 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
         errors: [],
       };
     };
+
+    if ((input.useCache ?? true) == false) {
+      return await todoList();
+    }
 
     return await unstable_cache(
       todoList,
