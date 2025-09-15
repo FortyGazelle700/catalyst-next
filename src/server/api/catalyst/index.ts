@@ -58,6 +58,9 @@ export async function catalyst(ctx: ApiCtx) {
         list: await (await import("./account/sessions/list")).default(ctx),
         revoke: await (await import("./account/sessions/revoke")).default(ctx),
       },
+      email: {
+        send: await (await import("./account/send-email")).default(ctx),
+      },
       settings: {
         set: await (await import("./account/settings/set")).default(ctx),
         get: await (await import("./account/settings/get")).default(ctx),
