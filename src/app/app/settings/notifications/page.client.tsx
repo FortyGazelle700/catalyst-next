@@ -8,23 +8,27 @@ import {
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { WheelPicker, WheelPickerWrapper } from "@/components/ui/wheel-picker";
+import { cn } from "@/lib/utils";
 import type { ApiCtx } from "@/server/api";
 import {
   AlertCircle,
   ArrowRight,
   BellDot,
   ChevronsUpDown,
+  Crown,
   Info,
   ListTree,
+  Lock,
   Trash,
   Wrench,
 } from "lucide-react";
-import { type SetStateAction, type Dispatch } from "react";
+import { type SetStateAction, type Dispatch, useEffect } from "react";
 
 export default function NotificationSettings({
   settings,
   setSettings,
   setLink,
+  isPro,
 }: {
   link: string;
   setLink: Dispatch<SetStateAction<string>>;
@@ -36,6 +40,16 @@ export default function NotificationSettings({
     minutes: number;
     hours: number;
   }[];
+
+  useEffect(() => {
+    if (!isPro && submissionAlerts.length > 0) {
+      setSettings({
+        ...settings,
+        submission_alerts: JSON.stringify([]),
+      });
+    }
+  }, [isPro, setSettings, settings, submissionAlerts.length]);
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <div>
@@ -73,6 +87,10 @@ export default function NotificationSettings({
       <div>
         <h2 className="mt-2 flex items-center gap-2 font-bold">
           <AlertCircle /> Submission Alerts
+          <div className="text-muted-foreground ml-auto flex items-center gap-1 rounded-full border px-2 py-1 text-xs">
+            {isPro ? <Crown className="size-3" /> : <Lock className="size-3" />}
+            Pro
+          </div>
         </h2>
       </div>
       {[...submissionAlerts, { hours: 0, minutes: 0 }]
@@ -80,7 +98,10 @@ export default function NotificationSettings({
         .map((alert, idx) => (
           <div
             key={idx}
-            className="flex w-full items-center justify-between gap-2 rounded-full border p-2"
+            className={cn(
+              "flex w-full items-center justify-between gap-2 rounded-full border p-2",
+              isPro ? "" : "opacity-50",
+            )}
           >
             <div className="flex w-[20ch] items-center gap-2">
               <Popover>
@@ -88,6 +109,7 @@ export default function NotificationSettings({
                   <Button
                     variant="outline"
                     className="dark:bg-input/30 flex w-full justify-between"
+                    disabled={!isPro}
                   >
                     <span>
                       {alert.hours}h {alert.minutes}m
@@ -146,7 +168,7 @@ export default function NotificationSettings({
               variant="destructive"
               size="icon"
               className="ml-auto"
-              disabled={idx == submissionAlerts.length}
+              disabled={idx == submissionAlerts.length || !isPro}
               onClick={() => {
                 const newAlerts = submissionAlerts.filter((_, i) => i != idx);
                 setSettings({

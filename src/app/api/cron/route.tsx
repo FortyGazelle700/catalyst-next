@@ -157,6 +157,8 @@ async function sendNotifications() {
 
   for (const user of userList) {
     const userApi = await api({ userId: user.id });
+    if (!userApi) continue;
+    if ((await userApi.catalyst.account.isPro()).data == false) continue;
     const { data: settings } = await userApi.catalyst.account.settings.list();
     if (settings.email_notifications == "true") {
       const jsonAlerts = JSON.parse(settings.submission_alerts ?? "[]") as {
