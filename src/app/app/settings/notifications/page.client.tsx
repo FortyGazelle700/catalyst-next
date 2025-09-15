@@ -1,13 +1,34 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { WheelPicker, WheelPickerWrapper } from "@/components/ui/wheel-picker";
+import { cn } from "@/lib/utils";
 import type { ApiCtx } from "@/server/api";
-import { ArrowRight, BellDot, Info, ListTree, Wrench } from "lucide-react";
-import { type SetStateAction, type Dispatch } from "react";
+import {
+  AlertCircle,
+  ArrowRight,
+  BellDot,
+  ChevronsUpDown,
+  Crown,
+  Info,
+  ListTree,
+  Lock,
+  Trash,
+  Wrench,
+} from "lucide-react";
+import { type SetStateAction, type Dispatch, useEffect } from "react";
 
 export default function NotificationSettings({
+  settings,
+  setSettings,
   setLink,
+  isPro,
 }: {
   link: string;
   setLink: Dispatch<SetStateAction<string>>;
@@ -15,11 +36,25 @@ export default function NotificationSettings({
   setSettings: Dispatch<SetStateAction<ApiCtx["user"]["settings"]>>;
   isPro: boolean;
 }) {
+  const submissionAlerts = JSON.parse(settings.submission_alerts ?? "[]") as {
+    minutes: number;
+    hours: number;
+  }[];
+
+  useEffect(() => {
+    if (!isPro && submissionAlerts.length > 0) {
+      setSettings({
+        ...settings,
+        submission_alerts: JSON.stringify([]),
+      });
+    }
+  }, [isPro, setSettings, settings, submissionAlerts.length]);
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <div>
         <h2 className="mt-2 flex items-center gap-2 font-bold">
-          <BellDot /> Notification Methods
+          <BellDot /> Global Notification Methods
         </h2>
       </div>
       <div className="flex flex-col gap-4">
@@ -33,7 +68,119 @@ export default function NotificationSettings({
             <Switch disabled />
           </div>
         </label>
+        <label className="text-muted-foreground flex w-full items-center justify-between gap-2 rounded-full border px-4 py-2">
+          <span>Email</span>
+          <div className="flex items-center gap-4">
+            <span className="text-muted-foreground flex items-center gap-1 text-xs"></span>
+            <Switch
+              checked={settings.email_notifications == "true" ? true : false}
+              onCheckedChange={(checked) =>
+                setSettings({
+                  ...settings,
+                  email_notifications: checked ? "true" : "false",
+                })
+              }
+            />
+          </div>
+        </label>
       </div>
+      <div>
+        <h2 className="mt-2 flex items-center gap-2 font-bold">
+          <AlertCircle /> Submission Alerts
+          <div className="text-muted-foreground ml-auto flex items-center gap-1 rounded-full border px-2 py-1 text-xs">
+            {isPro ? <Crown className="size-3" /> : <Lock className="size-3" />}
+            Pro
+          </div>
+        </h2>
+      </div>
+      {[...submissionAlerts, { hours: 0, minutes: 0 }]
+        .filter((_, i) => i < 5)
+        .map((alert, idx) => (
+          <div
+            key={idx}
+            className={cn(
+              "flex w-full items-center justify-between gap-2 rounded-full border p-2",
+              isPro ? "" : "opacity-50",
+            )}
+          >
+            <div className="flex w-[20ch] items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="dark:bg-input/30 flex w-full justify-between"
+                    disabled={!isPro}
+                  >
+                    <span>
+                      {alert.hours}h {alert.minutes}m
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <WheelPickerWrapper>
+                    <WheelPicker
+                      options={Array.from({ length: 24 + 1 }).map((_, i) => ({
+                        label: i.toString(),
+                        value: i.toString(),
+                      }))}
+                      value={alert.hours.toString()}
+                      onValueChange={(val) =>
+                        setSettings({
+                          ...settings,
+                          ["submission_alerts"]: JSON.stringify([
+                            ...submissionAlerts.slice(0, idx),
+                            { hours: parseInt(val), minutes: alert.minutes },
+                            ...submissionAlerts.slice(idx + 1),
+                          ]),
+                        })
+                      }
+                    />
+                    <span className="bg-accent/50 my-auto flex h-7.5 items-center justify-center">
+                      h
+                    </span>
+                    <WheelPicker
+                      options={Array.from({ length: 60 / 5 }).map((_, i) => ({
+                        label: (i * 5).toString(),
+                        value: (i * 5).toString(),
+                      }))}
+                      value={alert.minutes.toString()}
+                      onValueChange={(val) =>
+                        setSettings({
+                          ...settings,
+                          ["submission_alerts"]: JSON.stringify([
+                            ...submissionAlerts.slice(0, idx),
+                            { hours: alert.hours, minutes: parseInt(val) },
+                            ...submissionAlerts.slice(idx + 1),
+                          ]),
+                        })
+                      }
+                    />
+                    <span className="bg-accent/50 my-auto flex h-7.5 items-center justify-center rounded-r-full pr-12">
+                      m
+                    </span>
+                  </WheelPickerWrapper>
+                </PopoverContent>
+              </Popover>
+              before
+            </div>
+            <Button
+              variant="destructive"
+              size="icon"
+              className="ml-auto"
+              disabled={idx == submissionAlerts.length || !isPro}
+              onClick={() => {
+                const newAlerts = submissionAlerts.filter((_, i) => i != idx);
+                setSettings({
+                  ...settings,
+                  ["submission_alerts"]: JSON.stringify(newAlerts),
+                });
+              }}
+            >
+              <Trash />
+            </Button>
+          </div>
+        ))}
       <div>
         <h2 className="mt-2 flex items-center gap-2 font-bold">
           <ListTree /> Related Settings
