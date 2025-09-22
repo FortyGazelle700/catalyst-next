@@ -74,9 +74,6 @@ export default async function DashboardPage() {
         </div>
       </ElementAnimate>
       <ElementAnimate delay={600} className="w-full">
-        <h2 className="h3 text-muted-foreground">
-          Upcoming Assignments and Events
-        </h2>
         <MiniTodoList />
       </ElementAnimate>
     </div>

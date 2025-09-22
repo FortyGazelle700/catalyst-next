@@ -5,11 +5,9 @@ import type { ApiCtx } from "@/server/api";
 import {
   ArrowRight,
   Check,
-  Crown,
   Gem,
   Lamp,
   ListTree,
-  Lock,
   Monitor,
   Moon,
   Paintbrush,
@@ -25,7 +23,6 @@ export default function AppearanceSettings({
   setLink,
   settings,
   setSettings,
-  isPro,
 }: {
   link: string;
   setLink: Dispatch<SetStateAction<string>>;
@@ -159,10 +156,6 @@ export default function AppearanceSettings({
       <div>
         <h2 className="mt-2 flex items-center gap-2 font-bold">
           <Paintbrush /> Color Theme
-          <div className="text-muted-foreground ml-auto flex items-center gap-1 rounded-full border px-2 py-1 text-xs">
-            {isPro ? <Crown className="size-3" /> : <Lock className="size-3" />}
-            Pro
-          </div>
         </h2>
       </div>
       <div className="grid grid-cols-1 gap-4 @5xl:grid-cols-2">
@@ -192,12 +185,12 @@ export default function AppearanceSettings({
             ["Pink", "pink", "pink"],
             ["Rose", "rose", "rose"],
           ] as const
-        ).map(([name, key, color], idx) => (
+        ).map(([name, key, color]) => (
           <div
             key={key}
             className={cn(
               "stack relative rounded-md",
-              ((idx == 0 && !isPro) || (isPro && colorTheme == key)) &&
+              colorTheme == key &&
                 "outline-primary/50 outline-2 outline-offset-4",
             )}
           >
@@ -205,7 +198,6 @@ export default function AppearanceSettings({
               variant="outline"
               className={`h-36 flex-1 flex-col items-start justify-end bg-${color}-100 dark:bg-${color}-900 !text-${color}-900 hover:bg-${color}-200 dark:hover:bg-${color}-800`}
               onClick={() => {
-                if (!isPro) return;
                 setSettings((prev) => ({
                   ...prev,
                   color_theme: key ?? "default",
@@ -213,19 +205,13 @@ export default function AppearanceSettings({
                 setColorTheme?.(key);
               }}
               aria-pressed={colorTheme == key}
-              disabled={idx != 0 && !isPro}
             >
               <Lamp className="size-6" />
               <span className="text-xl font-bold">{name}</span>
             </Button>
-            {((idx == 0 && !isPro) || (isPro && colorTheme == key)) && (
+            {colorTheme == key && (
               <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
                 <Check className="size-3" /> Selected
-              </div>
-            )}
-            {idx != 0 && !isPro && (
-              <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
-                <Lock className="size-3" /> Locked
               </div>
             )}
           </div>

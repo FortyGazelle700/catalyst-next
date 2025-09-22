@@ -96,6 +96,11 @@ export function AssignmentDialogPage({
             )
           </div>
         )}
+        {response.data?.description.trim() == "" && (
+          <div className="text-muted-foreground mt-4">
+            No assignment description provided.
+          </div>
+        )}
         <div
           className="render-fancy"
           dangerouslySetInnerHTML={{

@@ -167,6 +167,11 @@ async function sendNotifications() {
       }[];
       if (jsonAlerts.length == 0) continue;
 
+      const { data: courseList } = await userApi.canvas.courses.list({
+        limit: 500,
+        offset: 0,
+      });
+
       const alerts = jsonAlerts
         .map((alert) => alert.hours * 60 + alert.minutes)
         .map((m) => m * 60 * 1000)
@@ -214,7 +219,9 @@ async function sendNotifications() {
           <SubmissionAlertEmail
             assignmentsDue={itemsToAlert.map((item) => ({
               name: item.plannable.title,
-              courseLabel: item.course?.classification ?? "Unclassified",
+              courseLabel:
+                courseList.find((c) => c.id === item.course?.id)?.name ??
+                "Unclassified",
               courseName: item.course?.name ?? "Course Name",
               dueDate: new Date(
                 item.plannable.due_at ?? item.plannable_date ?? "",

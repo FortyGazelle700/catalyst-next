@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   ArrowUpRight,
+  Calendar,
   ChevronRight,
+  Clock,
+  Eye,
   House,
   LayoutDashboard,
+  List,
   Maximize,
   Percent,
   Pin,
   Timer,
+  Upload,
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
@@ -24,9 +29,11 @@ import {
 import { subjectColors, SubjectIcon } from "@/components/catalyst/subjects";
 import { type PlannerItem } from "@/server/api/canvas/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TodoItem } from "./todo";
+import { CalendarTodoCard, TimeTodoCard, TodoItem } from "./todo";
 import { Temporal } from "@js-temporal/polyfill";
 import { formatDuration } from "@/components/catalyst/format-duration";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export function TimeCard() {
   const now = useContext(TimeContext);
@@ -498,6 +505,70 @@ export function MiniTodoList() {
   }, []);
 
   return (
+    <Tabs defaultValue="list" className="w-full">
+      <div className="@container mt-4 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="h3 text-muted-foreground">
+            Upcoming Assignments and Events
+          </h2>
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="list">
+                <List /> List
+              </TabsTrigger>
+              <TabsTrigger value="time">
+                <Clock /> Time Table
+              </TabsTrigger>
+              <TabsTrigger value="calendar">
+                <Calendar /> Calendar
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              variant="outline"
+              className="group h-10 text-xs"
+              href="/app/todo"
+            >
+              View full todo list{" "}
+              <ArrowRight className="transition-all group-hover:-rotate-45" />
+            </Button>
+          </div>
+        </div>
+        <TabsContent value="list">
+          <ListView
+            isLoading={isLoading}
+            todoItems={todoItems}
+            setTodoItems={setTodoItems}
+          />
+        </TabsContent>
+        <TabsContent value="time">
+          <TimeView
+            isLoading={isLoading}
+            todoItems={todoItems}
+            setTodoItems={setTodoItems}
+          />
+        </TabsContent>
+        <TabsContent value="calendar">
+          <CalendarView
+            isLoading={isLoading}
+            todoItems={todoItems}
+            setTodoItems={setTodoItems}
+          />
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
+}
+
+function ListView({
+  isLoading,
+  todoItems,
+  setTodoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+  setTodoItems: React.Dispatch<React.SetStateAction<PlannerItem[]>>;
+}) {
+  return (
     <div className="@container mt-4 flex flex-col gap-4">
       {isLoading ? (
         <>
@@ -516,16 +587,316 @@ export function MiniTodoList() {
           ))}
         </>
       )}
-      <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 p-16 text-xs">
-        Only showing the last 14 days
-        <Button
-          variant="outline"
-          className="group h-8 text-xs"
-          href="/app/todo"
-        >
-          View full todo list{" "}
-          <ArrowRight className="transition-all group-hover:-rotate-45" />
-        </Button>
+    </div>
+  );
+}
+
+function TimeView({
+  isLoading,
+  todoItems,
+  setTodoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+  setTodoItems: React.Dispatch<React.SetStateAction<PlannerItem[]>>;
+}) {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        setNow(new Date());
+      },
+      60 * 5 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, []);
+
+  const startOfDay = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const days: { label: string; date: Date; isToday: boolean }[] =
+    useMemo(() => {
+      const result: { label: string; date: Date; isToday: boolean }[] = [];
+      const today = startOfDay(now);
+      for (let i = -1; i < 15; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        let label = "";
+        if (i === -1) label = "Yesterday";
+        else if (i === 0) label = "Today";
+        else label = date.toLocaleDateString(undefined, { weekday: "short" });
+        result.push({ label, date, isToday: i === 0 });
+      }
+      return result;
+    }, [now]);
+
+  const hours = useMemo(() => {
+    const hourArray = [];
+    for (let hour = 6; hour <= 23; hour++) {
+      const date = new Date();
+      date.setHours(hour, 0, 0, 0);
+      hourArray.push({
+        hour,
+        label: date
+          .toLocaleTimeString(undefined, {
+            hour: "numeric",
+            hour12: true,
+          })
+          .replace(":00", ""),
+      });
+    }
+    return hourArray;
+  }, []);
+
+  // Group todoItems by day and time
+  const itemsByDayAndTime = useMemo(() => {
+    const map: Record<string, Record<number, PlannerItem[]>> = {};
+
+    // Initialize map structure
+    days.forEach(({ date }) => {
+      const dayKey = startOfDay(date).toISOString();
+      map[dayKey] = {};
+      hours.forEach(({ hour }) => {
+        if (map[dayKey]) {
+          map[dayKey][hour] = [];
+        }
+      });
+    });
+
+    todoItems.forEach((item) => {
+      const dueDate = item.plannable?.due_at ?? item.plannable_date;
+      if (!dueDate) return;
+
+      const parsedDate = new Date(dueDate);
+      const dayKey = startOfDay(parsedDate).toISOString();
+      const hour = parsedDate.getHours();
+
+      // If the item has a specific time, place it in that hour
+      // Otherwise, place it in the 8 AM slot as default
+      const targetHour = hour >= 6 && hour <= 23 ? hour : 6;
+
+      if (map[dayKey]?.[targetHour]) {
+        map[dayKey][targetHour].push(item);
+      }
+    });
+
+    return map;
+  }, [todoItems, days, hours]);
+
+  if (isLoading) {
+    return (
+      <div className="@container mt-4 flex flex-col gap-4">
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="@container mt-4 flex flex-col gap-2 overflow-hidden">
+      <div className="bg-background overflow-x-auto rounded-lg border">
+        <div className="min-w-max">
+          <div className="bg-background sticky top-0 z-10 border-b">
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `10ch repeat(${days.length}, 20rem)`,
+              }}
+            >
+              <div className="bg-background sticky left-0 z-20 border-r p-3"></div>
+              {days.map(({ label, date, isToday }) => (
+                <div
+                  key={date.toISOString()}
+                  className={cn(
+                    "flex w-[20rem] flex-col items-center justify-center border-r p-3 last:border-r-0",
+                    (date.getDay() == 0 || date.getDay() == 6) &&
+                      !isToday &&
+                      "bg-muted/10",
+                    isToday &&
+                      "bg-primary text-primary-foreground font-semibold",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "text-muted-foreground text-xs tracking-wide uppercase",
+                      isToday && "text-primary-foreground/70",
+                    )}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    className={`text-lg font-medium ${isToday ? "text-primary-foreground" : ""}`}
+                  >
+                    {date.getDate()}
+                  </div>
+                  <div
+                    className={cn(
+                      "text-muted-foreground text-xs tracking-wide uppercase",
+                      isToday && "text-primary-foreground/70",
+                    )}
+                  >
+                    {date.toLocaleDateString(undefined, { month: "short" })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            {hours.map(({ hour, label }) => (
+              <div
+                key={hour}
+                className={cn("grid min-h-[0.5rem] border-b last:border-b-0")}
+                style={{
+                  gridTemplateColumns: `10ch repeat(${days.length}, 20rem)`,
+                }}
+              >
+                <div className="text-muted-foreground bg-background sticky left-0 z-50 flex items-start justify-end border-r p-2 pr-3 text-[0.5rem]">
+                  <span className="mt-1">{label}</span>
+                </div>
+
+                {days.map(({ date, isToday }) => (
+                  <TimeTodoCard
+                    key={date.toISOString()}
+                    date={date}
+                    hour={hour}
+                    now={now}
+                    isToday={isToday}
+                    items={
+                      itemsByDayAndTime[startOfDay(date).toISOString()]?.[
+                        hour
+                      ] ?? []
+                    }
+                    setTodoItems={setTodoItems}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CalendarView({
+  isLoading,
+  todoItems,
+  setTodoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+  setTodoItems: React.Dispatch<React.SetStateAction<PlannerItem[]>>;
+}) {
+  const currentWeek = useMemo(() => new Date(), []);
+
+  const startOfWeek = useMemo(() => {
+    const date = new Date(currentWeek);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day; // shift so Monday is first
+    date.setDate(date.getDate() + diff);
+    return date;
+  }, [currentWeek]);
+
+  const endOfCalendar = useMemo(() => {
+    const date = new Date(startOfWeek);
+    date.setDate(date.getDate() + 20); // current week + 2 more weeks (21 days)
+    return date;
+  }, [startOfWeek]);
+
+  const calendarDays = useMemo(() => {
+    const days: Date[] = [];
+    const current = new Date(startOfWeek);
+
+    while (current <= endOfCalendar) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return days;
+  }, [startOfWeek, endOfCalendar]);
+
+  const itemsByDate = useMemo(() => {
+    const map: Record<string, PlannerItem[]> = {};
+
+    todoItems.forEach((item) => {
+      const dueDate = item.plannable?.due_at ?? item.plannable_date;
+      if (!dueDate) return;
+
+      const dateKey = new Date(dueDate).toDateString();
+      map[dateKey] ??= [];
+      map[dateKey].push(item);
+    });
+
+    return map;
+  }, [todoItems]);
+
+  const today = new Date().toDateString();
+
+  if (isLoading) {
+    return (
+      <div className="@container mt-4 flex flex-col gap-4">
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="@container mt-4 flex min-w-[80rem] flex-col gap-4">
+      <div className="grid grid-cols-7">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+          <div
+            key={day}
+            className="text-muted-foreground p-2 text-center text-xs font-medium"
+          >
+            {day}
+          </div>
+        ))}
+
+        {calendarDays.map((date) => {
+          const dateKey = date.toDateString();
+          const dayItems = itemsByDate[dateKey] ?? [];
+          const isToday = dateKey == today;
+
+          return (
+            <div
+              key={dateKey}
+              className={cn(
+                "min-h-[20rem] border p-1",
+                isToday && "bg-primary/10 border-primary",
+                (date.getDay() === 0 || date.getDay() === 6) &&
+                  !isToday &&
+                  "bg-muted/10",
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-1 text-sm font-medium",
+                  isToday && "text-primary font-black",
+                )}
+              >
+                {date.getDate()}
+              </div>
+              <div className="space-y-1">
+                {dayItems.slice(0, 3).map((item) => (
+                  <CalendarTodoCard
+                    key={item.plannable_id}
+                    date={date}
+                    item={item}
+                    setTodoItems={setTodoItems}
+                  />
+                ))}
+                {dayItems.length > 3 && (
+                  <div className="text-muted-foreground text-xs">
+                    +{dayItems.length - 3} more
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

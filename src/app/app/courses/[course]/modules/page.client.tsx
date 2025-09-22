@@ -165,7 +165,10 @@ function ModuleItemRenderer({ item }: { item: ModuleItem }) {
     case "File":
       return (
         <Link
-          href={(item.content_details as Assignment)?.html_url ?? item.html_url}
+          href={(
+            (item.content_details as Assignment)?.html_url ?? item.html_url
+          ).replace("/api/v1/", "")}
+          target="_blank"
         >
           <div className="hover:bg-secondary flex items-center gap-2 rounded-2xl border p-4 transition-all">
             <Link2 className="size-4" />

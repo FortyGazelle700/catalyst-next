@@ -104,7 +104,6 @@ function CourseProvider({
   const [forceRefresh, setForce] = useState(Math.random());
 
   const lastFetch = useRef(new Date());
-  const unfocused = useRef(false);
 
   useEffect(() => {
     const code = async () => {
@@ -130,9 +129,7 @@ function CourseProvider({
       code().catch(console.error);
     }, 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
-        code().catch(console.error);
-      }
+      code().catch(console.error);
     });
   }, [ssrCourses, forceRefresh]);
 
@@ -219,18 +216,10 @@ function CourseProvider({
       });
     }
 
-    if (
-      courses.length == 0 ||
-      now.getSeconds() == 0 ||
-      unfocused.current == true
-    ) {
-      unfocused.current = false;
+    if (courses.length == 0 || now.getSeconds() == 0) {
       window.globalDebug.courses = newCourses;
       setCourses(newCourses);
     }
-    window.addEventListener("blur", () => {
-      unfocused.current = true;
-    });
   }, [courses.length, now, originalCourses]);
 
   return (
@@ -250,7 +239,6 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
   const [schedule, setSchedule] = useState<ScheduleContextValue>([]);
   const [forceRefresh, setForce] = useState(Math.random());
   const lastFetch = useRef(new Date());
-  const unfocused = useRef(false);
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -268,15 +256,10 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
       fetchSchedule().catch(console.error);
     }, 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
-        fetchSchedule().catch(console.error);
-      }
+      fetchSchedule().catch(console.error);
     });
     return () => {
       clearInterval(interval);
-      window.removeEventListener("focus", () => {
-        unfocused.current = false;
-      });
     };
   }, [forceRefresh]);
 
@@ -401,18 +384,10 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    if (
-      schedule.length == 0 ||
-      now.getSeconds() == 0 ||
-      unfocused.current == true
-    ) {
-      unfocused.current = false;
+    if (schedule.length == 0 || now.getSeconds() == 0) {
       window.globalDebug.schedule = newSchedule;
       setSchedule(newSchedule);
     }
-    window.addEventListener("blur", () => {
-      unfocused.current = true;
-    });
   }, [now, originalSchedule, schedule.length]);
 
   return (
@@ -613,40 +588,25 @@ export function useColorTheme() {
 export function ColorThemeProvider({
   children,
   colorTheme,
-  isPro,
 }: {
   children: React.ReactNode;
   colorTheme: string;
-  isPro: boolean;
 }) {
   const [theme, setTheme] = useState<string>(colorTheme ?? "default");
 
   useEffect(() => {
     const annoyingInterval = setInterval(() => {
-      setCookie("color-theme", isPro ? theme : "default", 365);
-      if (isPro) {
-        for (const cls of Array.from(document.documentElement.classList)) {
-          if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
-            continue;
-          document.documentElement.classList.remove(cls);
-        }
-        document.documentElement.classList.add(`color-theme-${theme}`);
-      } else {
-        for (const cls of Array.from(document.documentElement.classList)) {
-          if (!cls.startsWith("color-theme-") || cls == `color-theme-default`)
-            continue;
-          document.documentElement.classList.remove(cls);
-        }
-        document.documentElement.classList.add(`color-theme-default`);
-
-        if (theme != "default") {
-          setTheme("default");
-        }
+      setCookie("color-theme", theme, 365);
+      for (const cls of Array.from(document.documentElement.classList)) {
+        if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
+          continue;
+        document.documentElement.classList.remove(cls);
       }
+      document.documentElement.classList.add(`color-theme-${theme}`);
     }, 100);
 
     return () => clearInterval(annoyingInterval);
-  }, [theme, setTheme, isPro]);
+  }, [theme, setTheme]);
 
   return (
     <ColorThemeContext.Provider value={[theme, setTheme]}>
@@ -659,7 +619,6 @@ export function AppLayoutProviders({
   children,
   courses,
   colorTheme,
-  isPro,
 }: {
   children: React.ReactNode;
   courses: CourseListWithPeriodDataOutput;
@@ -673,7 +632,7 @@ export function AppLayoutProviders({
   return (
     <SessionVerificationProvider>
       <CommandMenuProvider>
-        <ColorThemeProvider colorTheme={colorTheme} isPro={isPro}>
+        <ColorThemeProvider colorTheme={colorTheme}>
           <TimeProvider>
             <CourseProvider courses={courses}>
               <ScheduleProvider>

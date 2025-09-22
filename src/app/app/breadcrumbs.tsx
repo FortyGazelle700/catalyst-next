@@ -938,7 +938,7 @@ export function Breadcrumbs({
                   <>
                     <BreadcrumbBits.Catalyst />
                     <BreadcrumbSeparator />
-                    <BreadcrumbBits.Schedule />
+                    <BreadcrumbBits.Schedule asLink={false} />
                   </>
                 );
               case "/app/schedule/now":
