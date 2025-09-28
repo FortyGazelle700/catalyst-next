@@ -54,6 +54,7 @@ import {
   Search,
   Settings,
   PictureInPicture2,
+  ClockAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -373,14 +374,15 @@ export function CoursesGroupClient() {
                           </div>
                           <div
                             className={cn(
-                              "flex w-0 items-center justify-center gap-1 rounded-full border border-red-500/50 bg-[color-mix(in_oklab,var(--color-red-500),var(--ui-background)_70%)] py-0.5 pr-2 pl-1 text-[0.5rem] opacity-0 transition-all",
+                              "flex w-0 items-center justify-center gap-1 rounded-full border border-red-500/50 bg-[color-mix(in_oklab,var(--color-red-500),var(--ui-background)_80%)] py-0.5 pr-2 pl-1 text-[0.4rem] opacity-0 transition-all",
                               course.data.missingAssignments > 0 &&
                                 "w-[calc-size(auto,size)] opacity-100",
                             )}
                           >
-                            {/* <div className="size-2 bg-red-500 rounded-full" /> */}
-                            <Bomb className="size-2 fill-red-500 stroke-red-500" />
-                            <span>{course.data.missingAssignments}</span>
+                            <ClockAlert className="size-3" />
+                            <span>
+                              {course.data.missingAssignments} missing
+                            </span>
                           </div>
                         </b>
                         <span className="text-muted-foreground truncate text-xs">

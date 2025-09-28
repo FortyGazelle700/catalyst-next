@@ -1,10 +1,14 @@
 "use client";
 
+import { Breadcrumbs } from "@/app/app/breadcrumbs";
+import { LinkModal } from "@/components/catalyst/link-modal";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LocaleDateTimeString } from "@/components/util/format-date-client";
 import { type Assignment, type CanvasErrors } from "@/server/api/canvas/types";
-import { Info } from "lucide-react";
+import { Info, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import SubmissionDialogPage from "./submission.modal";
 
 export function AssignmentDialogPage({
   course,
@@ -56,7 +60,7 @@ export function AssignmentDialogPage({
 
   const renderer = useMemo(
     () => (
-      <>
+      <div className="@container relative w-full">
         <h1 className="h1">{response.data?.name}</h1>
         {response.data?.locked_for_user && (
           <div className="mb-4 flex items-center gap-1 rounded-md bg-yellow-50 p-4 text-xs text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200">
@@ -107,7 +111,45 @@ export function AssignmentDialogPage({
             __html: prettyBody(response.data?.description),
           }}
         />
-      </>
+        <LinkModal
+          link={replaceCanvasURL(
+            response.data?.html_url?.split("/submissions")[0] ?? "",
+          )}
+          trigger={
+            <Button className="sticky right-4 bottom-4 z-10 float-right w-9 @lg:w-auto">
+              <Upload />
+              <span className="hidden @lg:flex">Start Submission</span>
+            </Button>
+          }
+          title="Assignment"
+          description="View this assignment"
+          breadcrumbs={
+            <Breadcrumbs
+              pathname={(() => {
+                try {
+                  return new URL(
+                    replaceCanvasURL(
+                      response.data?.html_url?.split("/submissions")[0] ?? "",
+                    ),
+                  ).pathname;
+                } catch {
+                  return "/app/courses";
+                }
+              })()}
+              params={{
+                course: response.data?.course_id?.toString() ?? "",
+                assignment: response.data?.id?.toString() ?? "",
+              }}
+            />
+          }
+          content={
+            <SubmissionDialogPage
+              course={Number(response.data?.course_id ?? "0")}
+              assignment={Number(response.data?.id ?? "0")}
+            />
+          }
+        />
+      </div>
     ),
     [prettyBody, response],
   );

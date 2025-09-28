@@ -1,7 +1,7 @@
 "use client";
 
 import { LocaleTimeString } from "@/components/util/format-date-client";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 type Period = {
   period: {
@@ -50,7 +50,7 @@ export function ScheduleTableClient({
           return (
             <tr
               key={period.period.id}
-              className={clsx(isCurrent && "bg-blue-100")}
+              className={cn(isCurrent && "bg-primary")}
             >
               <td>
                 {period.period.periodName}

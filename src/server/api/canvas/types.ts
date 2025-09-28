@@ -937,3 +937,14 @@ export interface ContextExternalTool {
   ActivityAssetProcessor: ContextExternalToolPlacement | null;
   ActivityAssetProcessorContribution: ContextExternalToolPlacement | null;
 }
+
+export interface Tab {
+  html_url: string;
+  full_url: string;
+  id: string;
+  label: string;
+  type: "external";
+  hidden?: boolean;
+  visibility: "public" | "members" | "admins" | "none";
+  position: number;
+}

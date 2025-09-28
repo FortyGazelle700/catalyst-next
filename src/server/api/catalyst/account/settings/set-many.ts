@@ -2,7 +2,6 @@
 
 import { type ApiCtx } from "@/server/api";
 import set from "./set";
-import isPro from "../is-pro";
 
 export default async function setMany(ctx: ApiCtx) {
   return async (kv: Record<string, string>) => {

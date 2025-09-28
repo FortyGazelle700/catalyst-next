@@ -4,9 +4,16 @@ import { Button } from "@/components/ui/button";
 import type { ApiCtx } from "@/server/api";
 import {
   ArrowRight,
+  Calendar,
   Check,
+  Clock,
+  GalleryHorizontal,
   Gem,
   Lamp,
+  LayoutDashboard,
+  LayoutGrid,
+  List,
+  ListChecks,
   ListTree,
   Monitor,
   Moon,
@@ -55,103 +62,74 @@ export default function AppearanceSettings({
         </h2>
       </div>
       <div className="grid grid-cols-1 gap-4 @5xl:grid-cols-2">
-        <div
-          className={cn(
-            "stack relative rounded-md",
-            theme == "light" && "outline-primary/50 outline-2 outline-offset-4",
-          )}
-        >
-          <Button
-            variant="outline"
-            className="h-36 flex-1 flex-col items-start justify-end bg-white text-black hover:bg-gray-200 dark:bg-gray-400 dark:hover:bg-gray-500"
-            onClick={() => setTheme("light")}
-            aria-pressed={theme == "light"}
+        {[
+          {
+            key: "light",
+            label: "Light",
+            icon: Sun,
+            buttonClass:
+              "h-36 flex-1 flex-col items-start justify-end bg-white text-black hover:bg-gray-200 dark:bg-gray-400 dark:hover:bg-gray-500",
+          },
+          {
+            key: "dark",
+            label: "Dark",
+            icon: Moon,
+            buttonClass:
+              "h-36 flex-1 flex-col items-start justify-end bg-slate-500 !text-white hover:bg-slate-600 dark:bg-slate-950 dark:text-gray-200 dark:hover:bg-slate-800",
+          },
+          {
+            key: "system",
+            label: "System",
+            icon: Monitor,
+            buttonClass:
+              "group relative h-36 w-full flex-1 flex-col items-start justify-end overflow-hidden",
+            svg: (
+              <div className="absolute inset-0 h-full w-full">
+                <svg
+                  viewBox="0 0 32 32"
+                  className="!h-full !w-full bg-slate-500 transition-all group-hover:bg-slate-600 dark:bg-gray-400 dark:group-hover:bg-gray-500"
+                  preserveAspectRatio="none"
+                >
+                  <polygon
+                    points="0,0 24,0 0,48"
+                    className="fill-white transition-all group-hover:fill-gray-200 dark:fill-slate-950 dark:text-gray-200 dark:group-hover:fill-slate-800"
+                  />
+                </svg>
+              </div>
+            ),
+          },
+          {
+            key: "oled",
+            label: "OLED",
+            icon: Lamp,
+            buttonClass:
+              "h-36 flex-1 flex-col items-start justify-end bg-black !text-white hover:bg-gray-900",
+          },
+        ].map(({ key, label, icon: Icon, buttonClass, svg }) => (
+          <div
+            key={key}
+            className={cn(
+              "stack relative rounded-md",
+              theme == key && "outline-primary/50 outline-2 outline-offset-4",
+            )}
           >
-            <Sun className="size-6" />
-            <span className="text-xl font-bold">Light</span>
-          </Button>
-          {theme == "light" && (
-            <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
-              <Check className="size-3" /> Selected
-            </div>
-          )}
-        </div>
-        <div
-          className={cn(
-            "stack relative rounded-md",
-            theme == "dark" && "outline-primary/50 outline-2 outline-offset-4",
-          )}
-        >
-          <Button
-            variant="outline"
-            className="h-36 flex-1 flex-col items-start justify-end bg-slate-500 !text-white hover:bg-slate-600 dark:bg-slate-950 dark:text-gray-200 dark:hover:bg-slate-800"
-            onClick={() => setTheme("dark")}
-            aria-pressed={theme == "dark"}
-          >
-            <Moon className="size-6" />
-            <span className="text-xl font-bold">Dark</span>
-          </Button>
-          {theme == "dark" && (
-            <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
-              <Check className="size-3" /> Selected
-            </div>
-          )}
-        </div>
-        <div
-          className={cn(
-            "stack relative rounded-md",
-            theme == "system" &&
-              "outline-primary/50 outline-2 outline-offset-4",
-          )}
-        >
-          <Button
-            variant="outline"
-            className="group relative h-36 w-full flex-1 flex-col items-start justify-end overflow-hidden"
-            onClick={() => setTheme("system")}
-            aria-pressed={theme == "system"}
-          >
-            <div className="absolute inset-0 h-full w-full">
-              <svg
-                viewBox="0 0 32 32"
-                className="!h-full !w-full bg-slate-500 transition-all group-hover:bg-slate-600 dark:bg-gray-400 dark:group-hover:bg-gray-500"
-                preserveAspectRatio="none"
-              >
-                <polygon
-                  points="0,0 24,0 0,48"
-                  className="fill-white transition-all group-hover:fill-gray-200 dark:fill-slate-950 dark:text-gray-200 dark:group-hover:fill-slate-800"
-                />
-              </svg>
-            </div>
-            <Monitor className="z-10 size-6" />
-            <span className="z-10 text-xl font-bold">System</span>
-          </Button>
-          {theme == "system" && (
-            <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
-              <Check className="size-3" /> Selected
-            </div>
-          )}
-        </div>
-        <div
-          className={cn(
-            "stack relative rounded-md",
-            theme == "oled" && "outline-primary/50 outline-2 outline-offset-4",
-          )}
-        >
-          <Button
-            variant="outline"
-            className="h-36 flex-1 flex-col items-start justify-end bg-black !text-white hover:bg-gray-900"
-            onClick={() => setTheme("oled")}
-            aria-pressed={theme == "oled"}
-          >
-            <Lamp className="size-6" />
-            <span className="text-xl font-bold">OLED</span>
-          </Button>
-          {theme == "oled" && (
-            <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
-              <Check className="size-3" /> Selected
-            </div>
-          )}
-        </div>
+            <Button
+              variant="outline"
+              className={buttonClass}
+              onClick={() => setTheme(key)}
+              aria-pressed={theme == key}
+            >
+              {svg}
+              <Icon className="z-10 size-6" />
+              <span className="z-10 text-xl font-bold">{label}</span>
+            </Button>
+            {theme == key && (
+              <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
+                <Check className="size-3" /> Selected
+              </div>
+            )}
+          </div>
+        ))}
       </div>
       <div>
         <h2 className="mt-2 flex items-center gap-2 font-bold">
@@ -210,6 +188,112 @@ export default function AppearanceSettings({
               <span className="text-xl font-bold">{name}</span>
             </Button>
             {colorTheme == key && (
+              <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
+                <Check className="size-3" /> Selected
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div>
+        <h2 className="mt-2 flex items-center gap-2 font-bold">
+          <LayoutDashboard /> Course Layout
+        </h2>
+      </div>
+      <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
+        {[
+          {
+            mode: "condensed",
+            icon: GalleryHorizontal,
+            label: "Condensed",
+          },
+          {
+            mode: "grid",
+            icon: LayoutGrid,
+            label: "Grid",
+          },
+          {
+            mode: "expanded",
+            icon: LayoutDashboard,
+            label: "Expanded",
+          },
+        ].map(({ mode, icon: Icon, label }) => (
+          <div
+            key={mode}
+            className={cn(
+              "stack relative rounded-md",
+              settings.default_course_list_mode == mode &&
+                "outline-primary/50 outline-2 outline-offset-4",
+            )}
+          >
+            <Button
+              variant="outline"
+              onClick={() =>
+                setSettings((prev) => ({
+                  ...prev,
+                  default_course_list_mode: mode,
+                }))
+              }
+              className="h-36 flex-1 flex-col items-start justify-end"
+              aria-pressed={settings.default_course_list_mode == mode}
+            >
+              <Icon className="size-6" />
+              <span className="text-xl font-bold">{label}</span>
+            </Button>
+            {settings.default_course_list_mode == mode && (
+              <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
+                <Check className="size-3" /> Selected
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div>
+        <h2 className="mt-2 flex items-center gap-2 font-bold">
+          <ListChecks /> Todo Layout
+        </h2>
+      </div>
+      <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-3">
+        {[
+          {
+            mode: "list",
+            icon: List,
+            label: "List",
+          },
+          {
+            mode: "time",
+            icon: Clock,
+            label: "Timeline",
+          },
+          {
+            mode: "calendar",
+            icon: Calendar,
+            label: "Calendar",
+          },
+        ].map(({ mode, icon: Icon, label }) => (
+          <div
+            key={mode}
+            className={cn(
+              "stack relative rounded-md",
+              settings.default_todo_list_mode == mode &&
+                "outline-primary/50 outline-2 outline-offset-4",
+            )}
+          >
+            <Button
+              variant="outline"
+              onClick={() =>
+                setSettings((prev) => ({
+                  ...prev,
+                  default_todo_list_mode: mode,
+                }))
+              }
+              className="h-36 flex-1 flex-col items-start justify-end"
+              aria-pressed={settings.default_todo_list_mode == mode}
+            >
+              <Icon className="size-6" />
+              <span className="text-xl font-bold">{label}</span>
+            </Button>
+            {settings.default_todo_list_mode == mode && (
               <div className="bg-background absolute right-2 bottom-2 flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-xs">
                 <Check className="size-3" /> Selected
               </div>

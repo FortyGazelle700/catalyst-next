@@ -1,5 +1,5 @@
 import { ElementAnimate, TextAnimate } from "@/components/magicui/text-animate";
-import { ArrowRight, ArrowUpRight, Logs } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { auth } from "@/server/auth";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { type Metadata } from "next";
 
 import { TimeCard, MiniTodoList, CourseList } from "./page.dynamic";
+import { api } from "@/server/api";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await auth();
+  const { data: settings } = await (
+    await api({})
+  ).catalyst.account.settings.list();
 
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-x-hidden px-8 py-16">
@@ -60,21 +64,14 @@ export default async function DashboardPage() {
         </div>
       </ElementAnimate>
       <ElementAnimate delay={500} className="w-full">
-        <h2 className="h3 text-muted-foreground">Courses</h2>
-        <div className="-mx-8 flex gap-4 overflow-auto px-8 py-4">
-          <CourseList />
-          <Button
-            variant="outline"
-            href="/app/courses"
-            className="flex h-40 w-96 shrink-0 flex-col items-start justify-end gap-2 overflow-hidden rounded-xs p-4 text-sm transition-all hover:scale-105 hover:shadow-2xl"
-          >
-            <Logs className="size-6" />
-            View All Courses
-          </Button>
-        </div>
+        <CourseList
+          defaultMode={settings?.default_course_list_mode ?? "condensed"}
+        />
       </ElementAnimate>
-      <ElementAnimate delay={600} className="w-full">
-        <MiniTodoList />
+      <ElementAnimate delay={600} className="mt-4 w-full">
+        <MiniTodoList
+          defaultMode={settings?.default_todo_list_mode ?? "list"}
+        />
       </ElementAnimate>
     </div>
   );

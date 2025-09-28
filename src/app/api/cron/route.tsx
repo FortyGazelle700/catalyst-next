@@ -202,12 +202,16 @@ async function sendNotifications() {
           ([start, end]) =>
             itemTime >= start &&
             itemTime <= end &&
-            !(
+            (!(
               item.plannable.content_details?.submission?.workflow_state ==
                 "submitted" ||
               item.plannable.content_details?.submission?.workflow_state ==
                 "graded"
-            ),
+            ) ||
+              (item.plannable.content_details?.submission_types.includes(
+                "on_paper",
+              ) &&
+                item.planner_override?.marked_complete != true)),
         );
       });
 

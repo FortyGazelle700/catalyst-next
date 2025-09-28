@@ -18,6 +18,7 @@ import type {
   CurrentScheduleWithCoursesOutput,
   SchedulePeriodWithCourse,
 } from "@/server/api/canvas/courses/get-with-schedule";
+import { type PlannerItem } from "@/server/api/canvas/types";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
   time: {
@@ -49,6 +50,17 @@ export const CoursesRefreshContext = createContext<
   /**/
 });
 export const ScheduleContext = createContext<ScheduleContextValue>([]);
+export const TodoContext = createContext<PlannerItem[]>([]);
+export const TodoRefreshContext = createContext<
+  Dispatch<SetStateAction<number>>
+>(() => {
+  /**/
+});
+export const TodoUpdateContext = createContext<
+  Dispatch<SetStateAction<PlannerItem[]>>
+>(() => {
+  /**/
+});
 export const PubSubContext = createContext<Pusher | null>(null);
 type PipItem = {
   open: () => Promise<void>;
@@ -442,6 +454,52 @@ function SessionVerificationProvider({
   return <>{children}</>;
 }
 
+function TodoProvider({ children }: { children: React.ReactNode }) {
+  const [todoItems, setTodoItems] = useState<PlannerItem[]>([]);
+  const [forceRefresh, setForceRefresh] = useState(Math.random());
+
+  useEffect(() => {
+    const fetchTodoItems = async () => {
+      try {
+        const req = await fetch("/api/todo/mini", {
+          next: { revalidate: 60 * 5 },
+        });
+        const { data: todoItems } = (await req.json()) as {
+          success: boolean;
+          data: PlannerItem[];
+          errors?: string[];
+        };
+        setTodoItems(todoItems ?? []);
+      } catch (error) {
+        console.error("Error fetching todo items:", error);
+      }
+    };
+
+    const handleFetchTodoItems = () => {
+      fetchTodoItems().catch(console.error);
+    };
+
+    handleFetchTodoItems();
+    const interval = setInterval(handleFetchTodoItems, 60 * 5 * 1000);
+    window.addEventListener("focus", handleFetchTodoItems);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFetchTodoItems);
+    };
+  }, [forceRefresh]);
+
+  return (
+    <TodoRefreshContext.Provider value={setForceRefresh}>
+      <TodoUpdateContext.Provider value={setTodoItems}>
+        <TodoContext.Provider value={todoItems}>
+          {children}
+        </TodoContext.Provider>
+      </TodoUpdateContext.Provider>
+    </TodoRefreshContext.Provider>
+  );
+}
+
 function PubSubProvider({ children }: { children: React.ReactNode }) {
   const [pubSub, setPubSub] = useState<Pusher | null>(null);
 
@@ -577,6 +635,18 @@ export function usePip() {
   return context;
 }
 
+export function useTodoItems() {
+  const todoItems = useContext(TodoContext);
+  const setTodoItems = useContext(TodoUpdateContext);
+  const refreshTodos = useContext(TodoRefreshContext);
+
+  if (!setTodoItems) {
+    console.warn("useTodoItems is still loading");
+  }
+
+  return { todoItems, setTodoItems, refreshTodos };
+}
+
 export function useColorTheme() {
   const context = useContext(ColorThemeContext);
   if (!context) {
@@ -595,7 +665,7 @@ export function ColorThemeProvider({
   const [theme, setTheme] = useState<string>(colorTheme ?? "default");
 
   useEffect(() => {
-    const annoyingInterval = setInterval(() => {
+    const keepColors = setInterval(() => {
       setCookie("color-theme", theme, 365);
       for (const cls of Array.from(document.documentElement.classList)) {
         if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
@@ -605,7 +675,7 @@ export function ColorThemeProvider({
       document.documentElement.classList.add(`color-theme-${theme}`);
     }, 100);
 
-    return () => clearInterval(annoyingInterval);
+    return () => clearInterval(keepColors);
   }, [theme, setTheme]);
 
   return (
@@ -636,9 +706,11 @@ export function AppLayoutProviders({
           <TimeProvider>
             <CourseProvider courses={courses}>
               <ScheduleProvider>
-                <PubSubProvider>
-                  <PipProvider>{children}</PipProvider>
-                </PubSubProvider>
+                <TodoProvider>
+                  <PubSubProvider>
+                    <PipProvider>{children}</PipProvider>
+                  </PubSubProvider>
+                </TodoProvider>
               </ScheduleProvider>
             </CourseProvider>
           </TimeProvider>

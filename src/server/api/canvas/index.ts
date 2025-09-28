@@ -31,6 +31,7 @@ export async function canvas($ctx: ApiCtx) {
           await import("./courses/external-tools/retrieve")
         ).default(ctx),
       },
+      sidebar: await (await import("./courses/sidebar")).default(ctx),
       syllabus: await (await import("./courses/syllabus")).default(ctx),
       frontPage: await (await import("./courses/front-page")).default(ctx),
       people: await (await import("./courses/people")).default(ctx),
