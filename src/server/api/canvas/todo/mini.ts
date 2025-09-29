@@ -1,7 +1,10 @@
 "use server";
 
 import type { CanvasApiCtx } from "..";
+import getAssignment from "../courses/assignments/get";
+import courseList from "../courses/list";
 import type { Assignment, CanvasErrors, Course, PlannerItem } from "../types";
+import { eq } from "drizzle-orm";
 
 export type TodoListInput = {
   days?: number;
@@ -78,9 +81,92 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
           }
         }),
       );
+
+      // Apply assignment overrides after fetching all data
+      if (ctx.user.get?.id) {
+        const { assignmentOverrides } = await import("@/server/db/schema");
+
+        // Get all assignment overrides for this user
+        const overrides = await ctx.db
+          .select()
+          .from(assignmentOverrides)
+          .where(eq(assignmentOverrides.userId, ctx.user.get.id));
+
+        for (const override of overrides) {
+          const { data: assignment } = await (
+            await getAssignment(ctx)
+          )({
+            courseId: Number(override.courseId),
+            assignmentId: Number(override.assignmentId),
+            useCache: false,
+          });
+
+          const { data: courses } = await (
+            await courseList(ctx)
+          )({ useCache: true, offset: 0, limit: 100 });
+          const assignmentCourse = courses?.find(
+            (c) => c.id == Number(override.courseId),
+          );
+
+          data.push({
+            plannable: {
+              id: Number(override.assignmentId),
+              course_id: Number(override.courseId),
+              content_details: assignment as Assignment,
+              details:
+                override.userDescription?.description ??
+                assignment?.description ??
+                "",
+              todo_date:
+                override.dueAt?.toISOString() ??
+                assignment?.due_at ??
+                new Date().toISOString(),
+              title: assignment?.name ?? "Unknown Assignment",
+              created_at: assignment?.created_at ?? new Date().toISOString(),
+              updated_at: assignment?.updated_at ?? new Date().toISOString(),
+              workflow_state: assignment?.workflow_state ?? "assigned",
+              user_id: 0,
+            },
+            course_id: Number(override.courseId),
+            course: assignmentCourse,
+            plannable_type: "assignment",
+            plannable_date:
+              override.dueAt?.toISOString() ?? assignment?.due_at ?? undefined,
+            submissions: !!assignment?.submission,
+            html_url: new URL(assignment?.html_url ?? "").pathname,
+            plannable_id: override.assignmentId,
+            context_type: "assignment",
+            planner_override: override.markedComplete
+              ? {
+                  id: 0,
+                  plannable_type: "assignment",
+                  plannable_id: Number(override.assignmentId),
+                  user_id: 0,
+                  assignment_id: Number(override.assignmentId),
+                  workflow_state: "active",
+                  marked_complete: true,
+                  dismissed: false,
+                  created_at:
+                    override.createdAt?.toISOString() ??
+                    new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                }
+              : (null as unknown as PlannerItem["planner_override"]),
+          });
+        }
+      }
+
       return {
         success: true,
-        data,
+        data: data.toSorted((a, b) => {
+          const dateA = new Date(
+            a.plannable_date ?? a.plannable.due_at ?? "",
+          ).getTime();
+          const dateB = new Date(
+            b.plannable_date ?? b.plannable.due_at ?? "",
+          ).getTime();
+          return dateA - dateB;
+        }),
         errors: [],
       };
     };

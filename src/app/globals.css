@@ -60,8 +60,8 @@
   --ui-accent-foreground: oklch(
     from var(--ui-root-primary) calc(l - 0.2) calc(c * 1.2) h
   );
-  --ui-destructive: oklch(0.577 0.245 27.325);
-  --ui-destructive-foreground: oklch(0.577 0.245 27.325);
+  --ui-destructive: oklch(0.95 0.245 27.325);
+  --ui-destructive-foreground: oklch(0.5 0.245 27.325);
   --ui-border: oklch(from var(--ui-root) calc(l - 0.071) calc(c + 0.013) h);
   --ui-input: oklch(from var(--ui-root) calc(l - 0.071) calc(c + 0.013) h);
   --ui-ring: oklch(from var(--ui-root) calc(l - 0.131) calc(c + 0.022) h);
@@ -114,8 +114,8 @@
   );
   --ui-accent: oklch(from var(--ui-root-primary) calc(l - 0.4) calc(c * 0.4) h);
   --ui-accent-foreground: oklch(from var(--ui-root-foreground) l c h);
-  --ui-destructive: oklch(0.396 0.141 25.723);
-  --ui-destructive-foreground: oklch(0.637 0.237 25.331);
+  --ui-destructive: oklch(0.2 0.141 25.723);
+  --ui-destructive-foreground: oklch(0.8 0.237 25.331);
   --ui-border: oklch(
     from var(--ui-root-primary) calc(l - 0.45) calc(c * 0.1) h
   );

@@ -478,11 +478,7 @@ function TodoList({
       ) : (
         <>
           {todoItems.map((todoItem) => (
-            <TodoItem
-              key={todoItem.plannable_id}
-              todoItem={todoItem}
-              setTodoItems={setTodoItems}
-            />
+            <TodoItem key={todoItem.plannable_id} todoItem={todoItem} />
           ))}
         </>
       )}

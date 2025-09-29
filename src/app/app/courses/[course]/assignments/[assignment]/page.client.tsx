@@ -87,6 +87,9 @@ import {
   ExternalLink,
   AlertCircle,
   Link2,
+  Pencil,
+  CheckCircle2,
+  Clock4,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import {
@@ -102,10 +105,99 @@ import {
 // import { upload } from "@vercel/blob/client";
 import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
 import { Input } from "@/components/ui/input";
+import { WheelPicker, WheelPickerWrapper } from "@/components/ui/wheel-picker";
+import { DateTimePicker } from "@/components/catalyst/date-time-picker";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
 
+  const [durationHours, setDurationHours] = useState(
+    Math.floor((assignment.data.duration ?? 0) / 60),
+  );
+  const [durationMinutes, setDurationMinutes] = useState(
+    (assignment.data.duration ?? 0) % 60,
+  );
+
+  const [customDueDate, setCustomDueDate] = useState<Date | null>(
+    assignment.data.due_at ? new Date(assignment.data.due_at) : null,
+  );
+
+  const [customStatus, setCustomStatus] = useState<string | null>(
+    assignment.data.status ?? "none",
+  );
+
+  const [statusOpen, setStatusOpen] = useState(false);
+
+  useEffect(() => {
+    const triggerSubmit = setTimeout(() => {
+      (async () => {
+        await fetch(
+          `/api/courses/${assignment.course_id}/assignments/${assignment.id}/overrides/set`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              dueDate: customDueDate,
+              duration: durationHours * 60 + durationMinutes,
+              customStatus,
+            }),
+          },
+        );
+      })().catch(console.error);
+    }, 5 * 1000);
+
+    return () => clearTimeout(triggerSubmit);
+  }, [customDueDate, durationHours, durationMinutes, customStatus, assignment]);
+
+  const durationSelector = useMemo(() => {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="icon" className="size-6">
+            <Pencil className="size-3" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="flex flex-col gap-2">
+            <WheelPickerWrapper>
+              <WheelPicker
+                value={String(durationHours)}
+                onValueChange={(val) => setDurationHours(Number(val))}
+                options={Array.from({ length: 25 }).map((_, i) => ({
+                  value: String(i),
+                  label: i,
+                }))}
+              />
+              <WheelPicker
+                value={String(durationMinutes)}
+                onValueChange={(val) => setDurationMinutes(Number(val))}
+                options={Array.from({ length: 60 / 5 }).map((_, i) => ({
+                  value: String(i * 5),
+                  label: i * 5,
+                }))}
+              />
+            </WheelPickerWrapper>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Save duration logic here
+              }}
+            >
+              Save
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  }, [durationHours, durationMinutes]);
+
+  function properCase(str: string | undefined): React.ReactNode {
+    if (!str) return "None";
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  }
   return (
     <>
       <Sidebar
@@ -128,10 +220,37 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
                   <Calendar className="size-4" /> Due Date
                 </span>
                 <span className="flex flex-1 items-center justify-end gap-1">
-                  {assignment.due_at
-                    ? new Date(assignment.due_at).toLocaleString()
+                  {(customDueDate ?? assignment.due_at)
+                    ? new Date(
+                        customDueDate ?? assignment.due_at ?? "",
+                      ).toLocaleString()
                     : "No Due Date"}
                 </span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon" className="size-6">
+                      <Pencil className="size-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <DateTimePicker
+                      defaultDate={new Date(
+                        customDueDate ??
+                          (assignment.due_at
+                            ? new Date(assignment.due_at ?? "")
+                            : new Date(
+                                now.getFullYear(),
+                                now.getMonth(),
+                                now.getDate() + 2,
+                                23,
+                                59,
+                                59,
+                              )),
+                      ).toISOString()}
+                      setDate={setCustomDueDate}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="text-muted-foreground flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground flex w-[12ch] items-center gap-1 text-xs">
@@ -180,6 +299,52 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
                     <Minus className="size-3" />
                   )}
                 </span>
+              </div>
+              <div className="bg-secondary mx-2 h-0.5 rounded-full" />
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground flex w-[12ch] items-center gap-1 text-xs">
+                  <Clock4 className="size-4" /> Duration
+                </span>
+                <span className="flex flex-1 items-center justify-end gap-1">
+                  {formatDuration(
+                    Temporal.Duration.from({
+                      minutes: durationMinutes + durationHours * 60,
+                    }),
+                    {
+                      style: "long",
+                      hideUnnecessaryUnits: false,
+                      minUnit: "minute",
+                      maxUnit: "hour",
+                      maxUnits: 2,
+                    },
+                  )}
+                </span>
+                {durationSelector}
+              </div>
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground flex w-[12ch] items-center gap-1 text-xs">
+                  <CheckCircle2 className="size-4" /> Your Status
+                </span>
+                <Select
+                  value={customStatus ?? "none"}
+                  onValueChange={setCustomStatus}
+                  open={statusOpen}
+                  onOpenChange={setStatusOpen}
+                >
+                  <SelectTrigger
+                    size="sm"
+                    className="bg-background ml-auto !h-6 py-0 text-xs"
+                  >
+                    {properCase(customStatus?.replaceAll("_", " "))}
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="stuck">Stuck</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="bg-secondary mx-2 h-0.5 rounded-full" />
               <div className="text-muted-foreground flex items-center gap-2 text-xs">
@@ -526,9 +691,10 @@ export function SubmissionArea({
     <>
       <div className="flex-1" />
       <SidebarGroup className="bg-sidebar sticky bottom-0 flex flex-col gap-2">
+        <div className="bg-secondary mx-4 h-0.5 rounded-full" />
         <div className="text-destructive-foreground bg-destructive/30 my-2 flex items-center gap-2 rounded-sm px-3 py-2 text-xs">
-          <AlertCircle className="size-4 shrink-0" /> Submissions may not work
-          as intended. Please verify that your submission submit correctly.
+          <AlertCircle className="size-4 shrink-0" /> Ensure that your
+          submission submits.
         </div>
         <div className="bg-secondary mx-4 h-0.5 rounded-full" />
         <h2 className="mt-2 flex items-center gap-1 px-2 text-xs font-bold">

@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   ArrowUpRight,
+  Calendar,
   ChevronRight,
+  Clock,
+  ClockAlert,
+  GalleryHorizontal,
+  Gauge,
   House,
   LayoutDashboard,
+  LayoutGrid,
+  List,
   Maximize,
   Percent,
   Pin,
@@ -20,13 +27,29 @@ import {
   CoursesContext,
   ScheduleContext,
   TimeContext,
+  useTodoItems,
 } from "./layout.providers";
 import { subjectColors, SubjectIcon } from "@/components/catalyst/subjects";
 import { type PlannerItem } from "@/server/api/canvas/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TodoItem } from "./todo";
+import {
+  CalendarTodoCard,
+  CourseTodoCard,
+  TimeTodoCard,
+  TodoItem,
+} from "./todo";
 import { Temporal } from "@js-temporal/polyfill";
 import { formatDuration } from "@/components/catalyst/format-duration";
+import {
+  Tabs,
+  TabsContent,
+  TabsContents,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { type CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
+import { RadialChart } from "@/components/catalyst/radial-chart";
 
 export function TimeCard() {
   const now = useContext(TimeContext);
@@ -121,7 +144,7 @@ export function TimeCard() {
         </div>
         <div className="animate-swap flex flex-col justify-end p-4 opacity-0 transition-all delay-[10s] group-hover:scale-90 group-hover:opacity-0">
           <h3 className="text-muted-foreground text-lg">
-            Course {hasStarted ? "ends in" : "starts in"}
+            Period {hasStarted ? "ends in" : "starts in"}
           </h3>
           <h4 className="flex items-center text-4xl font-bold select-none">
             {formatDuration(hasStarted ? timeLeft : timeToStart, {
@@ -207,7 +230,233 @@ export function MissingCard() {
   );
 }
 
-export function CourseList() {
+export function CourseCard({
+  course,
+  className,
+  expanded,
+}: {
+  course: Omit<CourseListWithPeriodDataOutput[number], "time">;
+  className?: string;
+  expanded?: boolean;
+}) {
+  const { todoItems: allTodoItems } = useTodoItems();
+  const [isLoading, setIsLoading] = useState(true);
+  const [todoItems, setTodoItems] = useState<PlannerItem[]>([]);
+
+  useEffect(() => {
+    if (!expanded) {
+      setIsLoading(false);
+      return;
+    }
+
+    const filteredItems = (
+      allTodoItems?.filter(
+        (item) =>
+          item?.plannable?.course_id == course.id ||
+          item?.plannable?.content_details?.course_id == course.id,
+      ) ?? []
+    )?.filter((_, i) => i < 3);
+
+    setTodoItems(filteredItems);
+    setIsLoading(false);
+  }, [course.id, expanded, allTodoItems]);
+
+  return (
+    <div>
+      <div
+        className={cn(
+          "group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all focus-within:scale-105 focus-within:shadow-2xl hover:scale-105 hover:shadow-2xl",
+          expanded && "h-20 w-96",
+          className,
+        )}
+        style={{
+          backgroundColor: `color-mix(in oklab, ${subjectColors(
+            course.classification ?? "",
+          )}, var(--ui-background))`,
+        }}
+      >
+        <div
+          className="absolute inset-1 w-1 rounded-full"
+          style={{
+            backgroundColor: `color-mix(in oklab, ${subjectColors(
+              course.classification ?? "",
+            )}, var(--ui-background) 30%)`,
+          }}
+        />
+        <Link
+          href={`/app/courses/${course.id}`}
+          className={cn(
+            "relative flex items-center gap-2 transition-all",
+            expanded &&
+              "mb-2 group-focus-within:pointer-events-none group-focus-within:-translate-y-16 group-focus-within:scale-90 group-focus-within:opacity-0 group-hover:pointer-events-none group-hover:-translate-y-16 group-hover:scale-90 group-hover:opacity-0",
+          )}
+        >
+          <div
+            className="rounded-xs p-2"
+            style={{
+              backgroundColor: `color-mix(in oklab, ${subjectColors(
+                course.classification ?? "",
+              )}, var(--ui-background) 30%)`,
+            }}
+          >
+            <SubjectIcon subject={course.classification ?? ""} />
+          </div>
+          <div
+            className={cn(
+              "flex max-w-full flex-col -space-y-1 overflow-hidden",
+              course.data.missingAssignments > 0 ? "pr-22" : "pr-12",
+            )}
+          >
+            <h3 className="truncate text-lg font-bold">
+              {course.classification}
+            </h3>
+            <p className="max-w-full truncate text-xs">{course.name}</p>
+          </div>
+        </Link>
+        <Link
+          className={cn(
+            "bg-destructive/50 border-destructive absolute top-5 right-5 ml-auto flex h-8 items-center justify-end rounded-full border-2 transition-all",
+            expanded &&
+              "mb-2 group-focus-within:pointer-events-none group-focus-within:-translate-y-16 group-focus-within:scale-90 group-focus-within:opacity-0 group-hover:pointer-events-none group-hover:-translate-y-16 group-hover:scale-90 group-hover:opacity-0",
+          )}
+          href={`/app/courses/${course.id}/grades`}
+        >
+          {course.data.missingAssignments > 0 && (
+            <div className="text-destructive-foreground flex items-center gap-1 rounded-full p-1 pr-2 pl-3 text-xs font-black">
+              <ClockAlert className="size-3 stroke-3" />
+              {course.data.missingAssignments}
+            </div>
+          )}
+          <div className="bg-background -mx-1 rounded-full">
+            <RadialChart
+              percentage={
+                course.enrollments?.at(0)?.computed_current_score
+                  ? Number(course.enrollments?.at(0)?.computed_current_score)
+                  : -1
+              }
+            />
+          </div>
+        </Link>
+        {!expanded && (
+          <div className="flex flex-1 flex-col justify-end transition-all group-hover:translate-y-16 group-hover:scale-90 group-hover:opacity-0">
+            <div className="flex items-center justify-between">
+              <p className="text-xs">
+                {course.period?.periodName ?? "Unassigned"}
+              </p>
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </div>
+        )}
+        <div
+          className={cn(
+            "pointer-events-none absolute top-18 right-4 bottom-4 left-5 flex flex-1 translate-y-16 scale-90 items-center gap-2 opacity-0 transition-all group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100",
+            expanded && "top-2 right-2 bottom-2 left-3",
+          )}
+        >
+          <Link
+            href={`/app/courses/${course.id}`}
+            className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+            style={
+              {
+                background: `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 60%)`,
+                "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 70%)`,
+              } as React.CSSProperties
+            }
+          >
+            <House />
+          </Link>
+          <Link
+            href={`/app/courses/${course.id}/modules`}
+            className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+            style={
+              {
+                background: `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 60%)`,
+                "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 70%)`,
+              } as React.CSSProperties
+            }
+          >
+            <LayoutDashboard />
+          </Link>
+          <Link
+            href={`/app/courses/${course.id}/people`}
+            className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+            style={
+              {
+                background: `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 60%)`,
+                "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 70%)`,
+              } as React.CSSProperties
+            }
+          >
+            <UsersRound />
+          </Link>
+          <Link
+            href={`/app/courses/${course.id}/grades`}
+            className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
+            style={
+              {
+                background: `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 60%)`,
+                "--hover-bg": `color-mix(in oklab, ${subjectColors(
+                  course.classification ?? "",
+                )}, var(--ui-background) 70%)`,
+              } as React.CSSProperties
+            }
+          >
+            <Percent />
+          </Link>
+        </div>
+      </div>
+      {expanded && (
+        <div className="h-68">
+          <div className="mt-4 flex h-full flex-col gap-2">
+            {isLoading &&
+              Array.from({ length: 3 }).map((_, idx) => (
+                <Skeleton className="w-full flex-1 rounded-xs" key={idx} />
+              ))}
+            {todoItems.map((item) => (
+              <CourseTodoCard
+                key={item.plannable.id}
+                item={item}
+                course={course}
+              />
+            ))}
+            <div
+              style={{
+                flex: 3 - todoItems.length,
+                display:
+                  3 - todoItems.length == 0 || isLoading ? "none" : "flex",
+              }}
+              className="flex h-full w-full items-center justify-center rounded-xs border"
+            >
+              <span className="text-muted-foreground text-xs">
+                No more tasks
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CourseList({
+  defaultMode = "condensed",
+}: {
+  defaultMode?: string;
+}) {
   const courses = useContext(CoursesContext);
   const currentCourse = useMemo(
     () => courses.find((course) => course.time?.activePinned),
@@ -219,284 +468,215 @@ export function CourseList() {
     [currentCourse],
   );
 
-  return (
-    <>
-      {currentCourse && (
-        <div className="-mt-1.5 flex gap-1 rounded-[0.75rem] border-2 p-1">
-          <div className="text-muted-foreground mt-auto inline-flex items-center gap-2 px-3 py-1 text-xs [writing-mode:vertical-lr]">
-            {isUpcoming ? (
-              <>
-                <Timer className="size-4" /> Upcoming Class
-              </>
-            ) : (
-              <>
-                <Pin className="size-4 rotate-45" /> Current Class
-              </>
-            )}
-          </div>
-          <div
-            className="group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all hover:scale-105 hover:shadow-2xl"
-            style={{
-              backgroundColor: `color-mix(in oklab, ${subjectColors(
-                currentCourse.classification ?? "",
-              )}, var(--ui-background))`,
-            }}
-            tabIndex={0}
-          >
-            <div
-              className="absolute inset-1 w-1 rounded-full"
-              style={{
-                backgroundColor: `color-mix(in oklab, ${subjectColors(
-                  currentCourse.classification ?? "",
-                )}, var(--ui-background) 30%)`,
-              }}
-            />
-            <Link
-              href={`/app/courses/${currentCourse.id}`}
-              className="flex items-center gap-2"
-            >
-              <div
-                className="rounded-xs p-2"
-                style={{
-                  backgroundColor: `color-mix(in oklab, ${subjectColors(
-                    currentCourse.classification ?? "",
-                  )}, var(--ui-background) 30%)`,
-                }}
-              >
-                <SubjectIcon subject={currentCourse.classification ?? ""} />
-              </div>
-              <div className="flex max-w-full flex-col -space-y-1 overflow-hidden">
-                <h3 className="truncate text-lg font-bold">
-                  {currentCourse.classification}
-                </h3>
-                <p className="max-w-full truncate text-xs">
-                  {currentCourse.name}
-                </p>
-              </div>
-            </Link>
-            <div className="flex flex-1 flex-col justify-end transition-all group-hover:translate-y-16 group-hover:scale-90 group-hover:opacity-0">
-              <div className="flex items-center justify-between">
-                <p className="text-xs">
-                  {currentCourse.period?.periodName ?? "Unassigned"}
-                </p>
-                <ChevronRight className="h-4 w-4" />
-              </div>
+  const condensed = useMemo(() => {
+    return (
+      <div className="-m-8 flex gap-4 overflow-auto p-8">
+        {currentCourse && (
+          <div className="-mt-1.5 flex gap-1 rounded-[0.75rem] border-2 p-1">
+            <div className="text-muted-foreground mt-auto inline-flex items-center gap-2 px-3 py-1 text-xs [writing-mode:vertical-lr]">
+              {isUpcoming ? (
+                <>
+                  <Timer className="size-4" /> Upcoming Class
+                </>
+              ) : (
+                <>
+                  <Pin className="size-4 rotate-45" /> Current Class
+                </>
+              )}
             </div>
-            <div className="pointer-events-none absolute top-18 right-4 bottom-4 left-5 flex flex-1 translate-y-16 scale-90 items-center gap-2 opacity-0 transition-all group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
-              <Link
-                href={`/app/courses/${currentCourse.id}`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
+            <CourseCard course={currentCourse} />
+          </div>
+        )}
+        {courses.map((course) => (
+          <CourseCard key={course.id} course={course} />
+        ))}
+      </div>
+    );
+  }, [courses, currentCourse, isUpcoming]);
+
+  const grid = useMemo(() => {
+    return (
+      <div className="-m-8 grid grid-cols-1 gap-4 overflow-auto p-8 @2xl:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-4">
+        {currentCourse && (
+          <div className="-mt-1.5 flex gap-1 rounded-[0.75rem] border-2 p-1">
+            <div className="text-muted-foreground mt-auto inline-flex items-center gap-2 px-3 py-1 text-xs [writing-mode:vertical-lr]">
+              {isUpcoming ? (
+                <>
+                  <Timer className="size-4" /> Upcoming Class
+                </>
+              ) : (
+                <>
+                  <Pin className="size-4 rotate-45" /> Current Class
+                </>
+              )}
+            </div>
+            <CourseCard course={currentCourse} className="w-full" />
+          </div>
+        )}
+        {courses.map((course) => (
+          <CourseCard key={course.id} course={course} className="w-full" />
+        ))}
+      </div>
+    );
+  }, [courses, currentCourse, isUpcoming]);
+
+  const expanded = useMemo(() => {
+    return (
+      <div className="-m-8 grid grid-cols-1 gap-4 overflow-auto p-8 @2xl:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-4">
+        {currentCourse && (
+          <div className="-mt-1.5 flex gap-1 rounded-[0.75rem] border-2 p-1">
+            <div className="text-muted-foreground mt-auto inline-flex items-center gap-2 px-3 py-1 text-xs [writing-mode:vertical-lr]">
+              {isUpcoming ? (
+                <>
+                  <Timer className="size-4" /> Upcoming Class
+                </>
+              ) : (
+                <>
+                  <Pin className="size-4 rotate-45" /> Current Class
+                </>
+              )}
+            </div>
+            <CourseCard course={currentCourse} className="w-full" expanded />
+          </div>
+        )}
+        {courses.map((course) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            className="w-full"
+            expanded
+          />
+        ))}
+      </div>
+    );
+  }, [courses, currentCourse, isUpcoming]);
+
+  return (
+    <Tabs
+      defaultValue={defaultMode ?? "condensed"}
+      className="w-full"
+      onValueChange={async (value: string) => {
+        await fetch("/api/catalyst/account/settings/set-many", {
+          method: "POST",
+          body: JSON.stringify({
+            settings: { default_course_list_mode: value },
+          }),
+        });
+      }}
+    >
+      <div className="@container mt-4 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex w-full items-center justify-between">
+            <h2 className="h3 text-muted-foreground mt-0">Courses</h2>
+            <div className="flex items-center gap-4">
+              <TabsList>
+                <TabsTrigger value="condensed">
+                  <GalleryHorizontal /> Condensed
+                </TabsTrigger>
+                <TabsTrigger value="grid">
+                  <LayoutGrid /> Grid
+                </TabsTrigger>
+                <TabsTrigger value="expanded">
+                  <Gauge /> Expanded
+                </TabsTrigger>
+              </TabsList>
+              <Button
+                variant="outline"
+                className="group h-10 text-xs"
+                href="/app/courses"
               >
-                <House />
-              </Link>
-              <Link
-                href={`/app/courses/${currentCourse.id}/modules`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <LayoutDashboard />
-              </Link>
-              <Link
-                href={`/app/courses/${currentCourse.id}/people`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <UsersRound />
-              </Link>
-              <Link
-                href={`/app/courses/${currentCourse.id}/grades`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      currentCourse.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <Percent />
-              </Link>
+                View all courses
+                <ArrowRight className="transition-all group-hover:-rotate-45" />
+              </Button>
             </div>
           </div>
         </div>
-      )}
-      {courses
-        .filter((_, idx) => idx < 15)
-        .map((course) => (
-          <div
-            key={course.id}
-            className="group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all hover:scale-105 hover:shadow-2xl"
-            style={{
-              backgroundColor: `color-mix(in oklab, ${subjectColors(
-                course.classification ?? "",
-              )}, var(--ui-background))`,
-            }}
-            tabIndex={0}
-          >
-            <div
-              className="absolute inset-1 w-1 rounded-full"
-              style={{
-                backgroundColor: `color-mix(in oklab, ${subjectColors(
-                  course.classification ?? "",
-                )}, var(--ui-background) 30%)`,
-              }}
-            />
-            <Link
-              href={`/app/courses/${course.id}`}
-              className="flex items-center gap-2"
-            >
-              <div
-                className="rounded-xs p-2"
-                style={{
-                  backgroundColor: `color-mix(in oklab, ${subjectColors(
-                    course.classification ?? "",
-                  )}, var(--ui-background) 30%)`,
-                }}
-              >
-                <SubjectIcon subject={course.classification ?? ""} />
-              </div>
-              <div className="flex max-w-full flex-col -space-y-1 overflow-hidden">
-                <h3 className="truncate text-lg font-bold">
-                  {course.classification}
-                </h3>
-                <p className="max-w-full truncate text-xs">{course.name}</p>
-              </div>
-            </Link>
-            <div className="flex flex-1 flex-col justify-end transition-all group-hover:translate-y-16 group-hover:scale-90 group-hover:opacity-0">
-              <div className="flex items-center justify-between">
-                <p className="text-xs">
-                  {course.period?.periodName ?? "Unassigned"}
-                </p>
-                <ChevronRight className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="pointer-events-none absolute top-18 right-4 bottom-4 left-5 flex flex-1 translate-y-16 scale-90 items-center gap-2 opacity-0 transition-all group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:scale-100 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100">
-              <Link
-                href={`/app/courses/${course.id}`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <House />
-              </Link>
-              <Link
-                href={`/app/courses/${course.id}/modules`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <LayoutDashboard />
-              </Link>
-              <Link
-                href={`/app/courses/${course.id}/people`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <UsersRound />
-              </Link>
-              <Link
-                href={`/app/courses/${course.id}/grades`}
-                className="grid h-full flex-1 place-items-center rounded transition-all hover:!bg-(--hover-bg)"
-                style={
-                  {
-                    background: `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 60%)`,
-                    "--hover-bg": `color-mix(in oklab, ${subjectColors(
-                      course.classification ?? "",
-                    )}, var(--ui-background) 70%)`,
-                  } as React.CSSProperties
-                }
-              >
-                <Percent />
-              </Link>
-            </div>
-          </div>
-        ))}
-    </>
+        <TabsContents>
+          <TabsContent value="condensed">{condensed}</TabsContent>
+          <TabsContent value="grid">{grid}</TabsContent>
+          <TabsContent value="expanded">{expanded}</TabsContent>
+        </TabsContents>
+      </div>
+    </Tabs>
   );
 }
 
-export function MiniTodoList() {
+export function MiniTodoList({
+  defaultMode = "list",
+}: {
+  defaultMode?: string;
+}) {
+  const { todoItems } = useTodoItems();
   const [isLoading, setIsLoading] = useState(true);
-  const [todoItems, setTodoItems] = useState<PlannerItem[]>([]);
 
   useEffect(() => {
-    const code = async () => {
-      const req = await fetch("/api/todo/mini");
-      const { data: todoItems } = (await req.json()) as {
-        success: boolean;
-        data: PlannerItem[];
-        errors?: string[];
-      };
-      setTodoItems(todoItems);
-      setIsLoading(false);
-    };
-    code().catch(console.error);
-    setInterval(
-      () => {
-        code().catch(console.error);
-      },
-      60 * 5 * 1000,
-    );
-  }, []);
+    // Loading state will be false once we have data from context
+    setIsLoading(todoItems.length === 0);
+  }, [todoItems]);
 
+  return (
+    <Tabs
+      defaultValue={defaultMode}
+      className="w-full"
+      onValueChange={async (value) => {
+        await fetch("/api/catalyst/account/settings/set-many", {
+          method: "POST",
+          body: JSON.stringify({
+            settings: { default_todo_list_mode: value },
+          }),
+        });
+      }}
+    >
+      <div className="@container mt-4 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="h3 text-muted-foreground mt-0">
+            Upcoming Assignments and Events
+          </h2>
+          <div className="flex items-center gap-4">
+            <TabsList>
+              <TabsTrigger value="list">
+                <List /> List
+              </TabsTrigger>
+              <TabsTrigger value="time">
+                <Clock /> Timeline
+              </TabsTrigger>
+              <TabsTrigger value="calendar">
+                <Calendar /> Calendar
+              </TabsTrigger>
+            </TabsList>
+            <Button
+              variant="outline"
+              className="group h-10 text-xs"
+              href="/app/todo"
+            >
+              View full todo list{" "}
+              <ArrowRight className="transition-all group-hover:-rotate-45" />
+            </Button>
+          </div>
+        </div>
+        <TabsContents>
+          <TabsContent value="list">
+            <ListView isLoading={isLoading} todoItems={todoItems} />
+          </TabsContent>
+          <TabsContent value="time">
+            <TimeView isLoading={isLoading} todoItems={todoItems} />
+          </TabsContent>
+          <TabsContent value="calendar">
+            <CalendarView isLoading={isLoading} todoItems={todoItems} />
+          </TabsContent>
+        </TabsContents>
+      </div>
+    </Tabs>
+  );
+}
+
+function ListView({
+  isLoading,
+  todoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+}) {
   return (
     <div className="@container mt-4 flex flex-col gap-4">
       {isLoading ? (
@@ -507,25 +687,319 @@ export function MiniTodoList() {
         </>
       ) : (
         <>
-          {todoItems?.map((todoItem) => (
-            <TodoItem
-              key={todoItem.plannable_id}
-              todoItem={todoItem}
-              setTodoItems={setTodoItems}
-            />
+          {todoItems.map((todoItem) => (
+            <TodoItem key={todoItem.plannable_id} todoItem={todoItem} />
           ))}
         </>
       )}
-      <div className="text-muted-foreground flex flex-col items-center justify-center gap-2 p-16 text-xs">
-        Only showing the last 14 days
-        <Button
-          variant="outline"
-          className="group h-8 text-xs"
-          href="/app/todo"
-        >
-          View full todo list{" "}
-          <ArrowRight className="transition-all group-hover:-rotate-45" />
-        </Button>
+    </div>
+  );
+}
+
+function TimeView({
+  isLoading,
+  todoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+}) {
+  const [now, setNow] = useState(new Date());
+
+  const dayWidth = "22rem";
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        setNow(new Date());
+      },
+      60 * 5 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, []);
+
+  const startOfDay = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const days: { label: string; date: Date; isToday: boolean }[] =
+    useMemo(() => {
+      const result: { label: string; date: Date; isToday: boolean }[] = [];
+      const today = startOfDay(now);
+      for (let i = -1; i < 15; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        let label = "";
+        if (i == -1) label = "Yesterday";
+        else if (i == 0) label = "Today";
+        else label = date.toLocaleDateString(undefined, { weekday: "short" });
+        result.push({ label, date, isToday: i === 0 });
+      }
+      return result;
+    }, [now]);
+
+  const hours = useMemo(() => {
+    const hourArray = [];
+    for (let hour = 6; hour <= 23; hour++) {
+      const date = new Date();
+      date.setHours(hour, 0, 0, 0);
+      hourArray.push({
+        hour,
+        label: date
+          .toLocaleTimeString(undefined, {
+            hour: "numeric",
+            hour12: true,
+          })
+          .replace(":00", ""),
+      });
+    }
+    return hourArray;
+  }, []);
+
+  // Group todoItems by day and time
+  const itemsByDayAndTime = useMemo(() => {
+    const map: Record<string, Record<number, PlannerItem[]>> = {};
+
+    // Initialize map structure
+    days.forEach(({ date }) => {
+      const dayKey = startOfDay(date).toISOString();
+      map[dayKey] = {};
+      hours.forEach(({ hour }) => {
+        if (map[dayKey]) {
+          map[dayKey][hour] = [];
+        }
+      });
+    });
+
+    todoItems.forEach((item) => {
+      const dueDate = item.plannable?.due_at ?? item.plannable_date;
+      if (!dueDate) return;
+
+      const parsedDate = new Date(dueDate);
+      const dayKey = startOfDay(parsedDate).toISOString();
+      const hour = parsedDate.getHours();
+
+      // If the item has a specific time, place it in that hour
+      // Otherwise, place it in the 8 AM slot as default
+      const targetHour = hour >= 6 && hour <= 23 ? hour : 6;
+
+      if (map[dayKey]?.[targetHour]) {
+        map[dayKey][targetHour].push(item);
+      }
+    });
+
+    return map;
+  }, [todoItems, days, hours]);
+
+  if (isLoading) {
+    return (
+      <div className="@container mt-4 flex flex-col gap-4">
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="@container mt-4 flex flex-col gap-2 overflow-hidden">
+      <div className="bg-background overflow-x-auto rounded-lg border">
+        <div className="min-w-max">
+          <div className="bg-background sticky top-0 z-10 border-b">
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `10ch repeat(${days.length}, ${dayWidth})`,
+              }}
+            >
+              <div className="bg-background sticky left-0 z-20 border-r p-3"></div>
+              {days.map(({ label, date, isToday }) => (
+                <div
+                  key={date.toISOString()}
+                  className={cn(
+                    "flex flex-col items-center justify-center border-r p-3 last:border-r-0",
+                    (date.getDay() == 0 || date.getDay() == 6) &&
+                      !isToday &&
+                      "bg-muted/10",
+                    isToday &&
+                      "bg-primary text-primary-foreground font-semibold",
+                  )}
+                  style={{ width: dayWidth }}
+                >
+                  <div
+                    className={cn(
+                      "text-muted-foreground text-xs tracking-wide uppercase",
+                      isToday && "text-primary-foreground/70",
+                    )}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    className={`text-lg font-medium ${isToday ? "text-primary-foreground" : ""}`}
+                  >
+                    {date.getDate()}
+                  </div>
+                  <div
+                    className={cn(
+                      "text-muted-foreground text-xs tracking-wide uppercase",
+                      isToday && "text-primary-foreground/70",
+                    )}
+                  >
+                    {date.toLocaleDateString(undefined, { month: "short" })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            {hours.map(({ hour, label }) => (
+              <div
+                key={hour}
+                className={cn("grid min-h-[0.5rem] border-b last:border-b-0")}
+                style={{
+                  gridTemplateColumns: `10ch repeat(${days.length}, ${dayWidth})`,
+                }}
+              >
+                <div className="text-muted-foreground bg-background sticky left-0 z-50 flex items-start justify-end border-r p-2 pr-3 text-[0.5rem]">
+                  <span className="mt-1">{label}</span>
+                </div>
+
+                {days.map(({ date, isToday }) => (
+                  <TimeTodoCard
+                    key={date.toISOString()}
+                    date={date}
+                    hour={hour}
+                    now={now}
+                    isToday={isToday}
+                    items={
+                      itemsByDayAndTime[startOfDay(date).toISOString()]?.[
+                        hour
+                      ] ?? []
+                    }
+                    dayWidth={dayWidth}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CalendarView({
+  isLoading,
+  todoItems,
+}: {
+  isLoading: boolean;
+  todoItems: PlannerItem[];
+}) {
+  const currentWeek = useMemo(() => new Date(), []);
+
+  const startOfWeek = useMemo(() => {
+    const date = new Date(currentWeek);
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day; // shift so Monday is first
+    date.setDate(date.getDate() + diff);
+    return date;
+  }, [currentWeek]);
+
+  const endOfCalendar = useMemo(() => {
+    const date = new Date(startOfWeek);
+    date.setDate(date.getDate() + 20); // current week + 2 more weeks (21 days)
+    return date;
+  }, [startOfWeek]);
+
+  const calendarDays = useMemo(() => {
+    const days: Date[] = [];
+    const current = new Date(startOfWeek);
+
+    while (current <= endOfCalendar) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return days;
+  }, [startOfWeek, endOfCalendar]);
+
+  const itemsByDate = useMemo(() => {
+    const map: Record<string, PlannerItem[]> = {};
+
+    todoItems.forEach((item) => {
+      const dueDate = item.plannable?.due_at ?? item.plannable_date;
+      if (!dueDate) return;
+
+      const dateKey = new Date(dueDate).toDateString();
+      map[dateKey] ??= [];
+      map[dateKey].push(item);
+    });
+
+    return map;
+  }, [todoItems]);
+
+  const today = new Date().toDateString();
+
+  if (isLoading) {
+    return (
+      <div className="@container mt-4 flex flex-col gap-4">
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="@container mt-4 flex min-w-[80rem] flex-col gap-4">
+      <div className="grid grid-cols-7">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+          <div
+            key={day}
+            className="text-muted-foreground p-2 text-center text-xs font-medium"
+          >
+            {day}
+          </div>
+        ))}
+
+        {calendarDays.map((date) => {
+          const dateKey = date.toDateString();
+          const dayItems = itemsByDate[dateKey] ?? [];
+          const isToday = dateKey == today;
+
+          return (
+            <div
+              key={dateKey}
+              className={cn(
+                "min-h-[20rem] border p-1",
+                isToday && "bg-primary/10 border-primary",
+                (date.getDay() === 0 || date.getDay() === 6) &&
+                  !isToday &&
+                  "bg-muted/10",
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-1 text-sm font-medium",
+                  isToday && "text-primary font-black",
+                )}
+              >
+                {date.getDate()}
+              </div>
+              <div className="space-y-1">
+                {dayItems.slice(0, 3).map((item) => (
+                  <CalendarTodoCard
+                    key={item.plannable_id}
+                    date={date}
+                    item={item}
+                  />
+                ))}
+                {dayItems.length > 3 && (
+                  <div className="text-muted-foreground text-xs">
+                    +{dayItems.length - 3} more
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

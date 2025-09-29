@@ -16,6 +16,8 @@ export type FrontPageInput = {
 export default async function getAssignment(ctx: CanvasApiCtx) {
   return async (input: FrontPageInput) => {
     const { unstable_cache } = await import("next/cache");
+    const { and, eq } = await import("drizzle-orm");
+    const { assignmentOverrides } = await import("@/server/db/schema");
     const assignment = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
         return {
@@ -85,9 +87,27 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
         }
         data.external_tool_tag_attributes.url = finalURL;
       }
+      const additionalData = await ctx.db
+        .select()
+        .from(assignmentOverrides)
+        .where(
+          and(
+            eq(assignmentOverrides.userId, ctx.user.get?.id ?? ""),
+            eq(assignmentOverrides.assignmentId, String(input.assignmentId)),
+            eq(assignmentOverrides.courseId, String(input.courseId)),
+          ),
+        );
+
       return {
         success: true,
-        data: data,
+        data: {
+          ...data,
+          data: {
+            due_at: additionalData?.[0]?.dueAt?.toISOString() ?? data.due_at,
+            duration: additionalData?.[0]?.duration ?? null,
+            status: additionalData?.[0]?.status ?? null,
+          },
+        },
         errors: [],
       };
     };

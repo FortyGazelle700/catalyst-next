@@ -50,7 +50,7 @@ export function PrettyState({
     case "":
       return (
         <>
-          <CircleX className={cn(className)} /> Not Submitted (Inferred)
+          <CircleX className={cn(className)} /> No Status
         </>
       );
     default:
