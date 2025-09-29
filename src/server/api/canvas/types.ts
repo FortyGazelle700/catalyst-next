@@ -631,6 +631,11 @@ export interface Assignment {
   original_assignment_name?: string;
   original_quiz_id?: number;
   workflow_state: string;
+  data: {
+    due_at?: string | null;
+    duration?: number | null;
+    status?: string | null;
+  };
 }
 
 export interface AssignmentOverride {
@@ -936,4 +941,15 @@ export interface ContextExternalTool {
   wiki_page_menu: ContextExternalToolPlacement | null;
   ActivityAssetProcessor: ContextExternalToolPlacement | null;
   ActivityAssetProcessorContribution: ContextExternalToolPlacement | null;
+}
+
+export interface Tab {
+  html_url: string;
+  full_url: string;
+  id: string;
+  label: string;
+  type: "external";
+  hidden?: boolean;
+  visibility: "public" | "members" | "admins" | "none";
+  position: number;
 }

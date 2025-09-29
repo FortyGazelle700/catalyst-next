@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { CommandMenuProvider } from "./command-menu";
+import { CommandMenuContext, CommandMenuProvider } from "./command-menu";
 import { useRouter, usePathname } from "next/navigation";
 import Pusher from "pusher-js";
 import { pipManager } from "./manager.pip";
@@ -18,6 +18,7 @@ import type {
   CurrentScheduleWithCoursesOutput,
   SchedulePeriodWithCourse,
 } from "@/server/api/canvas/courses/get-with-schedule";
+import { type PlannerItem } from "@/server/api/canvas/types";
 
 type CoursesContextValue = (Omit<CourseListWithPeriodDataOutput[0], "time"> & {
   time: {
@@ -49,6 +50,17 @@ export const CoursesRefreshContext = createContext<
   /**/
 });
 export const ScheduleContext = createContext<ScheduleContextValue>([]);
+export const TodoContext = createContext<PlannerItem[]>([]);
+export const TodoRefreshContext = createContext<
+  Dispatch<SetStateAction<number>>
+>(() => {
+  /**/
+});
+export const TodoUpdateContext = createContext<
+  Dispatch<SetStateAction<PlannerItem[]>>
+>(() => {
+  /**/
+});
 export const PubSubContext = createContext<Pusher | null>(null);
 type PipItem = {
   open: () => Promise<void>;
@@ -104,7 +116,6 @@ function CourseProvider({
   const [forceRefresh, setForce] = useState(Math.random());
 
   const lastFetch = useRef(new Date());
-  const unfocused = useRef(false);
 
   useEffect(() => {
     const code = async () => {
@@ -130,9 +141,7 @@ function CourseProvider({
       code().catch(console.error);
     }, 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
-        code().catch(console.error);
-      }
+      code().catch(console.error);
     });
   }, [ssrCourses, forceRefresh]);
 
@@ -219,18 +228,10 @@ function CourseProvider({
       });
     }
 
-    if (
-      courses.length == 0 ||
-      now.getSeconds() == 0 ||
-      unfocused.current == true
-    ) {
-      unfocused.current = false;
+    if (courses.length == 0 || now.getSeconds() == 0) {
       window.globalDebug.courses = newCourses;
       setCourses(newCourses);
     }
-    window.addEventListener("blur", () => {
-      unfocused.current = true;
-    });
   }, [courses.length, now, originalCourses]);
 
   return (
@@ -250,7 +251,6 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
   const [schedule, setSchedule] = useState<ScheduleContextValue>([]);
   const [forceRefresh, setForce] = useState(Math.random());
   const lastFetch = useRef(new Date());
-  const unfocused = useRef(false);
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -268,15 +268,10 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
       fetchSchedule().catch(console.error);
     }, 60 * 1000);
     window.addEventListener("focus", () => {
-      if (new Date().getTime() - lastFetch.current.getTime() > 30 * 1000) {
-        fetchSchedule().catch(console.error);
-      }
+      fetchSchedule().catch(console.error);
     });
     return () => {
       clearInterval(interval);
-      window.removeEventListener("focus", () => {
-        unfocused.current = false;
-      });
     };
   }, [forceRefresh]);
 
@@ -401,18 +396,10 @@ function ScheduleProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    if (
-      schedule.length == 0 ||
-      now.getSeconds() == 0 ||
-      unfocused.current == true
-    ) {
-      unfocused.current = false;
+    if (schedule.length == 0 || now.getSeconds() == 0) {
       window.globalDebug.schedule = newSchedule;
       setSchedule(newSchedule);
     }
-    window.addEventListener("blur", () => {
-      unfocused.current = true;
-    });
   }, [now, originalSchedule, schedule.length]);
 
   return (
@@ -465,6 +452,52 @@ function SessionVerificationProvider({
   }, [router, pathname]);
 
   return <>{children}</>;
+}
+
+function TodoProvider({ children }: { children: React.ReactNode }) {
+  const [todoItems, setTodoItems] = useState<PlannerItem[]>([]);
+  const [forceRefresh, setForceRefresh] = useState(Math.random());
+
+  useEffect(() => {
+    const fetchTodoItems = async () => {
+      try {
+        const req = await fetch("/api/todo/mini", {
+          next: { revalidate: 60 * 5 },
+        });
+        const { data: todoItems } = (await req.json()) as {
+          success: boolean;
+          data: PlannerItem[];
+          errors?: string[];
+        };
+        setTodoItems(todoItems ?? []);
+      } catch (error) {
+        console.error("Error fetching todo items:", error);
+      }
+    };
+
+    const handleFetchTodoItems = () => {
+      fetchTodoItems().catch(console.error);
+    };
+
+    handleFetchTodoItems();
+    const interval = setInterval(handleFetchTodoItems, 60 * 5 * 1000);
+    window.addEventListener("focus", handleFetchTodoItems);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFetchTodoItems);
+    };
+  }, [forceRefresh]);
+
+  return (
+    <TodoRefreshContext.Provider value={setForceRefresh}>
+      <TodoUpdateContext.Provider value={setTodoItems}>
+        <TodoContext.Provider value={todoItems}>
+          {children}
+        </TodoContext.Provider>
+      </TodoUpdateContext.Provider>
+    </TodoRefreshContext.Provider>
+  );
 }
 
 function PubSubProvider({ children }: { children: React.ReactNode }) {
@@ -602,6 +635,18 @@ export function usePip() {
   return context;
 }
 
+export function useTodoItems() {
+  const todoItems = useContext(TodoContext);
+  const setTodoItems = useContext(TodoUpdateContext);
+  const refreshTodos = useContext(TodoRefreshContext);
+
+  if (!setTodoItems) {
+    console.warn("useTodoItems is still loading");
+  }
+
+  return { todoItems, setTodoItems, refreshTodos };
+}
+
 export function useColorTheme() {
   const context = useContext(ColorThemeContext);
   if (!context) {
@@ -613,40 +658,25 @@ export function useColorTheme() {
 export function ColorThemeProvider({
   children,
   colorTheme,
-  isPro,
 }: {
   children: React.ReactNode;
   colorTheme: string;
-  isPro: boolean;
 }) {
   const [theme, setTheme] = useState<string>(colorTheme ?? "default");
 
   useEffect(() => {
-    const annoyingInterval = setInterval(() => {
-      setCookie("color-theme", isPro ? theme : "default", 365);
-      if (isPro) {
-        for (const cls of Array.from(document.documentElement.classList)) {
-          if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
-            continue;
-          document.documentElement.classList.remove(cls);
-        }
-        document.documentElement.classList.add(`color-theme-${theme}`);
-      } else {
-        for (const cls of Array.from(document.documentElement.classList)) {
-          if (!cls.startsWith("color-theme-") || cls == `color-theme-default`)
-            continue;
-          document.documentElement.classList.remove(cls);
-        }
-        document.documentElement.classList.add(`color-theme-default`);
-
-        if (theme != "default") {
-          setTheme("default");
-        }
+    const keepColors = setInterval(() => {
+      setCookie("color-theme", theme, 365);
+      for (const cls of Array.from(document.documentElement.classList)) {
+        if (!cls.startsWith("color-theme-") || cls == `color-theme-${theme}`)
+          continue;
+        document.documentElement.classList.remove(cls);
       }
+      document.documentElement.classList.add(`color-theme-${theme}`);
     }, 100);
 
-    return () => clearInterval(annoyingInterval);
-  }, [theme, setTheme, isPro]);
+    return () => clearInterval(keepColors);
+  }, [theme, setTheme]);
 
   return (
     <ColorThemeContext.Provider value={[theme, setTheme]}>
@@ -655,11 +685,32 @@ export function ColorThemeProvider({
   );
 }
 
+export function KeyboardProvider({ children }: { children: React.ReactNode }) {
+  const { setOpen } = useContext(CommandMenuContext);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === "/" && (e.metaKey || e.ctrlKey)) ||
+        (e.key === "k" && (e.metaKey || e.ctrlKey))
+      ) {
+        e.preventDefault();
+        setOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setOpen]);
+
+  return <>{children}</>;
+}
+
 export function AppLayoutProviders({
   children,
   courses,
   colorTheme,
-  isPro,
 }: {
   children: React.ReactNode;
   courses: CourseListWithPeriodDataOutput;
@@ -673,13 +724,17 @@ export function AppLayoutProviders({
   return (
     <SessionVerificationProvider>
       <CommandMenuProvider>
-        <ColorThemeProvider colorTheme={colorTheme} isPro={isPro}>
+        <ColorThemeProvider colorTheme={colorTheme}>
           <TimeProvider>
             <CourseProvider courses={courses}>
               <ScheduleProvider>
-                <PubSubProvider>
-                  <PipProvider>{children}</PipProvider>
-                </PubSubProvider>
+                <TodoProvider>
+                  <PubSubProvider>
+                    <PipProvider>
+                      <KeyboardProvider>{children}</KeyboardProvider>
+                    </PipProvider>
+                  </PubSubProvider>
+                </TodoProvider>
               </ScheduleProvider>
             </CourseProvider>
           </TimeProvider>

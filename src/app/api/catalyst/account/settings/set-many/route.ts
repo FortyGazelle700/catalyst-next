@@ -16,9 +16,7 @@ export const POST = auth(async (req) => {
       {
         success: false,
         data: [],
-        errors: result.error.errors.map((error) => ({
-          message: error.message,
-        })),
+        errors: result.error.errors,
       },
       {
         status: 400,

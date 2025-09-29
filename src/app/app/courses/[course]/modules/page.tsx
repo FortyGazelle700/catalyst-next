@@ -18,6 +18,7 @@ export default async function ModulePage({
     await api({})
   ).canvas.courses.modules.list({
     courseId: course,
+    useCache: false,
   });
 
   return <ModuleClientPage modules={modules} />;
