@@ -6,10 +6,11 @@ import {
   CommandDialog,
 } from "@/components/ui/command";
 import { Slot } from "@radix-ui/react-slot";
-import { Construction } from "lucide-react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { useCommandSearch } from "@/hooks/use-command-search";
+import { CommandSearchResults } from "@/components/catalyst/search-results";
 
-const CommandMenuContext = createContext<{
+export const CommandMenuContext = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }>({
@@ -43,30 +44,57 @@ export function CommandMenu({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+  const [query, setQuery] = useState("");
+  const { loading, error, results, defaultOptions, search } =
+    useCommandSearch();
+
+  // Update search when query changes
+  useEffect(() => {
+    search(query);
+  }, [query, search]);
+
+  // Clear query when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setQuery("");
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    setOpen(false);
+    setQuery("");
+  };
+
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command..." />
+      <CommandInput
+        placeholder={
+          query.trim()
+            ? "Search courses, assignments, grades, and pages..."
+            : "Search or navigate to any page..."
+        }
+        value={query}
+        onValueChange={setQuery}
+      />
       <CommandList>
-        <div className="flex flex-col px-8 pt-16 pb-4">
-          <Construction className="-mb-2 size-12" />
-          <h1 className="h3 font-bold">Currently Under Construction</h1>
-          <p className="p text-muted-foreground -mt-2 text-xs">
-            This command menu is currently under construction. Please check back
-            later.
-          </p>
-        </div>
-        {/* <CommandEmpty>No results</CommandEmpty>
-        <CommandGroup heading="Actions">
-          <CommandItem
-            value="search"
-            onSelect={() => console.log("Search selected")}
-          >
-            Search
-          </CommandItem>
-          <CommandItem value="settings" onSelect={() => null}>
-            Settings
-          </CommandItem>
-        </CommandGroup> */}
+        {error ? (
+          <div className="flex flex-col items-center justify-center px-4 py-12">
+            <div className="text-destructive mb-2 text-sm">
+              Error loading data
+            </div>
+            <div className="text-muted-foreground text-center text-xs">
+              {error}
+            </div>
+          </div>
+        ) : (
+          <CommandSearchResults
+            results={results}
+            defaultOptions={defaultOptions}
+            loading={loading}
+            query={query}
+            onSelect={handleClose}
+          />
+        )}
       </CommandList>
     </CommandDialog>
   );

@@ -21,10 +21,16 @@ export const CourseList = dynamic(
     })),
   {
     ssr: false,
-    loading: () =>
-      Array.from({ length: 10 }).map((_, idx) => (
-        <Skeleton key={idx} className="h-40 w-96 shrink-0 rounded-xs" />
-      )),
+    loading: () => (
+      <div className="flex flex-col gap-4 py-4">
+        <h2 className="h3 text-muted-foreground mt-0">Courses</h2>
+        <div className="flex gap-4">
+          {Array.from({ length: 10 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-40 w-96 shrink-0 rounded-xs" />
+          ))}
+        </div>
+      </div>
+    ),
   },
 );
 

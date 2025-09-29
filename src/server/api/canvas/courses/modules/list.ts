@@ -87,7 +87,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                       new URL(ctx.user.canvas.url).origin,
                       `${
                         process.env.PUBLISH_URL ?? "http://localhost:3000"
-                      }/app/`,
+                      }/app`,
                     ),
                     content_details: {
                       ...item.content_details,
@@ -96,7 +96,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                         new URL(ctx.user.canvas.url).origin,
                         `${
                           process.env.PUBLISH_URL ?? "http://localhost:3000"
-                        }/app/`,
+                        }/app`,
                       ),
                     },
                   };
@@ -125,6 +125,12 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     content_details: {
                       ...item.content_details,
                       ...fileData,
+                      html_url: item.url.replace(
+                        new URL(ctx.user.canvas.url).origin,
+                        `${
+                          process.env.PUBLISH_URL ?? "http://localhost:3000"
+                        }/app/`,
+                      ),
                     },
                   };
                 } else if (item.type == "Discussion") {
@@ -165,7 +171,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   content_details: item.content_details as ContentDetails,
                   html_url: item.html_url?.replace(
                     new URL(ctx.user.canvas.url).origin,
-                    `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app/`,
+                    `${process.env.PUBLISH_URL ?? "http://localhost:3000"}/app`,
                   ),
                 };
               }) ?? [],

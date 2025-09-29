@@ -31,11 +31,17 @@ export async function canvas($ctx: ApiCtx) {
           await import("./courses/external-tools/retrieve")
         ).default(ctx),
       },
+      sidebar: await (await import("./courses/sidebar")).default(ctx),
       syllabus: await (await import("./courses/syllabus")).default(ctx),
       frontPage: await (await import("./courses/front-page")).default(ctx),
       people: await (await import("./courses/people")).default(ctx),
       page: await (await import("./courses/page")).default(ctx),
       assignments: {
+        overrides: {
+          set: await (
+            await import("./courses/assignments/overrides/set")
+          ).default(ctx),
+        },
         get: await (await import("./courses/assignments/get")).default(ctx),
         submissions: {
           submit: {

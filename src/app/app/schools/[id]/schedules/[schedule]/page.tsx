@@ -45,36 +45,52 @@ export default async function SchedulePage({
           </tr>
         </thead>
         <tbody>
-          {schedule.map((period) => (
-            <tr key={period.id}>
-              <td>
-                {period.period.periodName}
-                {period.period.periodName != period.period.optionName
-                  ? ` (${period.period.optionName})`
-                  : ""}
-              </td>
-              <td>
-                <LocaleTimeString
-                  date={
-                    new Date(
-                      `${now.toISOString().split("T")[0]}T${period?.start}Z`,
-                    )
-                  }
-                  options={{ timeStyle: "short" }}
-                />
-              </td>
-              <td>
-                <LocaleTimeString
-                  date={
-                    new Date(
-                      `${now.toISOString().split("T")[0]}T${period?.end}Z`,
-                    )
-                  }
-                  options={{ timeStyle: "short" }}
-                />
-              </td>
-            </tr>
-          ))}
+          {schedule
+            .sort(
+              (a, b) =>
+                new Date(
+                  `${now.toISOString().split("T")[0]}T${a.start}Z`,
+                ).getTime() -
+                  new Date(
+                    `${now.toISOString().split("T")[0]}T${b.start}Z`,
+                  ).getTime() ||
+                new Date(
+                  `${now.toISOString().split("T")[0]}T${b.end}Z`,
+                ).getTime() -
+                  new Date(
+                    `${now.toISOString().split("T")[0]}T${a.end}Z`,
+                  ).getTime(),
+            )
+            .map((period) => (
+              <tr key={period.id}>
+                <td>
+                  {period.period.periodName}
+                  {period.period.periodName != period.period.optionName
+                    ? ` (${period.period.optionName})`
+                    : ""}
+                </td>
+                <td>
+                  <LocaleTimeString
+                    date={
+                      new Date(
+                        `${now.toISOString().split("T")[0]}T${period?.start}Z`,
+                      )
+                    }
+                    options={{ timeStyle: "short" }}
+                  />
+                </td>
+                <td>
+                  <LocaleTimeString
+                    date={
+                      new Date(
+                        `${now.toISOString().split("T")[0]}T${period?.end}Z`,
+                      )
+                    }
+                    options={{ timeStyle: "short" }}
+                  />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>

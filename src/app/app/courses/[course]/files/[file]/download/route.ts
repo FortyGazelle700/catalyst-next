@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     new URL(req.url).pathname
       .replace("/app/", "/api/v1/")
       .replace("/download", ""),
-    ctx.user.canvas.url
+    ctx.user.canvas.url,
   );
 
   const fileDetails = await unstable_cache(
@@ -21,11 +21,11 @@ export async function GET(req: NextRequest) {
           },
         })
       ).json()) as { url: string },
-    [url.toString()]
+    [url.toString()],
   )();
 
   const file = await (
-    await fetch(fileDetails.url, {
+    await fetch(fileDetails.url ?? "", {
       headers: {
         Authorization: `Bearer ${ctx.user.canvas.token ?? ""}`,
       },

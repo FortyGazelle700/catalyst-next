@@ -5,10 +5,11 @@ import type { CanvasErrors, ContextExternalTool } from "../../types";
 
 export type FrontPageInput = {
   courseId: number;
-  externalURL: URL | string;
+  externalURL?: URL | string;
+  externalId?: string;
 };
 
-export default async function getAssignment(ctx: CanvasApiCtx) {
+export default async function getExternalId(ctx: CanvasApiCtx) {
   return async (input: FrontPageInput) => {
     const externalTool = async () => {
       if (!ctx.user.canvas.url || !ctx.user.canvas.token) {
@@ -26,7 +27,12 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
         `/api/v1/courses/${input.courseId}/external_tools/sessionless_launch`,
         ctx.user.canvas.url,
       );
-      url.searchParams.append("url", String(input.externalURL));
+      if (input.externalId) {
+        url.searchParams.append("id", input.externalId);
+      }
+      if (input.externalURL) {
+        url.searchParams.append("url", String(input.externalURL));
+      }
       // url.searchParams.append("launch_type", "assessment");
       const query = await fetch(url, {
         headers: {
