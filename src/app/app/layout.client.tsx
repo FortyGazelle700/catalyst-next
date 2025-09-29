@@ -55,6 +55,7 @@ import {
   Settings,
   PictureInPicture2,
   ClockAlert,
+  Command,
 } from "lucide-react";
 import Link from "next/link";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -1050,6 +1051,18 @@ export function AppSidebarClient({
                 <SidebarMenuButton tooltip="Search" className="cursor-pointer">
                   <Search />
                   <span>Search</span>
+                  <div className="text-muted-foreground ml-auto flex items-center gap-1">
+                    <kbd className="bg-muted flex h-6 items-center justify-center rounded-full border px-1.5 text-xs font-semibold">
+                      {navigator.platform.includes("Mac") ? (
+                        <Command className="size-3" />
+                      ) : (
+                        "Ctrl"
+                      )}
+                    </kbd>
+                    <kbd className="bg-muted flex size-6 items-center justify-center rounded-full border px-1.5 text-xs font-semibold">
+                      /
+                    </kbd>
+                  </div>
                 </SidebarMenuButton>
               </OpenCommandMenu>
             </SidebarMenuItem>

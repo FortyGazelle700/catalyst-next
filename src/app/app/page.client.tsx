@@ -315,19 +315,19 @@ export function CourseCard({
         </Link>
         <Link
           className={cn(
-            "bg-destructive absolute top-5 right-5 ml-auto flex h-8 items-center justify-end rounded-full transition-all",
+            "bg-destructive/50 border-destructive absolute top-5 right-5 ml-auto flex h-8 items-center justify-end rounded-full border-2 transition-all",
             expanded &&
               "mb-2 group-focus-within:pointer-events-none group-focus-within:-translate-y-16 group-focus-within:scale-90 group-focus-within:opacity-0 group-hover:pointer-events-none group-hover:-translate-y-16 group-hover:scale-90 group-hover:opacity-0",
           )}
           href={`/app/courses/${course.id}/grades`}
         >
           {course.data.missingAssignments > 0 && (
-            <div className="flex items-center gap-1 rounded-full p-1 pl-3 text-xs font-medium">
-              <ClockAlert className="size-3" />
+            <div className="text-destructive-foreground flex items-center gap-1 rounded-full p-1 pr-2 pl-3 text-xs font-black">
+              <ClockAlert className="size-3 stroke-3" />
               {course.data.missingAssignments}
             </div>
           )}
-          <div className="bg-background rounded-full">
+          <div className="bg-background -mx-1 rounded-full">
             <RadialChart
               percentage={
                 course.enrollments?.at(0)?.computed_current_score
@@ -687,7 +687,7 @@ function ListView({
         </>
       ) : (
         <>
-          {todoItems?.map((todoItem) => (
+          {todoItems.map((todoItem) => (
             <TodoItem key={todoItem.plannable_id} todoItem={todoItem} />
           ))}
         </>

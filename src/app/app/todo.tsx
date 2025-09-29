@@ -98,7 +98,7 @@ export function TodoItem({ todoItem }: { todoItem: PlannerItem }) {
                     await fetch("/api/todo/mark-complete", {
                       method: "PUT",
                       body: JSON.stringify({
-                        id: todoItem.plannable_id,
+                        id: Number(todoItem.plannable_id),
                         complete: checked,
                       }),
                     }).catch(console.error);
@@ -743,7 +743,7 @@ export function TimeTodoCard({
                                 await fetch("/api/todo/mark-complete", {
                                   method: "PUT",
                                   body: JSON.stringify({
-                                    id: todoItem.plannable_id,
+                                    id: Number(todoItem.plannable_id),
                                     complete: checked,
                                   }),
                                 }).catch(console.error);
@@ -1175,7 +1175,7 @@ export function CalendarTodoCard({ item }: { date: Date; item: PlannerItem }) {
                       await fetch("/api/todo/mark-complete", {
                         method: "PUT",
                         body: JSON.stringify({
-                          id: item.plannable_id,
+                          id: Number(item.plannable_id),
                           complete: checked,
                         }),
                       }).catch(console.error);
@@ -1550,16 +1550,16 @@ export function CourseTodoCard({
                 setTimeout(() => {
                   (async () => {
                     setRequests(requests - 1);
-                    if (requests === 0) {
-                      await fetch("/api/todo/mark-complete", {
-                        method: "PUT",
-                        body: JSON.stringify({
-                          id: item.plannable_id,
-                          complete: checked,
-                        }),
-                      }).catch(console.error);
-                      markAsChecked();
-                    }
+                    // if (requests == 0) {
+                    await fetch("/api/todo/mark-complete", {
+                      method: "PUT",
+                      body: JSON.stringify({
+                        id: Number(item.plannable_id),
+                        complete: checked,
+                      }),
+                    }).catch(console.error);
+                    markAsChecked();
+                    // }
                   })().catch(console.error);
                 }, 2000);
               }}

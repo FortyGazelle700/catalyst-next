@@ -631,6 +631,11 @@ export interface Assignment {
   original_assignment_name?: string;
   original_quiz_id?: number;
   workflow_state: string;
+  data: {
+    due_at?: string | null;
+    duration?: number | null;
+    status?: string | null;
+  };
 }
 
 export interface AssignmentOverride {

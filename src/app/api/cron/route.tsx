@@ -153,7 +153,7 @@ async function makeScheduledScheduleDaysHappen() {
 }
 
 async function sendNotifications() {
-  const userList = await db.select().from(users);
+  const userList = await global.db.select().from(users);
 
   for (const user of userList) {
     const userApi = await api({ userId: user.id });
@@ -193,25 +193,65 @@ async function sendNotifications() {
 
       if (!todo) continue;
 
-      const itemsToAlert = todo.filter((item) => {
-        const itemTime = new Date(
-          item.plannable.due_at ?? item.plannable_date ?? "",
-        ).getTime();
+      // Get assignment overrides for additional checking
+      const { assignmentOverrides } = await import("@/server/db/schema");
+      const userOverrides = await global.db
+        .select()
+        .from(assignmentOverrides)
+        .where(eq(assignmentOverrides.userId, user.id));
 
-        return alerts.some(
-          ([start, end]) =>
-            itemTime >= start &&
-            itemTime <= end &&
-            (!(
-              item.plannable.content_details?.submission?.workflow_state ==
-                "submitted" ||
-              item.plannable.content_details?.submission?.workflow_state ==
-                "graded"
-            ) ||
-              (item.plannable.content_details?.submission_types.includes(
-                "on_paper",
-              ) &&
-                item.planner_override?.marked_complete != true)),
+      const itemsToAlert = todo.filter((item) => {
+        // Check for database assignment override with custom due date
+        const dbOverride = userOverrides.find(
+          (override) =>
+            override.assignmentId === String(item.plannable.id) &&
+            override.courseId ===
+              String(item.course_id ?? item.plannable.course_id),
+        );
+
+        // Use override due date if available, otherwise use original
+        const dueDate =
+          dbOverride?.dueAt ??
+          new Date(item.plannable.due_at ?? item.plannable_date ?? "");
+        const itemTime = dueDate.getTime();
+
+        const isInAlertWindow = alerts.some(
+          ([start, end]) => itemTime >= start && itemTime <= end,
+        );
+
+        if (!isInAlertWindow) return false;
+
+        // Check if assignment is already submitted or graded
+        const isSubmitted =
+          item.plannable.content_details?.submission?.workflow_state ===
+            "submitted" ||
+          item.plannable.content_details?.submission?.workflow_state ===
+            "graded";
+
+        // Check if assignment is marked complete via planner override
+        const isMarkedComplete =
+          item.planner_override?.marked_complete === true;
+
+        // Check for database assignment override completion
+        const isOverrideComplete = dbOverride?.markedComplete === true;
+
+        // For on-paper assignments, only alert if not marked complete
+        const isOnPaperAndNotComplete =
+          item.plannable.content_details?.submission_types.includes(
+            "on_paper",
+          ) &&
+          !isMarkedComplete &&
+          !isOverrideComplete;
+
+        // Alert if: not submitted AND not marked complete (via planner or database override) AND (not on-paper OR on-paper but not marked complete)
+        return (
+          !isSubmitted &&
+          !isMarkedComplete &&
+          !isOverrideComplete &&
+          (!item.plannable.content_details?.submission_types.includes(
+            "on_paper",
+          ) ||
+            isOnPaperAndNotComplete)
         );
       });
 
@@ -221,52 +261,64 @@ async function sendNotifications() {
         subject: `${itemsToAlert.length} assignment${itemsToAlert.length > 1 ? "s" : ""} due soon!`,
         EmailContent: (
           <SubmissionAlertEmail
-            assignmentsDue={itemsToAlert.map((item) => ({
-              name: item.plannable.title,
-              courseLabel:
-                courseList.find((c) => c.id === item.course?.id)?.name ??
-                "Unclassified",
-              courseName: item.course?.name ?? "Course Name",
-              dueDate: new Date(
-                item.plannable.due_at ?? item.plannable_date ?? "",
-              ).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-                timeZone: "America/Chicago",
-              }),
-              dueIn: (() => {
-                const now = Temporal.Now.plainDateTimeISO("UTC");
-                const due = Temporal.PlainDateTime.from(
-                  new Date(item.plannable.due_at ?? item.plannable_date ?? "")
-                    .toISOString()
-                    .split("Z")[0]!,
-                );
-                const diff = due.since(now);
+            assignmentsDue={itemsToAlert.map((item) => {
+              // Get the database override for this item
+              const dbOverride = userOverrides.find(
+                (override) =>
+                  override.assignmentId === String(item.plannable.id) &&
+                  override.courseId ===
+                    String(item.course_id ?? item.plannable.course_id),
+              );
 
-                if (diff.days > 0) {
-                  return `${diff.days} day${diff.days > 1 ? "s" : ""}${
-                    diff.hours > 0
-                      ? `, ${diff.hours} hr${diff.hours > 1 ? "s" : ""}`
-                      : ""
-                  }`;
-                } else if (diff.hours > 0) {
-                  return `${diff.hours} hr${diff.hours > 1 ? "s" : ""}${
-                    diff.minutes > 0
-                      ? `, ${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`
-                      : ""
-                  }`;
-                } else if (diff.minutes > 0) {
-                  return `${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`;
-                } else {
-                  return "less than a minute";
-                }
-              })(),
-              url: `https://catalyst.bluefla.me/app/courses/${item.course?.id}/assignments/${item.plannable.id}`,
-              submissionTypes: item.plannable.content_details.submission_types,
-            }))}
+              // Use override due date if available, otherwise use original
+              const dueDate =
+                dbOverride?.dueAt ??
+                new Date(item.plannable.due_at ?? item.plannable_date ?? "");
+
+              return {
+                name: item.plannable.title,
+                courseLabel:
+                  courseList.find((c) => c.id === item.course?.id)?.name ??
+                  "Unclassified",
+                courseName: item.course?.name ?? "Course Name",
+                dueDate: dueDate.toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                  timeZone: "America/Chicago",
+                }),
+                dueIn: (() => {
+                  const now = Temporal.Now.plainDateTimeISO("UTC");
+                  const due = Temporal.PlainDateTime.from(
+                    dueDate.toISOString().split("Z")[0]!,
+                  );
+                  const diff = due.since(now);
+
+                  if (diff.days > 0) {
+                    return `${diff.days} day${diff.days > 1 ? "s" : ""}${
+                      diff.hours > 0
+                        ? `, ${diff.hours} hr${diff.hours > 1 ? "s" : ""}`
+                        : ""
+                    }`;
+                  } else if (diff.hours > 0) {
+                    return `${diff.hours} hr${diff.hours > 1 ? "s" : ""}${
+                      diff.minutes > 0
+                        ? `, ${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`
+                        : ""
+                    }`;
+                  } else if (diff.minutes > 0) {
+                    return `${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`;
+                  } else {
+                    return "less than a minute";
+                  }
+                })(),
+                url: `https://catalyst.bluefla.me/app/courses/${item.course?.id}/assignments/${item.plannable.id}`,
+                submissionTypes:
+                  item.plannable.content_details.submission_types,
+              };
+            })}
             name={settings.f_name ?? user.name?.split(" ")[0]}
           />
         ),

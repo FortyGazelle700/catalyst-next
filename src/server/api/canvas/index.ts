@@ -37,6 +37,11 @@ export async function canvas($ctx: ApiCtx) {
       people: await (await import("./courses/people")).default(ctx),
       page: await (await import("./courses/page")).default(ctx),
       assignments: {
+        overrides: {
+          set: await (
+            await import("./courses/assignments/overrides/set")
+          ).default(ctx),
+        },
         get: await (await import("./courses/assignments/get")).default(ctx),
         submissions: {
           submit: {

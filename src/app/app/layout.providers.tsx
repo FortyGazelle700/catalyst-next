@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { CommandMenuProvider } from "./command-menu";
+import { CommandMenuContext, CommandMenuProvider } from "./command-menu";
 import { useRouter, usePathname } from "next/navigation";
 import Pusher from "pusher-js";
 import { pipManager } from "./manager.pip";
@@ -685,6 +685,28 @@ export function ColorThemeProvider({
   );
 }
 
+export function KeyboardProvider({ children }: { children: React.ReactNode }) {
+  const { setOpen } = useContext(CommandMenuContext);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === "/" && (e.metaKey || e.ctrlKey)) ||
+        (e.key === "k" && (e.metaKey || e.ctrlKey))
+      ) {
+        e.preventDefault();
+        setOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setOpen]);
+
+  return <>{children}</>;
+}
+
 export function AppLayoutProviders({
   children,
   courses,
@@ -708,7 +730,9 @@ export function AppLayoutProviders({
               <ScheduleProvider>
                 <TodoProvider>
                   <PubSubProvider>
-                    <PipProvider>{children}</PipProvider>
+                    <PipProvider>
+                      <KeyboardProvider>{children}</KeyboardProvider>
+                    </PipProvider>
                   </PubSubProvider>
                 </TodoProvider>
               </ScheduleProvider>

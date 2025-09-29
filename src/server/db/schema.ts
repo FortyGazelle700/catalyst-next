@@ -5,7 +5,7 @@ import {
   index,
   integer,
   jsonb,
-  pgTable,
+  pgTable as table,
   primaryKey,
   text,
   timestamp,
@@ -21,7 +21,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
 
-export const users = pgTable("user", {
+export const users = table("user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -45,7 +45,7 @@ export const users = pgTable("user", {
   }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const proUsers = pgTable("pro_user", {
+export const proUsers = table("pro_user", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -70,7 +70,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));
 
-export const accounts = pgTable(
+export const accounts = table(
   "account",
   {
     userId: varchar("user_id", { length: 255 })
@@ -111,7 +111,7 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
-export const sessions = pgTable(
+export const sessions = table(
   "session",
   {
     sessionToken: varchar("session_token", { length: 255 })
@@ -147,7 +147,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-export const verificationTokens = pgTable(
+export const verificationTokens = table(
   "verification_token",
   {
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -180,7 +180,7 @@ export const permissionRole = varenum("permission_role_enum", [
   "admin",
 ]);
 
-export const settings = pgTable(
+export const settings = table(
   "setting",
   {
     id: varchar("id", { length: 255 })
@@ -216,7 +216,7 @@ export const userToSettingsRelation = relations(users, ({ many }) => ({
   settings: many(settings),
 }));
 
-export const schools = pgTable(
+export const schools = table(
   "school",
   {
     id: varchar("id", { length: 255 })
@@ -250,7 +250,7 @@ export const schools = pgTable(
   }),
 );
 
-export const schoolPermissions = pgTable(
+export const schoolPermissions = table(
   "school_permission",
   {
     id: varchar("id", { length: 255 })
@@ -281,7 +281,7 @@ export const schoolPermissions = pgTable(
   }),
 );
 
-export const periods = pgTable(
+export const periods = table(
   "period",
   {
     id: varchar("id", { length: 255 })
@@ -317,7 +317,7 @@ export const periods = pgTable(
   }),
 );
 
-export const schedules = pgTable("schedule", {
+export const schedules = table("schedule", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -334,7 +334,7 @@ export const schedules = pgTable("schedule", {
   }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const periodTimes = pgTable(
+export const periodTimes = table(
   "period_time",
   {
     id: varchar("id", { length: 255 })
@@ -381,7 +381,7 @@ export const periodTimeToPeriodRelation = relations(periodTimes, ({ one }) => ({
   }),
 }));
 
-export const scheduleValues = pgTable(
+export const scheduleValues = table(
   "schedule_value",
   {
     id: varchar("id", { length: 255 })
@@ -408,7 +408,7 @@ export const scheduleValues = pgTable(
   }),
 );
 
-export const scheduleDates = pgTable(
+export const scheduleDates = table(
   "schedule_date",
   {
     id: varchar("id", { length: 255 })
@@ -434,7 +434,7 @@ export const scheduleDates = pgTable(
   }),
 );
 
-export const scheduleDatesSchedule = pgTable(
+export const scheduleDatesSchedule = table(
   "schedule_date_schedules",
   {
     id: varchar("id", { length: 255 })
@@ -470,7 +470,7 @@ export const scheduleDateToScheduleRelation = relations(
   }),
 );
 
-export const notifications = pgTable(
+export const notifications = table(
   "notification",
   {
     id: varchar("id", { length: 255 })
@@ -495,7 +495,7 @@ export const notifications = pgTable(
   }),
 );
 
-export const ipData = pgTable("cache_ip_data", {
+export const ipData = table("cache_ip_data", {
   ip: varchar("ip", { length: 512 }).notNull().primaryKey(),
   data: jsonb("data"),
   createdAt: timestamp("created_at", {
@@ -508,7 +508,7 @@ export const ipData = pgTable("cache_ip_data", {
   }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const courseClassification = pgTable("cache_course_classification", {
+export const courseClassification = table("cache_course_classification", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -525,7 +525,34 @@ export const courseClassification = pgTable("cache_course_classification", {
   }).default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const userRelationships = pgTable(
+export const assignmentOverrides = table("assignment_override", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .unique()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  courseId: varchar("course_id", { length: 255 }).notNull(),
+  assignmentId: varchar("assignment_id", { length: 255 }).notNull(),
+  dueAt: timestamp("due_at", { mode: "date" }),
+  userDescription: jsonb("user_description").$type<{
+    description: string;
+    links: { label: string; href: string }[];
+  }>(),
+  duration: integer("duration").notNull(),
+  status: varchar("status", { length: 32 }).notNull(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+  markedComplete: boolean("marked_complete").notNull().default(false),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const userRelationships = table(
   "user_relationship",
   {
     id: varchar("id", { length: 255 })
@@ -555,7 +582,7 @@ export const userRelationships = pgTable(
   }),
 );
 
-export const chats = pgTable(
+export const chats = table(
   "chat",
   {
     id: varchar("id", { length: 255 })
@@ -580,7 +607,7 @@ export const chats = pgTable(
   }),
 );
 
-export const chatMessages = pgTable(
+export const chatMessages = table(
   "chat_message",
   {
     id: varchar("id", { length: 255 })
@@ -614,7 +641,7 @@ export const chatMessages = pgTable(
   }),
 );
 
-export const feedback = pgTable("feedback", {
+export const feedback = table("feedback", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
