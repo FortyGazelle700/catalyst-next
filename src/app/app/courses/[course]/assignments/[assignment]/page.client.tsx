@@ -111,6 +111,8 @@ import { DateTimePicker } from "@/components/catalyst/date-time-picker";
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
 
+  const firstRender = useRef(true);
+
   const [durationHours, setDurationHours] = useState(
     Math.floor((assignment.data.duration ?? 0) / 60),
   );
@@ -118,9 +120,7 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
     (assignment.data.duration ?? 0) % 60,
   );
 
-  const [customDueDate, setCustomDueDate] = useState<Date | null>(
-    assignment.data.due_at ? new Date(assignment.data.due_at) : null,
-  );
+  const [customDueDate, setCustomDueDate] = useState<Date | null>(null);
 
   const [customStatus, setCustomStatus] = useState<string | null>(
     assignment.data.status ?? "none",
@@ -129,6 +129,11 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const [statusOpen, setStatusOpen] = useState(false);
 
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
     const triggerSubmit = setTimeout(() => {
       (async () => {
         await fetch(

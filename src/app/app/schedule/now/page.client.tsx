@@ -177,7 +177,7 @@ export default function ScheduleCountdownPage() {
                 </Tooltip>
               )}
             </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" href="/app/schedule">
               <List />
             </Button>
           </div>

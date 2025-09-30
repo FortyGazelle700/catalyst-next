@@ -262,12 +262,11 @@ export function CourseCard({
   }, [course.id, expanded, allTodoItems]);
 
   return (
-    <div>
+    <div className={className}>
       <div
         className={cn(
-          "group relative flex h-40 w-96 shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all focus-within:scale-105 focus-within:shadow-2xl hover:scale-105 hover:shadow-2xl",
-          expanded && "h-20 w-96",
-          className,
+          "group relative flex h-40 w-full shrink-0 flex-col overflow-hidden rounded-xs border p-4 pl-5 transition-all focus-within:scale-105 focus-within:shadow-2xl hover:scale-105 hover:shadow-2xl",
+          expanded && "h-20 w-full",
         )}
         style={{
           backgroundColor: `color-mix(in oklab, ${subjectColors(
@@ -484,11 +483,15 @@ export function CourseList({
                 </>
               )}
             </div>
-            <CourseCard course={currentCourse} />
+            <CourseCard course={currentCourse} className="max-w-96 min-w-96" />
           </div>
         )}
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard
+            key={course.id}
+            course={course}
+            className="max-w-96 min-w-96"
+          />
         ))}
       </div>
     );
@@ -510,11 +513,18 @@ export function CourseList({
                 </>
               )}
             </div>
-            <CourseCard course={currentCourse} className="w-full" />
+            <CourseCard
+              course={currentCourse}
+              className="max-w-[calc(100%-1.75rem)] min-w-[calc(100%-1.75rem)]"
+            />
           </div>
         )}
         {courses.map((course) => (
-          <CourseCard key={course.id} course={course} className="w-full" />
+          <CourseCard
+            key={course.id}
+            course={course}
+            className="max-w-full min-w-full"
+          />
         ))}
       </div>
     );
@@ -536,7 +546,11 @@ export function CourseList({
                 </>
               )}
             </div>
-            <CourseCard course={currentCourse} className="w-full" expanded />
+            <CourseCard
+              course={currentCourse}
+              className="max-w-[calc(100%-1.75rem)] min-w-[calc(100%-1.75rem)]"
+              expanded
+            />
           </div>
         )}
         {courses.map((course) => (

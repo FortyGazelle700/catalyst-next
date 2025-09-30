@@ -108,6 +108,15 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
             (c) => c.id == Number(override.courseId),
           );
 
+          if (
+            data.find(
+              (d) =>
+                d.plannable.content_details.id == Number(override.assignmentId),
+            )
+          ) {
+            continue;
+          }
+
           data.push({
             plannable: {
               id: Number(override.assignmentId),
