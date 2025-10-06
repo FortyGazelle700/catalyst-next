@@ -105,13 +105,14 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
             await courseList(ctx)
           )({ useCache: true, offset: 0, limit: 100 });
           const assignmentCourse = courses?.find(
-            (c) => c.id == Number(override.courseId),
+            (c) => c?.id == Number(override?.courseId),
           );
 
           if (
             data.find(
               (d) =>
-                d.plannable.content_details.id == Number(override.assignmentId),
+                d.plannable?.content_details?.id ==
+                Number(override?.assignmentId),
             )
           ) {
             continue;

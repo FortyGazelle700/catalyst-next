@@ -13,6 +13,7 @@ import {
 import { Time } from "./time";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
+import { cn } from "@/lib/utils";
 
 export function DateTimePicker({
   defaultDate,
@@ -21,6 +22,8 @@ export function DateTimePicker({
   children,
   side = "bottom",
   align = "start",
+  className,
+  displayDefault,
 }: {
   defaultDate?: string;
   setDate: (date: Date) => void;
@@ -28,6 +31,8 @@ export function DateTimePicker({
   children?: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
+  className?: string;
+  displayDefault?: boolean;
 }) {
   const [dateDate, setDateDate] = useState<Date | undefined>(
     defaultDate ? new Date(defaultDate) : undefined,
@@ -60,14 +65,20 @@ export function DateTimePicker({
         ) : (
           <Button variant="outline" className="flex-1 justify-between">
             <div className="flex items-center gap-2">
-              <Calendar1 /> {date?.toLocaleString() ?? "No Date Set"}{" "}
+              <Calendar1 />
+              {displayDefault
+                ? (date?.toLocaleString() ?? "No Date Set")
+                : "No Date Set"}
             </div>
             <Pencil className="ml-4" />
           </Button>
         )}
       </ResponsivePopoverTrigger>
       <ResponsivePopoverContent
-        className="@container max-h-96 w-[60ch] justify-stretch overflow-hidden"
+        className={cn(
+          "@container max-h-96 w-[60ch] justify-stretch overflow-hidden",
+          className,
+        )}
         side={side}
         align={align}
       >

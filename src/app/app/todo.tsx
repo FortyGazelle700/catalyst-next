@@ -823,12 +823,30 @@ export function TimeTodoCard({
                       })}
                     </div>
                     <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                      <PrettyState
-                        className="size-3"
-                        state={
-                          todoItem.plannable?.content_details?.submission
-                            ?.workflow_state ?? ""
+                      <span className="flex items-center gap-1">
+                        <PrettyState
+                          className="size-3"
+                          state={
+                            todoItem.plannable?.content_details?.submission
+                              ?.workflow_state ?? ""
+                          }
+                        />
+                      </span>
+                      <div className="flex-1" />
+                      <span className="flex items-center gap-1">
+                        {todoItem.plannable.content_details?.data?.duration ??
+                          0}
+                        min
+                      </span>
+                    </div>
+                    <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                      <SubmissionTypeWithIcon
+                        submission={
+                          todoItem.plannable?.content_details?.submission_types?.at(
+                            0,
+                          ) ?? "none"
                         }
+                        className="size-3"
                       />
                       <div className="flex-1" />
                       <span>
@@ -887,7 +905,7 @@ export function TimeTodoCard({
                               className="text-muted-foreground h-4 text-xs"
                             >
                               <Upload className="size-3" />
-                              Upload
+                              Submit
                             </Button>
                           }
                           title="Assignment"
@@ -949,7 +967,7 @@ export function TimeTodoCard({
           }}
         >
           {isCurrentHour && (
-            <div className="bg-primary text-primary-foreground absolute top-1/2 left-0 flex h-4 w-[10ch] -translate-1/2 items-center justify-center rounded-full text-xs font-bold shadow-md">
+            <div className="bg-primary text-primary-foreground absolute top-1/2 right-full flex h-4 w-[10ch] translate-x-2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-bold shadow-md">
               {now.toLocaleTimeString(undefined, {
                 hour: "numeric",
                 minute: "2-digit",
@@ -1259,6 +1277,17 @@ export function CalendarTodoCard({ item }: { date: Date; item: PlannerItem }) {
                 }
               />
             </span>
+          </div>
+          <div className="text-muted-foreground flex flex-col items-center gap-1 text-xs">
+            <span className="flex w-full items-center gap-1">
+              <SubmissionTypeWithIcon
+                submission={
+                  item.plannable?.content_details?.submission_types?.at(0) ??
+                  "none"
+                }
+                className="size-3"
+              />
+            </span>
             <span className="flex w-full items-center justify-end gap-1">
               {item.plannable?.content_details?.points_possible
                 ? item.plannable?.content_details?.submission?.score !=
@@ -1318,7 +1347,7 @@ export function CalendarTodoCard({ item }: { date: Date; item: PlannerItem }) {
                     className="text-muted-foreground h-4 text-xs"
                   >
                     <Upload className="size-3" />
-                    Upload
+                    Submit
                   </Button>
                 }
                 title="Assignment"
@@ -1398,7 +1427,7 @@ export function CourseTodoCard({
       key={item.plannable_id}
       className={cn("relative flex w-full flex-1 flex-col transition-all")}
     >
-      {item.plannable_type === "planner_note" ? (
+      {item.plannable_type == "planner_note" ? (
         <LinkModal
           link={`/app/todo/${item.plannable_id}`}
           trigger={
@@ -1590,7 +1619,10 @@ export function CourseTodoCard({
                     Temporal.Instant.from(new Date().toISOString()).until(
                       Temporal.Instant.from(
                         new Date(
-                          item.plannable?.due_at ?? item.plannable_date ?? "",
+                          item.plannable?.content_details?.data?.due_at ??
+                            item.plannable?.due_at ??
+                            item?.plannable_date ??
+                            Date.now(),
                         ).toISOString(),
                       ),
                     ),
@@ -1611,6 +1643,15 @@ export function CourseTodoCard({
                   hour12: true,
                 })}
               </div>
+              <span className="flex w-full items-center gap-1">
+                <SubmissionTypeWithIcon
+                  submission={
+                    item.plannable?.content_details?.submission_types?.at(0) ??
+                    "none"
+                  }
+                  className="size-3"
+                />
+              </span>
               <span className="flex w-full items-center gap-1">
                 <PrettyState
                   className="size-3"
@@ -1679,7 +1720,7 @@ export function CourseTodoCard({
                       className="text-muted-foreground h-4 !px-0 text-xs"
                     >
                       <Upload className="size-3" />
-                      Upload
+                      Submit
                     </Button>
                   }
                   title="Assignment"

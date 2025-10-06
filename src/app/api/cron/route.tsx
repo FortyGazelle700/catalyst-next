@@ -278,9 +278,14 @@ async function sendNotifications() {
               return {
                 name: item.plannable.title,
                 courseLabel:
-                  courseList.find((c) => c.id === item.course?.id)?.name ??
-                  "Unclassified",
-                courseName: item.course?.name ?? "Course Name",
+                  courseList.find((c) => c.id == item.course?.id)
+                    ?.classification ?? "Unclassified",
+                courseName:
+                  item.course?.name ??
+                  courseList.find((c) => c.id == item.course?.id)
+                    ?.original_name ??
+                  courseList.find((c) => c.id == item.course?.id)?.name ??
+                  "Course Name",
                 dueDate: dueDate.toLocaleString("en-US", {
                   month: "short",
                   day: "numeric",

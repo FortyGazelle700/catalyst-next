@@ -51,6 +51,25 @@ import { cn } from "@/lib/utils";
 import { type CourseListWithPeriodDataOutput } from "@/server/api/canvas/courses/list-with-period-data";
 import { RadialChart } from "@/components/catalyst/radial-chart";
 
+export function Greeting({ name }: { name: string }) {
+  const now = useContext(TimeContext);
+  const [greeting, setGreeting] = useState("Hi there");
+  useEffect(() => {
+    const hours = now.getHours();
+    if (hours >= 3 && hours < 12) {
+      setGreeting("Good morning");
+    } else if (hours < 18) {
+      setGreeting("Good afternoon");
+    } else if (hours >= 18) {
+      setGreeting("Good evening");
+    } else {
+      setGreeting("Good morning, supposedly");
+    }
+  }, [now]);
+
+  return `${greeting}, ${name}!`;
+}
+
 export function TimeCard() {
   const now = useContext(TimeContext);
   const [greeting, setGreeting] = useState("Hi there, it is");
@@ -419,7 +438,7 @@ export function CourseCard({
         </div>
       </div>
       {expanded && (
-        <div className="h-68">
+        <div className="h-80">
           <div className="mt-4 flex h-full flex-col gap-2">
             {isLoading &&
               Array.from({ length: 3 }).map((_, idx) => (
@@ -585,13 +604,16 @@ export function CourseList({
             <div className="flex items-center gap-4">
               <TabsList>
                 <TabsTrigger value="condensed">
-                  <GalleryHorizontal /> Condensed
+                  <GalleryHorizontal />
+                  <span className="hidden lg:inline"> Condensed</span>
                 </TabsTrigger>
                 <TabsTrigger value="grid">
-                  <LayoutGrid /> Grid
+                  <LayoutGrid />
+                  <span className="hidden lg:inline"> Grid</span>
                 </TabsTrigger>
                 <TabsTrigger value="expanded">
-                  <Gauge /> Expanded
+                  <Gauge />
+                  <span className="hidden lg:inline"> Expanded</span>
                 </TabsTrigger>
               </TabsList>
               <Button
@@ -599,7 +621,7 @@ export function CourseList({
                 className="group h-10 text-xs"
                 href="/app/courses"
               >
-                View all courses
+                <span className="hidden lg:inline">View all courses</span>
                 <ArrowRight className="transition-all group-hover:-rotate-45" />
               </Button>
             </div>
@@ -643,19 +665,20 @@ export function MiniTodoList({
     >
       <div className="@container mt-4 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="h3 text-muted-foreground mt-0">
-            Upcoming Assignments and Events
-          </h2>
+          <h2 className="h3 text-muted-foreground mt-0">Your Todo List</h2>
           <div className="flex items-center gap-4">
             <TabsList>
               <TabsTrigger value="list">
-                <List /> List
+                <List />
+                <span className="hidden lg:inline"> List</span>
               </TabsTrigger>
               <TabsTrigger value="time">
-                <Clock /> Timeline
+                <Clock />
+                <span className="hidden lg:inline"> Timeline</span>
               </TabsTrigger>
               <TabsTrigger value="calendar">
-                <Calendar /> Calendar
+                <Calendar />
+                <span className="hidden lg:inline"> Calendar</span>
               </TabsTrigger>
             </TabsList>
             <Button
@@ -663,7 +686,7 @@ export function MiniTodoList({
               className="group h-10 text-xs"
               href="/app/todo"
             >
-              View full todo list{" "}
+              <span className="hidden lg:inline">View full todo list</span>
               <ArrowRight className="transition-all group-hover:-rotate-45" />
             </Button>
           </div>
@@ -676,7 +699,9 @@ export function MiniTodoList({
             <TimeView isLoading={isLoading} todoItems={todoItems} />
           </TabsContent>
           <TabsContent value="calendar">
-            <CalendarView isLoading={isLoading} todoItems={todoItems} />
+            <div className="max-w-full overflow-auto">
+              <CalendarView isLoading={isLoading} todoItems={todoItems} />
+            </div>
           </TabsContent>
         </TabsContents>
       </div>
