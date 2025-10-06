@@ -80,6 +80,7 @@ export function FeedbackRenderer({ email }: { email: string }) {
             <div className="flex-1">
               <TextEditor
                 className="flex-1"
+                saveId="feedback-description"
                 content={description}
                 setContent={setDescription}
               />
@@ -118,6 +119,7 @@ export function FeedbackRenderer({ email }: { email: string }) {
           setSaving(false);
           setDialogOpen?.(false);
           setTitle("");
+          localStorage.removeItem("editor-feedback-description-draft-events");
         }}
         disabled={saving || !title}
       >

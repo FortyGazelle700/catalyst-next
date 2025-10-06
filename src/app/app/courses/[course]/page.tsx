@@ -80,7 +80,7 @@ export default async function CourseHomePage({
       <div className="flex h-max w-full flex-col-reverse items-stretch overflow-auto @4xl:h-full @4xl:flex-row @4xl:overflow-hidden">
         <div
           dangerouslySetInnerHTML={{ __html: prettyBody(page?.body) }}
-          className="render-fancy render-white-content mx-auto min-h-max max-w-[min(100ch,100%)] flex-1 overflow-auto overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto"
+          className="render-fancy render-white-content mx-auto min-h-max flex-1 overflow-auto overflow-x-auto p-4 @4xl:min-h-auto @4xl:overflow-auto"
         />
         <Sidebar
           collapsible="none"
