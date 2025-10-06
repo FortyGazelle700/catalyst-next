@@ -70,7 +70,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .limit(1);
 
           if (dbReq.length != 0) {
-            info = dbReq?.at(0) as IpLocationResponse | undefined;
+            const dbRow = dbReq.at(0);
+            if (dbRow && typeof dbRow.data === "string") {
+              info = JSON.parse(dbRow.data) as IpLocationResponse;
+            }
           } else {
             const response = await fetch(`http://ip-api.com/json/${ip}`);
             if (!response.ok) {
@@ -78,24 +81,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 "IP Check Failed",
                 response.status,
                 response.statusText,
-                response.json(),
+                await response.text(),
               );
+              // Return a default/fallback location response
+              info = {
+                status: "fail",
+                country: "Unknown",
+                regionName: "Unknown",
+                city: "Unknown",
+                query: ip,
+              } as IpLocationResponse;
+            } else {
+              info = (await response.json()) as IpLocationResponse;
             }
-            info = (await response.json()) as IpLocationResponse;
-            await db
-              .insert(ipData)
-              .values({
-                ip,
-                data: JSON.stringify(info),
-              })
-              .onConflictDoUpdate({
-                target: [ipData.ip],
-                set: {
+            // Only cache valid location data (not error responses)
+            if (info && info.status !== "fail") {
+              await db
+                .insert(ipData)
+                .values({
+                  ip,
                   data: JSON.stringify(info),
-                },
-              });
+                })
+                .onConflictDoUpdate({
+                  target: [ipData.ip],
+                  set: {
+                    data: JSON.stringify(info),
+                  },
+                });
+            }
           }
-          global.ipRequests.set(ip, info!);
+          if (info) {
+            global.ipRequests.set(ip, info);
+          }
           return info;
         },
         [`ip_log_${ip}`],

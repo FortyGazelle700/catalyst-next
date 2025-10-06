@@ -40,6 +40,7 @@ export function CreateTodoItemRenderer() {
           <div className="flex-1">
             <TextEditor
               className="flex-1"
+              saveId="todo-description"
               content={description}
               setContent={setDescription}
               setMarkdown={setMarkdown}
@@ -79,6 +80,7 @@ export function CreateTodoItemRenderer() {
           setMarkdown("");
           setDate(undefined);
           setCourse(undefined);
+          localStorage.removeItem("editor-todo-description-draft-events");
         }}
         disabled={saving || !title}
       >

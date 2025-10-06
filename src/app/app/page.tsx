@@ -1,10 +1,10 @@
-import { ElementAnimate, TextAnimate } from "@/components/magicui/text-animate";
+import { ElementAnimate } from "@/components/magicui/text-animate";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { auth } from "@/server/auth";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MissingCard } from "./page.client";
+import { Greeting, MissingCard } from "./page.client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Metadata } from "next";
 
@@ -24,9 +24,9 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-x-hidden px-8 py-16">
       <h1 className="h1">
-        <TextAnimate>
-          {`Hiya, ${session?.user?.name?.split(" ").at(0) ?? "User"}!`}
-        </TextAnimate>
+        <ElementAnimate delay={100}>
+          <Greeting name={session?.user?.name?.split(" ").at(0) ?? "User"} />
+        </ElementAnimate>
       </h1>
       <ElementAnimate delay={400} className="@container w-full">
         <h2 className="h3 text-muted-foreground">Overview</h2>

@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { revalidateTag, unstable_cache } from "next/cache";
 import postgres from "postgres";
@@ -279,14 +280,29 @@ const generateClassification = async (courseName: string) => {
     $client: postgres.Sql<Record<string, never>>;
   };
 
-  const dbValues = await unstable_cache(
-    async () => await db.select().from(courseClassification),
+  const dbValue = await unstable_cache(
+    async () =>
+      await db
+        .select()
+        .from(courseClassification)
+        .where(eq(courseClassification.key, courseName))
+        .limit(1),
     [`course_classify_db`],
   )();
 
-  if (dbValues.find((v) => v.key == courseName)) {
-    return dbValues.find((v) => v.key == courseName)!.value!;
+  if (dbValue.length > 0 && dbValue[0]!.value) {
+    return dbValue[0]!.value;
   }
+
+  const dbValues = await unstable_cache(
+    async () =>
+      await db
+        .select()
+        .from(courseClassification)
+        .where(eq(courseClassification.saveToDataset, true))
+        .limit(500),
+    [`course_classify_db`],
+  )();
 
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
 
@@ -300,7 +316,7 @@ const generateClassification = async (courseName: string) => {
 
   const model = genAI.getGenerativeModel({
     // model: "gemini-1.5-flash",
-    model: "gemini-2.0-flash-lite",
+    model: "gemini-flash-lite-latest",
     systemInstruction: "return the output value",
   });
 

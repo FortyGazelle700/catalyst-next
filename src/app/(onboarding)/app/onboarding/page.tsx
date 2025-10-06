@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OnboardingPage() {
+  const session = await (await api({})).catalyst.getCtx();
   const { data: schools } = await (await api({})).catalyst.schools.list();
   const { data: settings } = await (
     await api({})
@@ -21,6 +22,18 @@ export default async function OnboardingPage() {
   if (!schools.find((s) => s.id == settings.school_id)) {
     settings.school_id = "";
   }
+
+  settings.f_name ??=
+    session.user.get?.name
+      ?.trim()
+      ?.split("( ")[0]
+      ?.split(" ")
+      ?.toReversed()
+      ?.filter((_, i) => i >= 1)
+      ?.toReversed()
+      ?.join(" ") ?? "";
+  settings.l_name ??=
+    session.user.get?.name?.trim()?.split("( ")[0]?.split(" ")?.at(-1) ?? "";
 
   return (
     <div className="flex flex-col gap-4">

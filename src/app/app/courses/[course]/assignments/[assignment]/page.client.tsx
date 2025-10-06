@@ -90,6 +90,7 @@ import {
   Pencil,
   CheckCircle2,
   Clock4,
+  UndoDot,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import {
@@ -107,6 +108,7 @@ import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
 import { Input } from "@/components/ui/input";
 import { WheelPicker, WheelPickerWrapper } from "@/components/ui/wheel-picker";
 import { DateTimePicker } from "@/components/catalyst/date-time-picker";
+import BoxWhiskerChart from "@/components/catalyst/box-whiskers-plot";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
@@ -120,6 +122,7 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
     (assignment.data.duration ?? 0) % 60,
   );
 
+  const [hasSetDueDate, setHasSetDueDate] = useState(false);
   const [customDueDate, setCustomDueDate] = useState<Date | null>(null);
 
   const [customStatus, setCustomStatus] = useState<string | null>(
@@ -134,6 +137,9 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
       return;
     }
 
+    // Determine the actual due date to send
+    const dueDate = hasSetDueDate ? customDueDate : null;
+
     const triggerSubmit = setTimeout(() => {
       (async () => {
         await fetch(
@@ -141,17 +147,24 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
           {
             method: "POST",
             body: JSON.stringify({
-              dueDate: customDueDate,
+              dueDate: dueDate,
               duration: durationHours * 60 + durationMinutes,
               customStatus,
             }),
           },
         );
       })().catch(console.error);
-    }, 5 * 1000);
+    }, 2 * 1000);
 
     return () => clearTimeout(triggerSubmit);
-  }, [customDueDate, durationHours, durationMinutes, customStatus, assignment]);
+  }, [
+    customDueDate,
+    durationHours,
+    durationMinutes,
+    customStatus,
+    assignment,
+    hasSetDueDate,
+  ]);
 
   const durationSelector = useMemo(() => {
     return (
@@ -161,7 +174,11 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
             <Pencil className="size-3" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent className="flex flex-col gap-1">
+          <div className="h4">Custom Duration</div>
+          <div className="text-muted-foreground text-xs">
+            Used to allocate your time
+          </div>
           <div className="flex flex-col gap-2">
             <WheelPickerWrapper>
               <WheelPicker
@@ -181,20 +198,17 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
                 }))}
               />
             </WheelPickerWrapper>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                // Save duration logic here
-              }}
-            >
-              Save
-            </Button>
           </div>
         </PopoverContent>
       </Popover>
     );
   }, [durationHours, durationMinutes]);
+
+  useEffect(() => {
+    if (!hasSetDueDate) {
+      setCustomDueDate(null);
+    }
+  }, [hasSetDueDate]);
 
   function properCase(str: string | undefined): React.ReactNode {
     if (!str) return "None";
@@ -237,23 +251,72 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
                       <Pencil className="size-3" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent>
-                    <DateTimePicker
-                      defaultDate={new Date(
-                        customDueDate ??
-                          (assignment.due_at
-                            ? new Date(assignment.due_at ?? "")
-                            : new Date(
-                                now.getFullYear(),
-                                now.getMonth(),
-                                now.getDate() + 2,
-                                23,
-                                59,
-                                59,
-                              )),
-                      ).toISOString()}
-                      setDate={setCustomDueDate}
-                    />
+                  <PopoverContent className="flex w-[40ch] flex-col gap-2">
+                    <div className="h4">Custom Due Date</div>
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                      Original Due Date:{" "}
+                      {assignment.due_at
+                        ? new Date(assignment.due_at).toLocaleString()
+                        : "No Due Date"}
+                    </div>
+                    <div className="flex w-[35ch] items-center gap-2">
+                      <DateTimePicker
+                        key={hasSetDueDate ? "custom" : "original"} // Force re-render on reset
+                        className="flex-1"
+                        displayDefault={hasSetDueDate}
+                        defaultDate={
+                          hasSetDueDate && customDueDate
+                            ? customDueDate.toISOString()
+                            : assignment.due_at
+                              ? new Date(assignment.due_at).toISOString()
+                              : new Date(
+                                  now.getFullYear(),
+                                  now.getMonth(),
+                                  now.getDate() + 2,
+                                  23,
+                                  59,
+                                  59,
+                                ).toISOString()
+                        }
+                        setDate={(date) => {
+                          if (date == null) {
+                            setHasSetDueDate(false);
+                            setCustomDueDate(null);
+                            return;
+                          }
+
+                          // Check if the selected date matches the original due date
+                          const originalDueDate = assignment.due_at
+                            ? new Date(assignment.due_at)
+                            : null;
+                          const isSameAsOriginal =
+                            originalDueDate &&
+                            Math.abs(
+                              date.getTime() - originalDueDate.getTime(),
+                            ) < 60000; // within 1 minute
+
+                          if (isSameAsOriginal) {
+                            setHasSetDueDate(false);
+                            setCustomDueDate(null);
+                          } else {
+                            setHasSetDueDate(true);
+                            setCustomDueDate(date);
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0"
+                        disabled={!hasSetDueDate}
+                        onClick={() => {
+                          setHasSetDueDate(false);
+                          setCustomDueDate(null);
+                        }}
+                      >
+                        <UndoDot className="size-4" />
+                      </Button>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -427,6 +490,26 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
             <SidebarGroupLabel className="flex items-center gap-1 font-bold">
               <Percent /> Scoring Stats
             </SidebarGroupLabel>
+            {assignment.score_statistics ? (
+              <div className="mx-auto px-4 py-2">
+                <BoxWhiskerChart
+                  className="pointer-events-none h-12 w-full"
+                  width={256}
+                  height={64}
+                  stats={{
+                    min: assignment.score_statistics.min,
+                    q1: assignment.score_statistics.lower_q,
+                    median: assignment.score_statistics.median,
+                    q3: assignment.score_statistics.upper_q,
+                    max: assignment.score_statistics.max,
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="text-muted-foreground/50 mx-auto flex h-16 w-64 items-center justify-center px-4 py-2 text-center text-xs">
+                No scoring statistics available.
+              </div>
+            )}
             <div className="flex flex-col gap-2 px-4 py-1">
               <div className="text-muted-foreground flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
