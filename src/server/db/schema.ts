@@ -523,6 +523,7 @@ export const courseClassification = table("cache_course_classification", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
+  saveToDataset: boolean("save_to_dataset").notNull().default(false),
 });
 
 export const assignmentOverrides = table("assignment_override", {

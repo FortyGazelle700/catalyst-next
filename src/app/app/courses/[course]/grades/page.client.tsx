@@ -71,9 +71,11 @@ export default function GradesClientPage({
         .filter((assignment) => assignment.assignment_group_id == group.id)
         .filter(
           (assignment) =>
-            (scoreOverrides[assignment.id] ??
-              assignment.submission?.score ??
-              -1) != -1,
+            (scoreOverrides[assignment.id] == ""
+              ? -1
+              : scoreOverrides[assignment.id] != undefined
+                ? Number(scoreOverrides[assignment.id])
+                : (assignment.submission?.score ?? -1)) != -1,
         )
         .reduce(
           (prev, assignment) => prev + (assignment.points_possible ?? 0),
