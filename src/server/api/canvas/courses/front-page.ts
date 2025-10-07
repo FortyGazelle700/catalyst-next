@@ -26,9 +26,9 @@ export default async function frontPage(ctx: CanvasApiCtx) {
       }
       const url = new URL(
         `/api/v1/courses/${input.courseId}/front_page`,
-        ctx.user.canvas.url
+        ctx.user.canvas.url,
       );
-      url.searchParams.append('locale', 'en');
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -70,7 +70,7 @@ export default async function frontPage(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await frontPage();

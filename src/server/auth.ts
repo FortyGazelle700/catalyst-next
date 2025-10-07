@@ -121,14 +121,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       )();
 
-      console.info("IP location data retrieved:", {
-        ip,
-        country: ipInfo?.country,
-        regionName: ipInfo?.regionName,
-        city: ipInfo?.city,
-        status: ipInfo?.status,
-      });
-
       const row = (
         await db
           .select()
@@ -170,24 +162,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         !row.city; // Update if city is NULL (first-time session)
 
       if (shouldUpdate) {
-        console.info("Updating session location data:", {
-          sessionToken: session.sessionToken,
-          currentData: {
-            ip: row.ip,
-            userAgent: row.userAgent,
-            country: row.country,
-            region: row.region,
-            city: row.city,
-          },
-          newData: {
-            ip,
-            userAgent: ua,
-            country: ipInfo?.country,
-            region: ipInfo?.regionName,
-            city: ipInfo?.city,
-          },
-        });
-
         await db
           .update(sessions)
           .set({

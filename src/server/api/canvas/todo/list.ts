@@ -43,7 +43,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
       url.searchParams.append("start_date", input.search.start.toISOString());
       url.searchParams.append("end_date", input.search.end.toISOString());
       url.searchParams.append("per_page", "100");
-      url.searchParams.append('locale', 'en');
+      url.searchParams.append("locale", "en");
       // input.search.courses.forEach((course) => {
       //   url.searchParams.append("context_codes[]", `course_${course}`);
       // });
@@ -149,7 +149,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
           `/api/v1/courses/${item.course_id ?? item.plannable.course_id}`,
           ctx.user.canvas.url,
         );
-        courseURL.searchParams.append('locale', 'en');
+        courseURL.searchParams.append("locale", "en");
         const courseQuery = await fetch(courseURL, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -163,7 +163,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
             ctx.user.canvas.url,
           );
           assignmentURL.searchParams.append("include[]", "submission");
-          assignmentURL.searchParams.append('locale', 'en');
+          assignmentURL.searchParams.append("locale", "en");
           const assignmentQuery = await fetch(assignmentURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,

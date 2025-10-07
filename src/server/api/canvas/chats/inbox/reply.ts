@@ -32,7 +32,7 @@ export default async function reply(ctx: CanvasApiCtx) {
       `/api/v1/conversations/${input.id}/add_message`,
       ctx.user.canvas.url,
     );
-    url.searchParams.append('locale', 'en');
+    url.searchParams.append("locale", "en");
     const query = await fetch(url, {
       method: "POST",
       headers: {

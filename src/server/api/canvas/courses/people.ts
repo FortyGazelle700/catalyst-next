@@ -35,7 +35,7 @@ export default async function getPeople(ctx: CanvasApiCtx) {
       url.searchParams.append("include[]", "communication_channel");
       url.searchParams.append("per_page", String(input?.limit ?? 100));
       url.searchParams.append("page", String(input?.cursor ?? 1));
-      url.searchParams.append('locale', 'en');
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

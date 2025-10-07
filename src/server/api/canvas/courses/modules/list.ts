@@ -37,7 +37,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
         );
         url.searchParams.append("include[]", "items");
         url.searchParams.append("include[]", "content_details");
-        url.searchParams.append('locale', 'en');
+        url.searchParams.append("locale", "en");
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -72,7 +72,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     ctx.user.canvas.url,
                   );
                   assignmentURL.searchParams.append("include[]", "submission");
-                  assignmentURL.searchParams.append('locale', 'en');
+                  assignmentURL.searchParams.append("locale", "en");
                   const assignmentQuery = await fetch(assignmentURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -107,7 +107,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     `/api/v1/courses/${input.courseId}/files/${item.content_id}`,
                     ctx.user.canvas.url,
                   );
-                  fileURL.searchParams.append('locale', 'en');
+                  fileURL.searchParams.append("locale", "en");
                   const fileQuery = await fetch(fileURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -142,7 +142,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                     ctx.user.canvas.url,
                   );
                   assignmentURL.searchParams.append("include[]", "submission");
-                  assignmentURL.searchParams.append('locale', 'en');
+                  assignmentURL.searchParams.append("locale", "en");
                   const assignmentQuery = await fetch(assignmentURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -197,7 +197,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
         );
         url.searchParams.append("per_page", "1000");
         url.searchParams.append("include[]", "submission");
-        url.searchParams.append('locale', 'en');
+        url.searchParams.append("locale", "en");
         const data = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,

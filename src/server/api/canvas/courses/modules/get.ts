@@ -40,7 +40,7 @@ export default async function getModule(ctx: CanvasApiCtx) {
       );
       url.searchParams.append("include[]", "submission");
       url.searchParams.append("include[]", "score_statistics");
-      url.searchParams.append('locale', 'en');
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

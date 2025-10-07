@@ -50,17 +50,14 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
           `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions/self/files`,
           ctx.user.canvas.url,
         );
-        fileURL.searchParams.append('locale', 'en');
-        const res = await fetch(
-          fileURL,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${ctx.user.canvas.token}`,
-            },
-            body: data,
+        fileURL.searchParams.append("locale", "en");
+        const res = await fetch(fileURL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${ctx.user.canvas.token}`,
           },
-        );
+          body: data,
+        });
         if (!res.ok) {
           // console.error(
           //   "Error Uploading to Assignment",
@@ -142,7 +139,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
       fileIds.forEach((id) =>
         submitURL.searchParams.append("submission[file_ids][]", String(id)),
       );
-      submitURL.searchParams.append('locale', 'en');
+      submitURL.searchParams.append("locale", "en");
       const response = await fetch(submitURL, {
         method: "POST",
         headers: {

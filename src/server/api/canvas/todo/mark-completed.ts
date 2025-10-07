@@ -127,7 +127,7 @@ export default async function markTodoItemComplete(ctx: CanvasApiCtx) {
       overrideId = plannerItem.planner_override.id;
     }
 
-    url.searchParams.append('locale', 'en');
+    url.searchParams.append("locale", "en");
     const query = await fetch(url, {
       method,
       headers: {
