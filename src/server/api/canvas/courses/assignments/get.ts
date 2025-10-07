@@ -36,6 +36,7 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
       );
       url.searchParams.append("include[]", "submission");
       url.searchParams.append("include[]", "score_statistics");
+      url.searchParams.append('locale', 'en');
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -59,6 +60,7 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
           String(input.assignmentId),
         );
         externalURL.searchParams.append("launch_type", "assessment");
+        externalURL.searchParams.append('locale', 'en');
         const externalResponse = await fetch(externalURL, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,

@@ -36,6 +36,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
       url.searchParams.set("page", String(input?.offset ?? 1));
       url.searchParams.set("include[]", "total_scores");
       url.searchParams.set("per_page", String(input?.limit ?? 100));
+      url.searchParams.set('locale', 'en');
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

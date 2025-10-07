@@ -112,6 +112,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
 
             assignmentURL.searchParams.set("per_page", "100");
             assignmentURL.searchParams.append("include[]", "assignment");
+            assignmentURL.searchParams.append('locale', 'en');
 
             const assignmentsQuery = await fetch(assignmentURL, {
               headers: {

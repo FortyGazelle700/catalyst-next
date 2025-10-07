@@ -46,11 +46,13 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
         data.append("size", file.file.size.toString());
         data.append("content_type", file.file.type);
 
+        const fileURL = new URL(
+          `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions/self/files`,
+          ctx.user.canvas.url,
+        );
+        fileURL.searchParams.append('locale', 'en');
         const res = await fetch(
-          new URL(
-            `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions/self/files`,
-            ctx.user.canvas.url,
-          ),
+          fileURL,
           {
             method: "POST",
             headers: {
@@ -140,6 +142,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
       fileIds.forEach((id) =>
         submitURL.searchParams.append("submission[file_ids][]", String(id)),
       );
+      submitURL.searchParams.append('locale', 'en');
       const response = await fetch(submitURL, {
         method: "POST",
         headers: {

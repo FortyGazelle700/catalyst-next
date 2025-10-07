@@ -22,6 +22,7 @@ export default async function editTodoNote(ctx: CanvasApiCtx) {
         };
       }
       const url = new URL(`/api/v1/planner_notes`, ctx.user.canvas.url);
+      url.searchParams.append('locale', 'en');
       const query = await fetch(url, {
         method: "POST",
         headers: {

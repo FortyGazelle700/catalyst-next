@@ -28,6 +28,7 @@ export default async function getPage(ctx: CanvasApiCtx) {
         `/api/v1/courses/${input.courseId}/pages/${input.pageId}`,
         ctx.user.canvas.url
       );
+      url.searchParams.append('locale', 'en');
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

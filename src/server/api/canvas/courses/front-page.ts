@@ -28,6 +28,7 @@ export default async function frontPage(ctx: CanvasApiCtx) {
         `/api/v1/courses/${input.courseId}/front_page`,
         ctx.user.canvas.url
       );
+      url.searchParams.append('locale', 'en');
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

@@ -26,6 +26,7 @@ export default async function deleteNote(ctx: CanvasApiCtx) {
         `/api/v1/planner_notes/${input.id}`,
         ctx.user.canvas.url,
       );
+      url.searchParams.append('locale', 'en');
       const query = await fetch(url, {
         method: "DELETE",
         headers: {

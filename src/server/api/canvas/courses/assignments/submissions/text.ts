@@ -27,6 +27,7 @@ export default async function createTextSubmission(ctx: CanvasApiCtx) {
         `/api/v1/courses/${input.courseId}/assignments/${input.assignmentId}/submissions`,
         ctx.user.canvas.url,
       );
+      url.searchParams.append('locale', 'en');
       const data = new FormData();
       data.append("submission[submission_type]", "online_text_entry");
       data.append("submission[body]", input.body);

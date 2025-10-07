@@ -95,7 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               info = (await response.json()) as IpLocationResponse;
             }
             // Only cache valid location data (not error responses)
-            if (info && info.status !== "fail") {
+            if (info && info.status != "fail") {
               await db
                 .insert(ipData)
                 .values({
@@ -120,6 +120,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           revalidate: 60 * 60 * 24,
         },
       )();
+
+      console.info("IP location data retrieved:", {
+        ip,
+        country: ipInfo?.country,
+        regionName: ipInfo?.regionName,
+        city: ipInfo?.city,
+        status: ipInfo?.status,
+      });
 
       const row = (
         await db
@@ -156,9 +164,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         row.userAgent != ua ||
         row.country != ipInfo?.country ||
         row.region != ipInfo?.regionName ||
-        row.city != ipInfo?.city;
+        row.city != ipInfo?.city ||
+        !row.country || // Update if country is NULL (first-time session)
+        !row.region || // Update if region is NULL (first-time session)
+        !row.city; // Update if city is NULL (first-time session)
 
       if (shouldUpdate) {
+        console.info("Updating session location data:", {
+          sessionToken: session.sessionToken,
+          currentData: {
+            ip: row.ip,
+            userAgent: row.userAgent,
+            country: row.country,
+            region: row.region,
+            city: row.city,
+          },
+          newData: {
+            ip,
+            userAgent: ua,
+            country: ipInfo?.country,
+            region: ipInfo?.regionName,
+            city: ipInfo?.city,
+          },
+        });
+
         await db
           .update(sessions)
           .set({
