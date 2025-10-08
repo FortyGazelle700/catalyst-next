@@ -77,6 +77,8 @@ export function SubmissionType({ submission }: { submission: string }) {
       return <>Quiz</>;
     case "online_url":
       return <>URL</>;
+    case "not_graded":
+    case "graded":
     case "none":
       return <>Nothing</>;
     default:
@@ -136,6 +138,8 @@ export function SubmissionTypeWithIcon({
         </>
       );
     case "":
+    case "not_graded":
+    case "graded":
     case "none":
       return (
         <>

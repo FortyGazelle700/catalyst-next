@@ -49,7 +49,7 @@ const useResponsivePopoverContext = () => {
   const context = React.useContext(ResponsivePopoverContext);
   if (!context) {
     throw new Error(
-      "ResponsivePopover components cannot be rendered outside the ResponsivePopover Context"
+      "ResponsivePopover components cannot be rendered outside the ResponsivePopover Context",
     );
   }
   return context;
@@ -57,14 +57,30 @@ const useResponsivePopoverContext = () => {
 
 const ResponsivePopover = ({
   children,
+  mode = "auto",
   ...props
-}: RootResponsivePopoverProps) => {
+}: RootResponsivePopoverProps & { mode: "drawer" | "popover" | "auto" }) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const ResponsiveComponent = isDesktop ? Popover : Drawer;
+  let ResponsiveComponent: React.ElementType;
+  if (mode === "auto") {
+    ResponsiveComponent = isDesktop ? Popover : Drawer;
+  } else if (mode === "popover") {
+    ResponsiveComponent = Popover;
+  } else {
+    ResponsiveComponent = Drawer;
+  }
+
+  // For context, treat isDesktop as true if mode is popover, false if drawer, else use media query
+  const contextIsDesktop = mode === "auto" ? isDesktop : mode === "popover";
 
   return (
-    <ResponsivePopoverContext.Provider value={{ isDesktop }}>
-      <ResponsiveComponent {...props} {...(!isDesktop && { autoFocus: true })}>
+    <ResponsivePopoverContext.Provider
+      value={{ isDesktop: !!contextIsDesktop }}
+    >
+      <ResponsiveComponent
+        {...props}
+        {...(ResponsiveComponent === Drawer ? { autoFocus: true } : {})}
+      >
         {children}
       </ResponsiveComponent>
     </ResponsivePopoverContext.Provider>
@@ -114,7 +130,7 @@ const ResponsivePopoverContent = ({
       className={cn(
         !isDesktop && "w-[min(100ch,100%)]",
         isDesktop && "w-[min(100ch,calc(100%-2rem))]",
-        className
+        className,
       )}
       {...props}
     >
