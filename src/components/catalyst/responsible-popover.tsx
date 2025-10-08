@@ -59,7 +59,7 @@ const ResponsivePopover = ({
   children,
   mode = "auto",
   ...props
-}: RootResponsivePopoverProps & { mode: "drawer" | "popover" | "auto" }) => {
+}: RootResponsivePopoverProps & { mode?: "drawer" | "popover" | "auto" }) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   let ResponsiveComponent: React.ElementType;
   if (mode === "auto") {

@@ -101,8 +101,7 @@ export function CommandSearchResults({
   const assignmentResults = displayResults.filter(
     (r) => r.type === "assignment",
   );
-  const gradeResults = displayResults.filter((r) => r.type === "grade");
-  const eventResults = displayResults.filter((r) => r.type === "event");
+  const eventResults = displayResults.filter((r) => r.type == "event");
 
   return (
     <>
@@ -211,47 +210,6 @@ export function CommandSearchResults({
                   {result.metadata?.classification && (
                     <div className="text-muted-foreground mt-1 text-xs">
                       {result.metadata.classification}
-                    </div>
-                  )}
-                </div>
-              </CommandItem>
-            );
-          })}
-        </CommandGroup>
-      )}
-
-      {gradeResults.length > 0 && (
-        <CommandGroup heading="Grades">
-          {gradeResults.map((result) => {
-            const Icon = iconMap[result.icon as keyof typeof iconMap] || Trophy;
-            const score = result.metadata?.score;
-            const points = result.metadata?.points;
-
-            return (
-              <CommandItem
-                key={result.id}
-                value={result.title}
-                onSelect={() => handleSelect(result)}
-                className="flex items-center gap-3 py-3"
-              >
-                <Icon className="h-4 w-4 text-yellow-600" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium">{result.title}</div>
-                  <div className="text-muted-foreground truncate text-xs">
-                    {result.subtitle}
-                  </div>
-                  {score && points && (
-                    <div className="mt-1 flex items-center gap-2">
-                      <div className="bg-muted rounded px-2 py-0.5 font-mono text-xs">
-                        {score}/{points}
-                      </div>
-                      <div className="text-muted-foreground text-xs">
-                        {(
-                          (parseFloat(score) / parseFloat(points)) *
-                          100
-                        ).toFixed(1)}
-                        %
-                      </div>
                     </div>
                   )}
                 </div>
