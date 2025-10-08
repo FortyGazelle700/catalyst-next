@@ -16,6 +16,7 @@ export default async function verify(ctx: CanvasApiCtx) {
       };
     }
     const url = new URL(`/api/v1/accounts`, ctx.user.canvas.url);
+    url.searchParams.set("locale", "en");
     const query = await fetch(url, {
       headers: {
         Authorization: `Bearer ${input.token ?? ctx.user.canvas.token}`,

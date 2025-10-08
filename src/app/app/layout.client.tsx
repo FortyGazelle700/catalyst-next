@@ -1172,7 +1172,7 @@ export function AppSidebarClient({
               <span className="group-data-[state=expanded]:bg-background -ml-2 group-data-[state=expanded]:-ml-1.5 group-data-[state=expanded]:rounded-full group-data-[state=expanded]:p-1">
                 <Plus />
               </span>
-              <span className="flex group-data-[state=collapsed]:hidden">
+              <span className="flex w-auto truncate group-data-[state=collapsed]:max-w-0">
                 New Todo Item
               </span>
             </Button>
@@ -1283,7 +1283,7 @@ export function AppSidebarClient({
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SidebarMenu className="flex flex-row gap-2 group-data-[state=collapsed]:flex-col">
+        <SidebarMenu className="flex w-full flex-row justify-end gap-2 overflow-hidden transition-all group-data-[state=collapsed]:w-10 group-data-[state=collapsed]:pr-2">
           <SidebarMenuItem className="flex-1">
             <SidebarMenuButton asChild tooltip="Feedback & Support">
               <Tooltip>

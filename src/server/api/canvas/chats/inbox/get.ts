@@ -29,6 +29,7 @@ export default async function inbox(ctx: CanvasApiCtx) {
       );
       url.searchParams.append("include_private", "true");
       url.searchParams.append("include", "participants");
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

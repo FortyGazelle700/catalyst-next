@@ -28,6 +28,7 @@ export default async function reply(ctx: CanvasApiCtx) {
     revalidatePath(`/app/social/chats/canvas/compose`);
 
     const url = new URL("/api/v1/conversations/", ctx.user.canvas.url);
+    url.searchParams.append("locale", "en");
     const query = await fetch(url, {
       method: "POST",
       headers: {

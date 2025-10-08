@@ -150,6 +150,7 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
   }
 
   const url = new URL("/api/v1/users/self", school?.canvasURL ?? "");
+  url.searchParams.set("locale", "en");
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
