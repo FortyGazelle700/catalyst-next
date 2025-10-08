@@ -29,6 +29,7 @@ export default async function frontPage(ctx: CanvasApiCtx) {
         ctx.user.canvas.url,
       );
       url.searchParams.set("include[]", "syllabus_body");
+      url.searchParams.set("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

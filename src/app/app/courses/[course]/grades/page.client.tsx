@@ -1,5 +1,6 @@
 "use client";
 
+import BoxWhiskerChart from "@/components/catalyst/box-whiskers-plot";
 import {
   PrettyState,
   SubmissionTypeWithIcon,
@@ -21,9 +22,14 @@ import {
 } from "@/components/ui/sidebar";
 import { type GradesResponse } from "@/server/api/canvas/courses/grades";
 import {
-  AlertCircle,
+  ArrowDown,
+  ArrowDownLeft,
+  ArrowLeft,
+  ArrowUp,
+  ArrowUpLeft,
   CalendarIcon,
   CircleSlash,
+  CircleSlash2,
   Dot,
   Group,
   Info,
@@ -350,6 +356,99 @@ export default function GradesClientPage({
                               <div className="w-12" />
                             </div>
                           </div>
+                          <div className="flex w-full flex-col items-start gap-2 pt-4">
+                            <span className="w-[25ch]">Scoring Statistics</span>
+                            {assignment.score_statistics ? (
+                              <div className="mx-auto px-4 py-2">
+                                <BoxWhiskerChart
+                                  className="pointer-events-none h-12 w-full"
+                                  width={312}
+                                  height={64}
+                                  stats={{
+                                    min: assignment.score_statistics.min,
+                                    q1: assignment.score_statistics.lower_q,
+                                    median: assignment.score_statistics.median,
+                                    q3: assignment.score_statistics.upper_q,
+                                    max: assignment.score_statistics.max,
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="text-muted-foreground/50 mx-auto flex h-16 w-64 items-center justify-center px-4 py-2 text-center text-xs">
+                                No scoring statistics available.
+                              </div>
+                            )}
+                            <div className="flex w-full flex-col gap-2 px-4 py-1">
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <ArrowUp className="size-4" /> High
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.max ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <ArrowUpLeft className="size-4" /> Upper
+                                  Quartile
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.upper_q ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <CircleSlash2 className="size-4" /> Median
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.median ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <ArrowLeft className="size-4" /> Average
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.mean ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <ArrowDownLeft className="size-4" /> Lower
+                                  Quartile
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.lower_q ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                <span className="text-muted-foreground flex w-[20ch] items-center gap-1 text-xs">
+                                  <ArrowDown className="size-4" /> Low
+                                </span>
+                                <span className="flex flex-1 items-center justify-end gap-1">
+                                  {assignment.score_statistics?.min ?? (
+                                    <Minus className="size-3" />
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>
@@ -412,11 +511,6 @@ function GradesSidebar({
             <SidebarGroupLabel>
               <Info /> Overview
             </SidebarGroupLabel>
-            <div className="text-destructive-foreground bg-destructive/30 my-2 flex items-center gap-2 rounded-sm px-3 py-2 text-xs">
-              <AlertCircle className="size-4 shrink-0" /> Submissions may not
-              work as intended. Please verify that your submission submit
-              correctly.
-            </div>
             <h2 className="flex items-center gap-2 text-2xl font-bold">
               <RadialChart
                 percentage={

@@ -33,6 +33,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
       endDate.setDate(startDate.getDate() + (input.days ?? 14));
       url.searchParams.append("start_date", startDate.toISOString());
       url.searchParams.append("end_date", endDate.toISOString());
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -53,6 +54,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
             `/api/v1/courses/${item.course_id ?? item.plannable.course_id}`,
             ctx.user.canvas.url,
           );
+          courseURL.searchParams.append("locale", "en");
           const courseQuery = fetch(courseURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -66,6 +68,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
               ctx.user.canvas.url,
             );
             assignmentURL.searchParams.append("include[]", "submission");
+            assignmentURL.searchParams.append("locale", "en");
             assignmentQuery = fetch(assignmentURL, {
               headers: {
                 Authorization: `Bearer ${ctx.user.canvas.token}`,
