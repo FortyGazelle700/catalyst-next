@@ -170,6 +170,7 @@ async function sendNotifications() {
       const { data: courseList } = await userApi.canvas.courses.list({
         limit: 500,
         offset: 0,
+        useCache: true,
       });
 
       const alerts = jsonAlerts
@@ -223,17 +224,16 @@ async function sendNotifications() {
 
         // Check if assignment is already submitted or graded
         const isSubmitted =
-          item.plannable.content_details?.submission?.workflow_state ===
+          item.plannable.content_details?.submission?.workflow_state ==
             "submitted" ||
-          item.plannable.content_details?.submission?.workflow_state ===
+          item.plannable.content_details?.submission?.workflow_state ==
             "graded";
 
         // Check if assignment is marked complete via planner override
-        const isMarkedComplete =
-          item.planner_override?.marked_complete === true;
+        const isMarkedComplete = item.planner_override?.marked_complete == true;
 
         // Check for database assignment override completion
-        const isOverrideComplete = dbOverride?.markedComplete === true;
+        const isOverrideComplete = dbOverride?.markedComplete == true;
 
         // For on-paper assignments, only alert if not marked complete
         const isOnPaperAndNotComplete =
@@ -278,13 +278,16 @@ async function sendNotifications() {
               return {
                 name: item.plannable.title,
                 courseLabel:
-                  courseList.find((c) => c.id == item.course?.id)
-                    ?.classification ?? "Unclassified",
+                  courseList.find(
+                    (c) => c.id == item.course_id || item.plannable.course_id,
+                  )?.classification ?? "Unclassified",
                 courseName:
-                  item.course?.name ??
-                  courseList.find((c) => c.id == item.course?.id)
-                    ?.original_name ??
-                  courseList.find((c) => c.id == item.course?.id)?.name ??
+                  courseList.find(
+                    (c) => c.id == item.course_id || item.plannable.course_id,
+                  )?.original_name ??
+                  courseList.find(
+                    (c) => c.id == item.course_id || item.plannable.course_id,
+                  )?.name ??
                   "Course Name",
                 dueDate: dueDate.toLocaleString("en-US", {
                   month: "short",

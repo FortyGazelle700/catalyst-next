@@ -4,7 +4,7 @@ import type { GradesResponse } from "@/server/api/canvas/courses/grades";
 
 export interface SearchResult {
   id: string;
-  type: "course" | "assignment" | "grade" | "event" | "navigation";
+  type: "course" | "assignment" | "page" | "event" | "navigation";
   title: string;
   subtitle: string;
   url: string;
@@ -12,21 +12,36 @@ export interface SearchResult {
   metadata?: {
     course?: Course;
     assignment?: GradesResponse["assignments"][0];
-    score?: string;
     points?: string;
     dueDate?: string;
     classification?: string;
+    pageUrl?: string;
   };
 }
 
 export interface SearchData {
   courses: Course[];
   grades: Record<number, GradesResponse>;
+  pages?: Array<{
+    id: string;
+    title: string;
+    url: string;
+    courseId?: number;
+    body?: string;
+  }>;
+  sidebarLinks?: Array<{
+    id: string;
+    title: string;
+    subtitle?: string;
+    url: string;
+    icon?: string;
+    courseId?: number;
+  }>;
 }
 
 export interface SearchableItem {
   id: string;
-  type: "course" | "assignment" | "grade" | "navigation";
+  type: "course" | "assignment" | "page" | "navigation";
   title: string;
   subtitle: string;
   content: string;
@@ -112,6 +127,31 @@ function createSearchableItems(data: SearchData): SearchableItem[] {
 
   items.push(...navigationItems);
 
+  // Add sidebar links
+  if (data.sidebarLinks) {
+    data.sidebarLinks.forEach((link) => {
+      const course = link.courseId
+        ? data.courses.find((c) => c.id === link.courseId)
+        : undefined;
+      items.push({
+        id: `sidebar-${link.id}`,
+        type: "navigation",
+        title: link.title,
+        subtitle:
+          link.subtitle ??
+          (course
+            ? `${course.classification ?? ""} — ${course.name}`
+            : "Sidebar Link"),
+        content: `${link.title} ${link.subtitle ?? ""} sidebar ${course?.name ?? ""}`,
+        url: link.url,
+        icon: link.icon ?? "Sidebar",
+        metadata: {
+          course,
+          classification: course?.classification,
+        },
+      });
+    });
+  }
   // Add courses
   data.courses.forEach((course) => {
     const classification = course.classification
@@ -132,7 +172,7 @@ function createSearchableItems(data: SearchData): SearchableItem[] {
     });
   });
 
-  // Add assignments and grades
+  // Add assignments
   Object.entries(data.grades).forEach(([courseIdStr, gradeData]) => {
     const courseId = parseInt(courseIdStr);
     const course = data.courses.find((c) => c.id === courseId);
@@ -160,34 +200,37 @@ function createSearchableItems(data: SearchData): SearchableItem[] {
           classification: course.classification,
         },
       });
-
-      // Add grade if exists
-      if (
-        assignment.submission?.score !== undefined &&
-        assignment.submission.score !== null
-      ) {
-        const scoreText = `${assignment.submission.score}/${assignment.points_possible}`;
-        const gradeText = assignment.submission.grade ?? "";
-
-        items.push({
-          id: `grade-${assignment.id}`,
-          type: "grade",
-          title: `${assignment.name} Grade`,
-          subtitle: `${course.classification} — ${course.name} • ${scoreText}${gradeText ? ` (${gradeText})` : ""}`,
-          content: `${assignment.name} grade score ${scoreText} ${gradeText} ${course.name}`,
-          url: `/app/courses/${courseId}/grades`,
-          icon: "Trophy",
-          metadata: {
-            course,
-            assignment,
-            score: assignment.submission.score?.toString(),
-            points: assignment.points_possible?.toString(),
-            classification: course.classification,
-          },
-        });
-      }
     });
   });
+
+  // Add pages
+  if (data.pages) {
+    data.pages.forEach((page) => {
+      const course = page.courseId
+        ? data.courses.find((c) => c.id === page.courseId)
+        : undefined;
+      const pageContent = page.body
+        ? page.body.replace(/<[^>]*>/g, " ").substring(0, 200)
+        : "";
+
+      items.push({
+        id: `page-${page.id}`,
+        type: "page",
+        title: page.title,
+        subtitle: course
+          ? `${course.classification} — ${course.name}`
+          : "Site Page",
+        content: `${page.title} ${pageContent} page ${course?.name ?? ""}`,
+        url: page.url,
+        icon: "FileText",
+        metadata: {
+          course,
+          classification: course?.classification,
+          pageUrl: page.url,
+        },
+      });
+    });
+  }
 
   return items;
 }
@@ -266,6 +309,28 @@ export function getDefaultOptions(data: SearchData): SearchResult[] {
 
   defaultOptions.push(...quickLinks);
 
+  // Add sidebar links (up to 6)
+  if (data.sidebarLinks) {
+    data.sidebarLinks.slice(0, 6).forEach((link) => {
+      const course = link.courseId
+        ? data.courses.find((c) => c.id === link.courseId)
+        : undefined;
+      defaultOptions.push({
+        id: `default-sidebar-${link.id}`,
+        type: "navigation",
+        title: link.title,
+        subtitle:
+          link.subtitle ??
+          (course ? `${course.name} • Sidebar` : "Sidebar Link"),
+        url: link.url,
+        icon: link.icon ?? "Sidebar",
+        metadata: {
+          course,
+          classification: course?.classification,
+        },
+      });
+    });
+  }
   // Add recent courses (up to 6)
   data.courses.slice(0, 6).forEach((course) => {
     const classification = course.classification
@@ -333,6 +398,28 @@ export function getDefaultOptions(data: SearchData): SearchResult[] {
 
   // Add up to 4 upcoming assignments
   defaultOptions.push(...upcomingAssignments.slice(0, 4));
+
+  // Add recent pages (up to 3)
+  if (data.pages) {
+    data.pages.slice(0, 3).forEach((page) => {
+      const course = page.courseId
+        ? data.courses.find((c) => c.id === page.courseId)
+        : undefined;
+      defaultOptions.push({
+        id: `default-page-${page.id}`,
+        type: "page",
+        title: page.title,
+        subtitle: course ? `${course.name} • Page` : "Site Page",
+        url: page.url,
+        icon: "FileText",
+        metadata: {
+          course,
+          classification: course?.classification,
+          pageUrl: page.url,
+        },
+      });
+    });
+  }
 
   return defaultOptions;
 }

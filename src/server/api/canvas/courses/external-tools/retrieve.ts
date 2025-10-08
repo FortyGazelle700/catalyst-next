@@ -34,6 +34,7 @@ export default async function getExternalId(ctx: CanvasApiCtx) {
         url.searchParams.append("url", String(input.externalURL));
       }
       // url.searchParams.append("launch_type", "assessment");
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,

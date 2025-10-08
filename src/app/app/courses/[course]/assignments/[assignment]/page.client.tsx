@@ -62,7 +62,7 @@ import {
   Timer,
   Lock,
   Upload,
-  File,
+  FileIcon,
   Tally5,
   Percent,
   Minus,
@@ -76,7 +76,6 @@ import {
   Plus,
   History,
   CircleSlash,
-  MoreHorizontal,
   Paperclip,
   ArrowRight,
   Trash,
@@ -91,6 +90,8 @@ import {
   CheckCircle2,
   Clock4,
   UndoDot,
+  LockIcon,
+  Check,
 } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import {
@@ -104,11 +105,19 @@ import {
   useState,
 } from "react";
 // import { upload } from "@vercel/blob/client";
-import { useTailwindContainerBreakpoints } from "@/components/util/hooks";
+import {
+  useTailwindBreakpoints,
+  useTailwindContainerBreakpoints,
+} from "@/components/util/hooks";
 import { Input } from "@/components/ui/input";
 import { WheelPicker, WheelPickerWrapper } from "@/components/ui/wheel-picker";
 import { DateTimePicker } from "@/components/catalyst/date-time-picker";
 import BoxWhiskerChart from "@/components/catalyst/box-whiskers-plot";
+import {
+  ResponsivePopover,
+  ResponsivePopoverTrigger,
+  ResponsivePopoverContent,
+} from "@/components/catalyst/responsible-popover";
 
 export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
   const now = useContext(TimeContext);
@@ -475,7 +484,7 @@ export function AssignmentSidebar({ assignment }: { assignment: Assignment }) {
                           className="text-muted-foreground flex items-center gap-2 text-xs"
                         >
                           <span className="text-muted-foreground flex items-center gap-1 text-xs">
-                            <File className="size-4" />
+                            <FileIcon className="size-4" />
                             *.{ext}
                           </span>
                         </div>
@@ -619,7 +628,7 @@ const SubmissionElements = {
                 className="text-muted-foreground flex items-center gap-2 text-xs"
               >
                 <span className="text-muted-foreground flex flex-1 items-center gap-1 overflow-hidden text-xs">
-                  <File className="size-4" />
+                  <FileIcon className="size-4" />
                   <span className="flex-1 truncate">{file.name}</span>
                 </span>
                 <span className="flex items-center justify-end gap-1">
@@ -770,19 +779,44 @@ export function SubmissionArea({
     assignment.submission_types?.[0] ?? "none",
   );
 
+  const locked = assignment.lock_at
+    ? new Date(assignment.lock_at).getTime() < new Date().getTime()
+    : false;
+
   const [files, setFiles] = useState<File[]>([]);
 
   const [text, setText] = useState("");
   const [url, setTextUrl] = useState("");
+
+  const [previousFiles, setPreviousFiles] = useState<Record<string, File>>({});
+
+  useEffect(() => {
+    for (const attachment of assignment.submission?.attachments ?? []) {
+      (async () => {
+        const res = await fetch(attachment.url);
+        const blob = await res.blob();
+        const file = new File([blob], attachment.display_name, {
+          type: attachment["content-type"],
+        });
+        setPreviousFiles((prev) => ({
+          ...prev,
+          [attachment.display_name]: file,
+        }));
+      })().catch(console.error);
+    }
+  }, [assignment]);
+
+  const smallDevice =
+    useTailwindBreakpoints({ breakpoint: "lg", reverse: true }) || forceMini;
 
   return (
     <>
       <div className="flex-1" />
       <SidebarGroup className="bg-sidebar sticky bottom-0 flex flex-col gap-2">
         <div className="bg-secondary mx-4 h-0.5 rounded-full" />
-        <div className="text-destructive-foreground bg-destructive/30 my-2 flex items-center gap-2 rounded-sm px-3 py-2 text-xs">
-          <AlertCircle className="size-4 shrink-0" /> Ensure that your
-          submission submits.
+        <div className="my-2 flex items-center gap-2 rounded-sm bg-amber-500/20 px-3 py-2 text-xs text-amber-500">
+          <AlertCircle className="size-4 shrink-0" /> Ensure submissions process
+          successfully!
         </div>
         <div className="bg-secondary mx-4 h-0.5 rounded-full" />
         <h2 className="mt-2 flex items-center gap-1 px-2 text-xs font-bold">
@@ -790,23 +824,74 @@ export function SubmissionArea({
         </h2>
         {assignment.submission ? (
           <>
+            {assignment.submission?.body && (
+              <ResponsivePopover mode={smallDevice ? "drawer" : "popover"}>
+                <ResponsivePopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground flex h-8 max-w-full items-center gap-2 overflow-hidden px-4 pt-2 text-xs"
+                  >
+                    <FileText className="size-4 shrink-0" />
+                    <div className="w-full min-w-0 flex-1 text-left">
+                      <span className="block w-full truncate overflow-hidden whitespace-nowrap">
+                        Text Entry
+                      </span>
+                    </div>
+                    <span className="flex flex-1 items-center justify-end gap-1 truncate overflow-hidden whitespace-nowrap">
+                      {assignment.submission.body.split(" ").length} words
+                    </span>
+                  </Button>
+                </ResponsivePopoverTrigger>
+                <ResponsivePopoverContent
+                  className="max-h-[80vh] w-[80vw] max-w-3xl overflow-auto"
+                  side="left"
+                >
+                  <TextEditor
+                    content={assignment.submission.body}
+                    readOnly
+                    className="min-h-[10rem]"
+                  />
+                </ResponsivePopoverContent>
+              </ResponsivePopover>
+            )}
             {assignment.submission?.attachments?.map((attachment) => (
-              <div
+              <ResponsivePopover
                 key={attachment.display_name}
-                className="text-muted-foreground flex items-center gap-2 px-4 pt-2 text-xs"
+                mode={smallDevice ? "drawer" : "popover"}
               >
-                <span className="text-muted-foreground flex items-center gap-1 text-xs">
-                  <File className="size-4" />
-                  {attachment.display_name}
-                </span>
-                <span className="flex flex-1 items-center justify-end gap-1">
-                  {attachment["content-type"]}
-                </span>
-              </div>
+                <ResponsivePopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground flex h-8 max-w-full items-center gap-2 overflow-hidden px-4 pt-2 text-xs"
+                  >
+                    <FileIcon className="size-4 shrink-0" />
+                    <div className="w-full min-w-0 flex-1">
+                      <span className="block w-full truncate overflow-hidden whitespace-nowrap">
+                        {attachment.display_name}
+                      </span>
+                    </div>
+                    <span className="flex flex-1 items-center justify-end gap-1 truncate overflow-hidden whitespace-nowrap">
+                      {attachment["content-type"]}
+                    </span>
+                  </Button>
+                </ResponsivePopoverTrigger>
+                <ResponsivePopoverContent
+                  className="max-h-[80vh] w-[80vw] max-w-3xl overflow-auto"
+                  side="left"
+                >
+                  {previousFiles[attachment.display_name] ? (
+                    <FilePreview
+                      file={previousFiles[attachment.display_name]!}
+                    />
+                  ) : (
+                    <div className="text-muted-foreground flex h-32 w-full items-center justify-center gap-2 px-4 text-xs">
+                      <Loader className="size-4 animate-spin" /> Loading
+                      preview...
+                    </div>
+                  )}
+                </ResponsivePopoverContent>
+              </ResponsivePopover>
             ))}
-            <Button variant="ghost" className="h-8 justify-start text-xs">
-              <MoreHorizontal className="size-3" /> View all submissions
-            </Button>
           </>
         ) : (
           <div className="text-muted-foreground flex items-center gap-2 text-xs">
@@ -820,17 +905,30 @@ export function SubmissionArea({
         <h2 className="mt-2 flex items-center gap-1 px-2 text-xs font-bold">
           <Plus className="size-4" /> New Submission
         </h2>
-        {submissionType == "on_paper" ? (
-          assignment.submission_types.length == 1 && (
-            <div className="grid place-items-center gap-1 rounded-sm border px-8 py-6">
-              <span className="text-muted-foreground flex items-center gap-1 text-xs">
-                <Paperclip className="size-3" /> On paper submission
-              </span>
-              <div className="text-muted-foreground flex items-center gap-1 text-[0.6rem]">
-                No submissions can be made online
+        {["on_paper", "none", "not_graded", "graded"].includes(
+          submissionType,
+        ) ? (
+          assignment.submission_types.length === 1 ? (
+            submissionType != "on_paper" ? (
+              <div className="grid place-items-center gap-1 rounded-sm border px-8 py-6">
+                <span className="text-muted-foreground flex items-center gap-1 font-bold">
+                  <Check className="size-4 stroke-4" /> No submission required
+                </span>
+                <div className="text-muted-foreground flex items-center gap-1 text-[0.6rem]">
+                  You{"'"}re free!
+                </div>
               </div>
-            </div>
-          )
+            ) : (
+              <div className="grid place-items-center gap-1 rounded-sm border px-8 py-6">
+                <span className="text-muted-foreground flex items-center gap-1 text-xs">
+                  <Paperclip className="size-3" /> On paper submission
+                </span>
+                <div className="text-muted-foreground flex items-center gap-1 text-[0.6rem]">
+                  No submissions can be made online
+                </div>
+              </div>
+            )
+          ) : null
         ) : (
           <>
             <Select value={submissionType} onValueChange={setSubmissionType}>
@@ -876,6 +974,7 @@ export function SubmissionArea({
                         assignment={assignment}
                         files={files}
                         setFiles={setFiles}
+                        locked={locked}
                       />
                     </>
                   );
@@ -888,7 +987,11 @@ export function SubmissionArea({
                         setText={setText}
                         forceMini={forceMini}
                       />
-                      <TextSubmitButton text={text} assignment={assignment} />
+                      <TextSubmitButton
+                        text={text}
+                        assignment={assignment}
+                        locked={locked}
+                      />
                     </>
                   );
                 case "online_url":
@@ -898,7 +1001,11 @@ export function SubmissionArea({
                         url={url}
                         setTextUrl={setTextUrl}
                       />
-                      <URLSubmitButton url={url} assignment={assignment} />
+                      <URLSubmitButton
+                        url={url}
+                        assignment={assignment}
+                        locked={locked}
+                      />
                     </>
                   );
                 case "external_tool":
@@ -930,9 +1037,11 @@ export function SubmissionArea({
 function TextSubmitButton({
   assignment,
   text,
+  locked,
 }: {
   assignment: Assignment;
   text: string;
+  locked: boolean;
 }) {
   const courses = useContext(CoursesContext);
   const [open, setOpen] = useState(false);
@@ -1203,7 +1312,15 @@ function TextSubmitButton({
                     className="w-full justify-between"
                     disabled={text.trim() == ""}
                   >
-                    Review Submission <ArrowRight />
+                    {locked ? (
+                      <>
+                        Locked <LockIcon />
+                      </>
+                    ) : (
+                      <>
+                        Review Submission <ArrowRight />
+                      </>
+                    )}
                   </Button>
                 </ResponsiveModalTrigger>
                 <ResponsiveModalContent>
@@ -1262,7 +1379,15 @@ function TextSubmitButton({
         </Tooltip>
       </>
     ),
-    [finalSubmission, handleSubmissionState, open, text, assignment],
+    [
+      finalSubmission,
+      handleSubmissionState,
+      open,
+      text,
+      locked,
+      assignment.name,
+      assignment.description,
+    ],
   );
 
   return textPreviews;
@@ -1271,9 +1396,11 @@ function TextSubmitButton({
 function URLSubmitButton({
   assignment,
   url,
+  locked,
 }: {
   assignment: Assignment;
   url: string;
+  locked: boolean;
 }) {
   const courses = useContext(CoursesContext);
   const [open, setOpen] = useState(false);
@@ -1437,9 +1564,17 @@ function URLSubmitButton({
                 <ResponsiveModalTrigger asChild>
                   <Button
                     className="w-full justify-between"
-                    disabled={url.trim() == ""}
+                    disabled={url.trim() == "" || locked}
                   >
-                    Review Submission <ArrowRight />
+                    {locked ? (
+                      <>
+                        Locked <LockIcon />
+                      </>
+                    ) : (
+                      <>
+                        Submit <ArrowRight />
+                      </>
+                    )}
                   </Button>
                 </ResponsiveModalTrigger>
                 <ResponsiveModalContent>
@@ -1549,7 +1684,18 @@ function URLSubmitButton({
         </Tooltip>
       </>
     ),
-    [handleSubmissionState, open, url, assignment, course, submit],
+    [
+      handleSubmissionState,
+      open,
+      url,
+      locked,
+      assignment.name,
+      assignment.description,
+      assignment.due_at,
+      course?.classification,
+      course?.original_name,
+      submit,
+    ],
   );
 
   return textPreviews;
@@ -1559,10 +1705,12 @@ function FileUploadSubmitButton({
   assignment,
   files,
   setFiles,
+  locked,
 }: {
   assignment: Assignment;
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
+  locked: boolean;
 }) {
   const courses = useContext(CoursesContext);
   const [open, setOpen] = useState(false);
@@ -1670,7 +1818,7 @@ function FileUploadSubmitButton({
                   key={`${file.lastModified}-${file.name}`}
                 >
                   <span className="flex items-center gap-2">
-                    <File className="size-4" />
+                    <FileIcon className="size-4" />
                     {file.name}
                   </span>
                   <span className="text-muted-foreground flex flex-1 items-center justify-end text-xs">
@@ -1848,9 +1996,17 @@ function FileUploadSubmitButton({
                 <ResponsiveModalTrigger asChild>
                   <Button
                     className="w-full justify-between"
-                    disabled={files.length == 0}
+                    disabled={files.length == 0 || locked}
                   >
-                    Review Submission <ArrowRight />
+                    {locked ? (
+                      <>
+                        Locked <LockIcon />
+                      </>
+                    ) : (
+                      <>
+                        Submit <ArrowRight />
+                      </>
+                    )}
                   </Button>
                 </ResponsiveModalTrigger>
                 <ResponsiveModalContent>
@@ -1961,7 +2117,9 @@ function FileUploadSubmitButton({
       handleSubmissionState,
       open,
       files,
-      assignment,
+      locked,
+      assignment.name,
+      assignment.description,
       fileIdx,
       setFiles,
     ],

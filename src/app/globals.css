@@ -311,6 +311,17 @@
   --animate-swap: swap 20s ease-out forwards infinite;
   --animate-swap-indicator: swap-indicator 20s ease-out forwards infinite;
   --animate-gradient-shift: gradient-shift 2s ease-in-out infinite alternate;
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
 
   @keyframes gradient-shift {
     0% {

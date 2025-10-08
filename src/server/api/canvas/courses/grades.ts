@@ -32,11 +32,12 @@ export default async function grades(ctx: CanvasApiCtx) {
       const assignments = async () => {
         const url = new URL(
           `/api/v1/courses/${input.courseId}/assignments`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
         url.searchParams.append("per_page", "1000");
         url.searchParams.append("include[]", "submission");
         url.searchParams.append("include[]", "score_statistics");
+        url.searchParams.append("locale", "en");
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -61,8 +62,9 @@ export default async function grades(ctx: CanvasApiCtx) {
       const groups = async () => {
         const url = new URL(
           `/api/v1/courses/${input.courseId}/assignment_groups`,
-          ctx.user.canvas.url
+          ctx.user.canvas.url,
         );
+        url.searchParams.append("locale", "en");
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
@@ -132,7 +134,7 @@ export default async function grades(ctx: CanvasApiCtx) {
                 .sort((a, b) => a.localeCompare(b)),
             ].join(",")}`,
           ],
-        }
+        },
       )();
     }
     return await grades();

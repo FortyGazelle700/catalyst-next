@@ -28,6 +28,7 @@ export default async function inbox(ctx: CanvasApiCtx) {
       url.searchParams.append("include[]", "participants");
       url.searchParams.append("per_page", String(input?.limit ?? 10));
       url.searchParams.append("page", String(input?.cursor ?? 1));
+      url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
