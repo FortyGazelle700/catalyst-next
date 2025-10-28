@@ -8,23 +8,13 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Users, BookOpen, Clock } from "lucide-react";
+import { CalendarIcon, Users, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 export function CoursesClient() {
   const courses = useContext(CoursesContext);
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   const getWorkflowBadge = (state: string) => {
     const variants: Record<
@@ -54,7 +44,6 @@ export function CoursesClient() {
         {courses.map((course) => {
           const badge = getWorkflowBadge(course.workflow_state);
           const enrollment = course.enrollments?.[0];
-          const progress = course.course_progress;
 
           return (
             <Link href={`/app/courses/${course.id}`} key={course.id}>

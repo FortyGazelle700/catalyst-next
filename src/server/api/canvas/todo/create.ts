@@ -28,6 +28,7 @@ export default async function editTodoNote(ctx: CanvasApiCtx) {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
           "Content-Type": "application/json",
+          "Accept-Language": "en",
         },
         body: JSON.stringify({
           title: input.title,

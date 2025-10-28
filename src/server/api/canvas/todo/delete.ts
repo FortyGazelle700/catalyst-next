@@ -31,6 +31,7 @@ export default async function deleteNote(ctx: CanvasApiCtx) {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as PlannerNote | CanvasErrors;

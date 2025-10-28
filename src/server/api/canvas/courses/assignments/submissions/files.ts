@@ -55,6 +55,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
           method: "POST",
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
           body: data,
         });
@@ -144,6 +145,7 @@ export default async function createFileSubmission(ctx: CanvasApiCtx) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
 

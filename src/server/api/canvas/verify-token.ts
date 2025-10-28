@@ -20,6 +20,7 @@ export default async function verify(ctx: CanvasApiCtx) {
     const query = await fetch(url, {
       headers: {
         Authorization: `Bearer ${input.token ?? ctx.user.canvas.token}`,
+        "Accept-Language": "en",
       },
     });
     return {

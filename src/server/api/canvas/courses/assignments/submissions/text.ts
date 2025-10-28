@@ -35,6 +35,7 @@ export default async function createTextSubmission(ctx: CanvasApiCtx) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
         body: data,
       });

@@ -37,10 +37,10 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
       );
       url.searchParams.append("end_date", endDate.toISOString().split("T")[0]!);
       url.searchParams.append("locale", "en");
-      console.log("url", url.toString());
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as PlannerItem[] | CanvasErrors;
@@ -62,6 +62,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
           const courseQuery = fetch(courseURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
+              "Accept-Language": "en",
             },
           });
 
@@ -76,6 +77,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
             assignmentQuery = fetch(assignmentURL, {
               headers: {
                 Authorization: `Bearer ${ctx.user.canvas.token}`,
+                "Accept-Language": "en",
               },
             });
           }
