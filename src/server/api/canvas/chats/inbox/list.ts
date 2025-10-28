@@ -61,7 +61,7 @@ export default async function inbox(ctx: CanvasApiCtx) {
         ].join(",")}`,
       ],
       {
-        revalidate: 1000 * 60 * 5,
+        revalidate: 60 * 5,
         tags: [
           `user_${ctx.user.get?.id}:social:chats:inbox`,
           `user_${ctx.user.get?.id}:social:chats:inbox@${[

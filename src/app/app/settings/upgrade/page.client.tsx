@@ -32,7 +32,7 @@ export default function GeneralSettings({
     (async () => {
       const response = await fetch("/api/catalyst/pro/pricing", {
         cache: "force-cache",
-        next: { revalidate: 24 * 60 * 60 * 1000 },
+        next: { revalidate: 24 * 60 * 60 },
       });
       const { success, data } = (await response.json()) as {
         success: boolean;
