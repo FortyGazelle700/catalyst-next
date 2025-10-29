@@ -32,6 +32,7 @@ export default async function tabs(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as Tab[];
