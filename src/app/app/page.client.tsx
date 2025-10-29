@@ -274,7 +274,16 @@ export function CourseCard({
           item?.plannable?.course_id == course.id ||
           item?.plannable?.content_details?.course_id == course.id,
       ) ?? []
-    )?.filter((_, i) => i < 3);
+    )
+      ?.filter((item) => new Date(item.plannable_date ?? "") > new Date())
+      ?.sort((a, b) => {
+        const completedA = a.planner_override?.marked_complete ? 1 : 0;
+        const completedB = b.planner_override?.marked_complete ? 1 : 0;
+        const dateA = new Date(a.plannable_date ?? "").getTime();
+        const dateB = new Date(b.plannable_date ?? "").getTime();
+        return completedA - completedB || dateA - dateB;
+      })
+      ?.filter((_, i) => i < 3);
 
     setTodoItems(filteredItems);
     setIsLoading(false);
@@ -843,14 +852,14 @@ function TimeView({
     <div className="@container mt-4 flex flex-col gap-2 overflow-hidden">
       <div className="bg-background overflow-x-auto rounded-lg border">
         <div className="min-w-max">
-          <div className="bg-background sticky top-0 z-10 border-b">
+          <div>
             <div
               className="grid"
               style={{
                 gridTemplateColumns: `10ch repeat(${days.length}, ${dayWidth})`,
               }}
             >
-              <div className="bg-background sticky left-0 z-20 border-r p-3"></div>
+              <div className="bg-background invisible sticky left-0 z-20 w-0 border-r p-3 @2xl:visible @2xl:w-[7rem]"></div>
               {days.map(({ label, date, isToday }) => (
                 <div
                   key={date.toISOString()}
@@ -898,7 +907,7 @@ function TimeView({
                   gridTemplateColumns: `10ch repeat(${days.length}, ${dayWidth})`,
                 }}
               >
-                <div className="text-muted-foreground bg-background sticky left-0 z-50 flex items-start justify-end border-r p-2 pr-3 text-[0.5rem]">
+                <div className="text-muted-foreground bg-background invisible sticky left-0 z-50 flex w-0 items-start justify-end border-r p-2 pr-3 text-[0.5rem] @2xl:visible @2xl:w-[7rem]">
                   <span className="mt-1">{label}</span>
                 </div>
 

@@ -31,12 +31,16 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(startDate.getDate() + (input.days ?? 14));
-      url.searchParams.append("start_date", startDate.toISOString());
-      url.searchParams.append("end_date", endDate.toISOString());
+      url.searchParams.append(
+        "start_date",
+        startDate.toISOString().split("T")[0]!,
+      );
+      url.searchParams.append("end_date", endDate.toISOString().split("T")[0]!);
       url.searchParams.append("locale", "en");
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as PlannerItem[] | CanvasErrors;
@@ -58,6 +62,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
           const courseQuery = fetch(courseURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
+              "Accept-Language": "en",
             },
           });
 
@@ -72,6 +77,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
             assignmentQuery = fetch(assignmentURL, {
               headers: {
                 Authorization: `Bearer ${ctx.user.canvas.token}`,
+                "Accept-Language": "en",
               },
             });
           }
@@ -201,7 +207,7 @@ export default async function miniTodoList(ctx: CanvasApiCtx) {
         String(new Date().getUTCDate()),
       ],
       {
-        revalidate: 1000 * 60 * 5,
+        revalidate: 60 * 5,
         tags: [`user_${ctx.user.get?.id}:todo:mini`],
       },
     )();

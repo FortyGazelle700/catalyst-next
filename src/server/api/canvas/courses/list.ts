@@ -40,6 +40,7 @@ export default async function courseList(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       let data = (await query.json()) as Course[];

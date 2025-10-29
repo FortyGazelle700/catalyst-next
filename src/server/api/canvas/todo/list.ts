@@ -50,6 +50,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       let data = (await query.json()) as PlannerItem[] | CanvasErrors;
@@ -153,6 +154,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
         const courseQuery = await fetch(courseURL, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
         item.course = (await courseQuery.json()) as Course;
@@ -167,6 +169,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
           const assignmentQuery = await fetch(assignmentURL, {
             headers: {
               Authorization: `Bearer ${ctx.user.canvas.token}`,
+              "Accept-Language": "en",
             },
           });
           item.plannable.content_details =
@@ -191,7 +194,7 @@ export default async function todoList(ctx: CanvasApiCtx) {
         ].join(",")}`,
       ],
       {
-        revalidate: 1000 * 60 * 5,
+        revalidate: 60 * 5,
         tags: [`user_${ctx.user.get?.id}:todo:list`],
       },
     )();

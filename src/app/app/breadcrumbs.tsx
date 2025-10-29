@@ -59,7 +59,7 @@ export const BreadcrumbBits = {
       (async () => {
         const req = await fetch(`/api/todo/get-note/${id}`, {
           cache: "force-cache",
-          next: { revalidate: 24 * 60 * 60 * 1000 },
+          next: { revalidate: 24 * 60 * 60 },
         });
         const res = (await req.json()) as {
           success: boolean;
@@ -100,7 +100,7 @@ export const BreadcrumbBits = {
         if (schoolId == undefined) return;
         const req = await fetch(`/api/catalyst/schools/get?id=${schoolId}`, {
           cache: "force-cache",
-          next: { revalidate: 24 * 60 * 60 * 1000 },
+          next: { revalidate: 24 * 60 * 60 },
         });
         const res = (await req.json()) as {
           success: boolean;
@@ -157,7 +157,7 @@ export const BreadcrumbBits = {
           `/api/catalyst/schools/${schoolId}/schedules/${scheduleId}/get`,
           {
             cache: "force-cache",
-            next: { revalidate: 24 * 60 * 60 * 1000 },
+            next: { revalidate: 24 * 60 * 60 },
           },
         );
         const res = (await req.json()) as {
@@ -347,7 +347,7 @@ export const BreadcrumbBits = {
       (async () => {
         const req = await fetch(`/api/courses/${courseId}/page/${pageId}`, {
           cache: "force-cache",
-          next: { revalidate: 24 * 60 * 60 * 1000 },
+          next: { revalidate: 24 * 60 * 60 },
         });
         const res = (await req.json()) as {
           success: boolean;

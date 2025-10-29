@@ -84,7 +84,7 @@ function TimeProvider({ children }: { children: React.ReactNode }) {
 
     // Calculate milliseconds to next second
     const currentTime = new Date();
-    const msToNextSecond = 1000 - currentTime.getMilliseconds();
+    const msToNextSecond = 1000 - currentTime.getMilliseconds() + 30;
 
     // Set timeout to sync with the next second boundary
     const timeout = setTimeout(() => {

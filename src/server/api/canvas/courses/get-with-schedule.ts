@@ -224,7 +224,7 @@ export default async function currentScheduleWithCourses(ctx: CanvasApiCtx) {
         getCurrentScheduleWithCourses,
         [ctx.user.get?.id ?? "", dateKey ?? "", String(new Date().getDate())],
         {
-          revalidate: 300, // 5 minutes cache
+          revalidate: 60 * 5,
           tags: [
             `user_${ctx.user.get?.id}:schedule:current_with_courses`,
             `user_${ctx.user.get?.id}:course:list_with_data`,
