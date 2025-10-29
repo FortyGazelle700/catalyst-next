@@ -33,7 +33,7 @@ export default async function SchoolPage() {
     },
     [session?.user?.id ?? ""],
     {
-      revalidate: 24 * 60 * 60 * 1000,
+      revalidate: 24 * 60 * 60,
     },
   )();
 

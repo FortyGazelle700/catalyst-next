@@ -357,7 +357,9 @@ const generateClassification = async (courseName: string) => {
     return "Not Available";
   }
 
-  const value = result?.response?.text() ?? "Not Available";
+  const value =
+    result?.response?.text()?.split("\n")[0]?.split("output:")?.[0]?.trim() ??
+    "Not Available";
 
   if (value != "Not Available") {
     await db.insert(courseClassification).values({

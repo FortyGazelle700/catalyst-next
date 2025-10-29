@@ -117,6 +117,7 @@ export default async function courseListWithPeriodData(ctx: CanvasApiCtx) {
             const assignmentsQuery = await fetch(assignmentURL, {
               headers: {
                 Authorization: `Bearer ${ctx.user.canvas.token}`,
+                "Accept-Language": "en",
               },
             });
 

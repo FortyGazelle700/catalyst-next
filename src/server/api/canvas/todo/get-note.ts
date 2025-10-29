@@ -29,6 +29,7 @@ export default async function getNote(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as PlannerNote | CanvasErrors;

@@ -33,6 +33,7 @@ export default async function inbox(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as ConversationDetailed | CanvasErrors;
@@ -62,7 +63,7 @@ export default async function inbox(ctx: CanvasApiCtx) {
         ].join(",")}`,
       ],
       {
-        revalidate: 1000 * 60 * 5,
+        revalidate: 60 * 5,
         tags: [
           `user_${ctx.user.get?.id}:social:chats:inbox:item`,
           `user_${ctx.user.get?.id}:social:chats:inbox:item@${[

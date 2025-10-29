@@ -154,6 +154,7 @@ async function genCtx(ctx: ApiCtx): Promise<CanvasApiCtx> {
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
+      "Accept-Language": "en",
     },
   });
   const data = (await response.json()) as User;

@@ -40,6 +40,7 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
       const query = await fetch(url, {
         headers: {
           Authorization: `Bearer ${ctx.user.canvas.token}`,
+          "Accept-Language": "en",
         },
       });
       const data = (await query.json()) as Assignment | CanvasErrors;
@@ -64,6 +65,7 @@ export default async function getAssignment(ctx: CanvasApiCtx) {
         const externalResponse = await fetch(externalURL, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
         data.external_tool_tag_attributes =

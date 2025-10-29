@@ -41,6 +41,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
         if (!query.ok)
@@ -76,6 +77,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   const assignmentQuery = await fetch(assignmentURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
+                      "Accept-Language": "en",
                     },
                   });
                   if (!assignmentQuery.ok) {
@@ -111,6 +113,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   const fileQuery = await fetch(fileURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
+                      "Accept-Language": "en",
                     },
                   });
                   if (!fileQuery.ok) {
@@ -146,6 +149,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
                   const assignmentQuery = await fetch(assignmentURL, {
                     headers: {
                       Authorization: `Bearer ${ctx.user.canvas.token}`,
+                      "Accept-Language": "en",
                     },
                   });
                   const discussionData =
@@ -201,6 +205,7 @@ export default async function getModules(ctx: CanvasApiCtx) {
         const data = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
         if (!data.ok) return [];

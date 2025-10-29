@@ -133,6 +133,7 @@ export default async function markTodoItemComplete(ctx: CanvasApiCtx) {
       headers: {
         Authorization: `Bearer ${ctx.user.canvas.token}`,
         "Content-Type": "application/json",
+        "Accept-Language": "en",
       },
       body: JSON.stringify({
         id: overrideId,

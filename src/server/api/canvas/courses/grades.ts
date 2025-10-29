@@ -41,6 +41,7 @@ export default async function grades(ctx: CanvasApiCtx) {
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
 
@@ -68,6 +69,7 @@ export default async function grades(ctx: CanvasApiCtx) {
         const query = await fetch(url, {
           headers: {
             Authorization: `Bearer ${ctx.user.canvas.token}`,
+            "Accept-Language": "en",
           },
         });
 
