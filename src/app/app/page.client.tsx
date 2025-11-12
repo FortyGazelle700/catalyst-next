@@ -656,7 +656,7 @@ export function MiniTodoList({
 
   useEffect(() => {
     // Loading state will be false once we have data from context
-    setIsLoading(todoItems.length === 0);
+    setIsLoading(todoItems.length == 0);
   }, [todoItems]);
 
   return (
@@ -735,9 +735,16 @@ function ListView({
         </>
       ) : (
         <>
-          {todoItems.map((todoItem) => (
-            <TodoItem key={todoItem.plannable_id} todoItem={todoItem} />
-          ))}
+          {todoItems
+            ?.filter(
+              (itm) =>
+                new Date(
+                  itm.plannable.due_at ?? itm.plannable_date ?? new Date(),
+                ).getTime() > Date.now(),
+            )
+            .map((todoItem) => (
+              <TodoItem key={todoItem.plannable_id} todoItem={todoItem} />
+            ))}
         </>
       )}
     </div>
