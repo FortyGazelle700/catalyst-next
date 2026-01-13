@@ -179,7 +179,7 @@ export default function OnboardingPageClient({
                   onValueChange={(val) =>
                     setSettings({
                       ...settings,
-                      ["grade"]: val,
+                      ["grade"]: String(val),
                     })
                   }
                 />

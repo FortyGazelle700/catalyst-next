@@ -312,7 +312,7 @@ export default function IntegrationSettings({
                   onValueChange={(val) =>
                     setSettings({
                       ...settings,
-                      ["grade"]: val,
+                      ["grade"]: String(val),
                     })
                   }
                 />

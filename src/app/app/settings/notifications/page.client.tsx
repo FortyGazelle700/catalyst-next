@@ -112,7 +112,7 @@ export default function NotificationSettings({
                           ...settings,
                           ["submission_alerts"]: JSON.stringify([
                             ...submissionAlerts.slice(0, idx),
-                            { hours: parseInt(val), minutes: alert.minutes },
+                            { hours: val, minutes: alert.minutes },
                             ...submissionAlerts.slice(idx + 1),
                           ]),
                         })
@@ -132,7 +132,7 @@ export default function NotificationSettings({
                           ...settings,
                           ["submission_alerts"]: JSON.stringify([
                             ...submissionAlerts.slice(0, idx),
-                            { hours: alert.hours, minutes: parseInt(val) },
+                            { hours: alert.hours, minutes: val },
                             ...submissionAlerts.slice(idx + 1),
                           ]),
                         })
