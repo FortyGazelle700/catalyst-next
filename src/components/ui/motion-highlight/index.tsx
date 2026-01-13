@@ -165,11 +165,10 @@ function MotionHighlight<T extends string>({
 
       setBoundsState((prev) => {
         if (
-          prev &&
-          prev.top === newBounds.top &&
-          prev.left === newBounds.left &&
-          prev.width === newBounds.width &&
-          prev.height === newBounds.height
+          prev?.top === newBounds.top &&
+          prev?.left === newBounds.left &&
+          prev?.width === newBounds.width &&
+          prev?.height === newBounds.height
         ) {
           return prev;
         }
@@ -405,11 +404,10 @@ function MotionHighlightItem({
 
       if (shouldUpdateBounds) {
         if (
-          previousBounds &&
-          previousBounds.top === bounds.top &&
-          previousBounds.left === bounds.left &&
-          previousBounds.width === bounds.width &&
-          previousBounds.height === bounds.height
+          previousBounds?.top === bounds.top &&
+          previousBounds?.left === bounds.left &&
+          previousBounds?.width === bounds.width &&
+          previousBounds?.height === bounds.height
         ) {
           rafId = requestAnimationFrame(updateBounds);
           return;
@@ -512,7 +510,7 @@ function MotionHighlightItem({
 
           <div
             data-slot="motion-highlight-item"
-            className={cn("relative z-[1]", className)}
+            className={cn("relative z-1", className)}
             {...dataAttributes}
           >
             {children}
