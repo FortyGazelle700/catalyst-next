@@ -21,7 +21,7 @@ const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
     max: 1,
-    ssl: "require",
+    // ssl: "require",
   });
 
 global.db ??= drizzle(sql as unknown as postgres.Sql<Record<string, unknown>>);

@@ -16,7 +16,7 @@ const sql =
   global.db ??
   postgres(process.env.DATABASE_URL!, {
     max: 1,
-    ssl: "require",
+    // ssl: "require",
   });
 
 global.db ??= drizzle(sql as unknown as postgres.Sql<Record<string, unknown>>);
@@ -207,7 +207,7 @@ async function sendNotifications() {
           (override) =>
             override.assignmentId === String(item.plannable.id) &&
             override.courseId ===
-              String(item.course_id ?? item.plannable.course_id),
+            String(item.course_id ?? item.plannable.course_id),
         );
 
         // Use override due date if available, otherwise use original
@@ -225,9 +225,9 @@ async function sendNotifications() {
         // Check if assignment is already submitted or graded
         const isSubmitted =
           item.plannable.content_details?.submission?.workflow_state ==
-            "submitted" ||
+          "submitted" ||
           item.plannable.content_details?.submission?.workflow_state ==
-            "graded";
+          "graded";
 
         // Check if assignment is marked complete via planner override
         const isMarkedComplete = item.planner_override?.marked_complete == true;
@@ -267,7 +267,7 @@ async function sendNotifications() {
                 (override) =>
                   override.assignmentId === String(item.plannable.id) &&
                   override.courseId ===
-                    String(item.course_id ?? item.plannable.course_id),
+                  String(item.course_id ?? item.plannable.course_id),
               );
 
               // Use override due date if available, otherwise use original
@@ -305,17 +305,15 @@ async function sendNotifications() {
                   const diff = due.since(now);
 
                   if (diff.days > 0) {
-                    return `${diff.days} day${diff.days > 1 ? "s" : ""}${
-                      diff.hours > 0
+                    return `${diff.days} day${diff.days > 1 ? "s" : ""}${diff.hours > 0
                         ? `, ${diff.hours} hr${diff.hours > 1 ? "s" : ""}`
                         : ""
-                    }`;
+                      }`;
                   } else if (diff.hours > 0) {
-                    return `${diff.hours} hr${diff.hours > 1 ? "s" : ""}${
-                      diff.minutes > 0
+                    return `${diff.hours} hr${diff.hours > 1 ? "s" : ""}${diff.minutes > 0
                         ? `, ${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`
                         : ""
-                    }`;
+                      }`;
                   } else if (diff.minutes > 0) {
                     return `${diff.minutes} min${diff.minutes > 1 ? "s" : ""}`;
                   } else {
